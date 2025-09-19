@@ -1,0 +1,125 @@
+/* ===============================
+   Estilos globales
+================================ */
+body {
+  margin: 0;
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  background-color: #f4f6f9;
+  color: #333;
+}
+
+h1, h2 {
+  color: #222;
+  margin-bottom: 15px;
+}
+
+.container {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+/* ===============================
+   Navbar
+================================ */
+nav {
+  background-color: #1e2a38;
+  padding: 15px 20px;
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+}
+
+nav a {
+  color: #fff;
+  text-decoration: none;
+  margin-right: 20px;
+  font-weight: 500;
+  transition: color 0.2s ease;
+}
+
+nav a:hover {
+  color: #00c4ff;
+}
+
+/* ===============================
+   Formulario de eventos
+================================ */
+form {
+  background: #fff;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+  margin-bottom: 20px;
+}
+
+form label {
+  font-weight: bold;
+  margin-top: 10px;
+}
+
+form input {
+  padding: 10px;
+  margin: 8px 0;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  width: 100%;
+  font-size: 14px;
+  transition: border 0.3s ease;
+}
+
+form input:focus {
+  border: 1px solid #00c4ff;
+  outline: none;
+}
+
+form button {
+  background: #00c4ff;
+  color: white;
+  font-size: 16px;
+  padding: 10px;
+  margin-top: 12px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+form button:hover {
+  background: #009ec0;
+}
+
+/* ===============================
+   Lista de eventos
+================================ */
+ul {
+  list-style: none;
+  padding: 0;
+}
+
+li {
+  background: #fff;
+  padding: 15px;
+  margin-bottom: 10px;
+  border-left: 5px solid #00c4ff;
+  border-radius: 6px;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.1);
+  transition: transform 0.2s ease;
+}
+
+li:hover {
+  transform: translateX(5px);
+}
+
+/* ===============================
+   Dashboard
+================================ */
+.dashboard {
+  padding: 20px;
+}
+
+.dashboard h1 {
+  font-size: 28px;
+  font-weight: bold;
+  margin-bottom: 20px;
+}
