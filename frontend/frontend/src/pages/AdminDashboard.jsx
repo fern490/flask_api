@@ -6,9 +6,15 @@ import "./AdminDashboard.css";
 function Navbar() {
   return (
     <nav style={{ padding: "10px", background: "#282c34", color: "white" }}>
-      <Link to="/" style={{ marginRight: "10px", color: "white" }}>Home</Link>
-      <Link to="/dashboard" style={{ marginRight: "10px", color: "white" }}>Dashboard</Link>
-      <Link to="/create-event" style={{ color: "white" }}>Crear Evento</Link>
+      <Link to="/" style={{ marginRight: "10px", color: "white" }}>
+        Home
+      </Link>
+      <Link to="/dashboard" style={{ marginRight: "10px", color: "white" }}>
+        Dashboard
+      </Link>
+      <Link to="/create-event" style={{ color: "white" }}>
+        Crear Evento
+      </Link>
     </nav>
   );
 }
@@ -30,17 +36,34 @@ function EventForm({ onAddEvent }) {
   };
 
   return (
-    <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", maxWidth: "300px" }}>
+    <form
+      onSubmit={handleSubmit}
+      style={{ display: "flex", flexDirection: "column", maxWidth: "300px" }}
+    >
       <label>Nombre del Evento:</label>
-      <input type="text" value={name} onChange={(e) => setName(e.target.value)} />
+      <input
+        type="text"
+        value={name}
+        onChange={(e) => setName(e.target.value)}
+      />
 
       <label>Fecha:</label>
-      <input type="date" value={date} onChange={(e) => setDate(e.target.value)} />
+      <input
+        type="date"
+        value={date}
+        onChange={(e) => setDate(e.target.value)}
+      />
 
       <label>Salón:</label>
-      <input type="text" value={salon} onChange={(e) => setSalon(e.target.value)} />
+      <input
+        type="text"
+        value={salon}
+        onChange={(e) => setSalon(e.target.value)}
+      />
 
-      <button type="submit" style={{ marginTop: "10px" }}>Crear Evento</button>
+      <button type="submit" style={{ marginTop: "10px" }}>
+        Crear Evento
+      </button>
     </form>
   );
 }
@@ -67,7 +90,11 @@ function EventList({ events }) {
 
 // 🔹 Página Home
 function Home() {
-  return <div className="container"><h1>Bienvenido al Organizador de Eventos.</h1></div>;
+  return (
+    <div className="container">
+      <h1>Bienvenido al Organizador de Eventos.</h1>
+    </div>
+  );
 }
 
 // 🔹 Página Dashboard
@@ -95,7 +122,7 @@ function CreateEvent({ events, setEvents }) {
   );
 }
 
-// 🔹 Componente principal (sin Router aquí)
+// 🔹 Componente principal
 export default function AdminDashboard() {
   const [events, setEvents] = useState([]);
 
@@ -105,7 +132,10 @@ export default function AdminDashboard() {
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/dashboard" element={<Dashboard events={events} />} />
-        <Route path="/create-event" element={<CreateEvent events={events} setEvents={setEvents} />} />
+        <Route
+          path="/create-event"
+          element={<CreateEvent events={events} setEvents={setEvents} />}
+        />
       </Routes>
     </>
   );
