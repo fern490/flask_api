@@ -12,7 +12,7 @@ function Login() {
       const res = await fetch("http://127.0.0.1:4000/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password })
+        body: JSON.stringify({ email, password }),
       });
       const data = await res.json();
 
@@ -42,14 +42,18 @@ function Login() {
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           required
-        /><br /><br />
+        />
+        <br />
+        <br />
         <input
           type="password"
           placeholder="Contraseña"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           required
-        /><br /><br />
+        />
+        <br />
+        <br />
         <button type="submit">Ingresar</button>
       </form>
     </div>
