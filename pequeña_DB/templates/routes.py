@@ -8,20 +8,31 @@ routes = Blueprint('routes', __name__)
 
 # USUARIOS
 
+
 @routes.route('/usuarios', methods=['POST'])
 def crear_usuario():
+    # Obtener los datos del formulario (lo que viene del frontend)
     data = request.json
-    # Hashing de la contraseña antes de guardarla
+
+    if not all([data.get('nombre'), data.get('apellido'), data.get('fecha_nacimiento'),
+                data.get('genero'), data.get('email'), data.get('password'), data.get('rol')]):
+        return jsonify({"message": "Todos los campos son obligatorios"}), 400
+    
     hashed_password = generate_password_hash(data['password'], method='pbkdf2:sha256')
-    usuario = Usuario(
+
+    nuevo_usuario = Usuario(
         nombre=data['nombre'],
+        apellido=data['apellido'],
+        fecha_nacimiento=data['fecha_nacimiento'],
+        genero=data['genero'],
         email=data['email'],
         password=hashed_password,
         rol=data['rol']
     )
-    db.session.add(usuario)
+
+    db.session.add(nuevo_usuario)
     db.session.commit()
-    return jsonify({"mensaje": "Usuario creado"}), 201
+    return jsonify({"mensaje": "Usuario creado", "id": nuevo_usuario.id}), 201
 
 @routes.route('/usuarios', methods=['GET'])
 def listar_usuarios():
@@ -49,6 +60,7 @@ def eliminar_usuario(id):
     db.session.delete(usuario)
     db.session.commit()
     return jsonify({"mensaje": "Usuario eliminado"})
+
 
 # LOGIN
 
