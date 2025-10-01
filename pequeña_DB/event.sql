@@ -20,9 +20,7 @@ CREATE TABLE eventos (
     tema VARCHAR(255),
     informe_detallado TEXT,
     salon_id INT NOT NULL,
-    cliente_id INT NOT NULL,
-    CONSTRAINT fk_evento_salon FOREIGN KEY (salon_id) REFERENCES salones(salon_id),
-    CONSTRAINT fk_evento_cliente FOREIGN KEY (cliente_id) REFERENCES clientes(cliente_id)
+    usuario_id INT NOT NULL
 );
 
 CREATE TABLE servicios (
