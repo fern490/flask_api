@@ -11,28 +11,44 @@ routes = Blueprint('routes', __name__)
 
 @routes.route('/usuarios', methods=['POST'])
 def crear_usuario():
-    # Obtener los datos del formulario (lo que viene del frontend)
     data = request.json
+    nombre = data.get('nombre')
+    apellido = data.get('apellido') # NUEVO
+    fecha_nacimiento = data.get('fecha_nacimiento') # NUEVO
+    genero = data.get('genero') # NUEVO
+    email = data.get('email')
+    password = data.get('password')
+    rol = data.get('rol') 
 
-    if not all([data.get('nombre'), data.get('apellido'), data.get('fecha_nacimiento'),
-                data.get('genero'), data.get('email'), data.get('password'), data.get('rol')]):
-        return jsonify({"message": "Todos los campos son obligatorios"}), 400
+    # Validación básica de campos requeridos por el modelo actual
+    if not all([nombre, email, password, rol]):
+        return jsonify({"message": "Faltan datos obligatorios (nombre, email, password, rol)"}), 400
+
+    if Usuario.query.filter_by(email=email).first():
+        return jsonify({"message": "El email ya está registrado"}), 409
+
+    hashed_password = generate_password_hash(password, method='pbkdf2:sha256')
     
-    hashed_password = generate_password_hash(data['password'], method='pbkdf2:sha256')
+    # Convertir fecha de nacimiento a objeto date si existe
+    fecha_nacimiento_dt = None
+    if fecha_nacimiento:
+        try:
+            fecha_nacimiento_dt = datetime.strptime(fecha_nacimiento, '%Y-%m-%d').date()
+        except ValueError:
+            return jsonify({"message": "Formato de fecha de nacimiento incorrecto. Usa YYYY-MM-DD"}), 400
 
-    nuevo_usuario = Usuario(
-        nombre=data['nombre'],
-        apellido=data['apellido'],
-        fecha_nacimiento=data['fecha_nacimiento'],
-        genero=data['genero'],
-        email=data['email'],
+    usuario = Usuario(
+        nombre=nombre,
+        apellido=apellido,  # Asigna el valor del JSON (puede ser None)
+        fecha_nacimiento=fecha_nacimiento_dt, # Asigna el valor convertido (puede ser None)
+        genero=genero,      # Asigna el valor del JSON (puede ser None)
+        email=email,
         password=hashed_password,
-        rol=data['rol']
+        rol=rol
     )
-
-    db.session.add(nuevo_usuario)
+    db.session.add(usuario)
     db.session.commit()
-    return jsonify({"mensaje": "Usuario creado", "id": nuevo_usuario.id}), 201
+    return jsonify({"mensaje": "Usuario creado"}), 201
 
 @routes.route('/usuarios', methods=['GET'])
 def listar_usuarios():

@@ -4,30 +4,38 @@ const Register = () => {
   const [nombre, setNombre] = useState("");
   const [apellido, setApellido] = useState("");
   const [fechaNacimiento, setFechaNacimiento] = useState("");
-  const [genero, setGenero] = useState("mujer");
+  const [genero, setGenero] = useState("");
   const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
-
-  const handleSubmit = (e) => {
+  
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (!nombre || !apellido || !fechaNacimiento || !email || !password) {
+    if (!nombre || !apellido || !fechaNacimiento || !genero || !email || !password) {
       setError("Por favor, completa todos los campos.");
       return;
     }
 
-    // Aquí puedes hacer la llamada al backend para guardar el usuario
-    console.log("Datos de usuario:", {
-      nombre,
-      apellido,
-      fechaNacimiento,
-      genero,
-      email,
-      password,
-    });
+    try {
+      setError("");
 
-    // Aquí se podría redirigir o hacer algo más luego de un registro exitoso
+      const response = await fetch("http://127.0.0.1:5000/usuarios", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ nombre, apellido, fechaNacimiento, genero, email, password })
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        // Redirige a la página de login o a otro lugar si es necesario
+        alert("Cuenta creada exitosamente");
+      } else {
+        setError(data.message || "Error al crear cuenta");
+      }
+    } catch (err) {
+      console.error("Error al conectar:", err);
+      setError("Error al conectar con el servidor. Inténtalo de nuevo.");
+    }
   };
 
   return (
@@ -40,80 +48,59 @@ const Register = () => {
           value={nombre}
           onChange={(e) => setNombre(e.target.value)}
           style={styles.input}
-          required
         />
         <input
           type="text"
-          placeholder="Apellidos"
+          placeholder="Apellido"
           value={apellido}
           onChange={(e) => setApellido(e.target.value)}
           style={styles.input}
-          required
         />
-        <div style={styles.dateContainer}>
-          <input
-            type="date"
-            value={fechaNacimiento}
-            onChange={(e) => setFechaNacimiento(e.target.value)}
-            style={styles.input}
-            required
-          />
-        </div>
-        <div style={styles.radioContainer}>
+        <input
+          type="date"
+          value={fechaNacimiento}
+          onChange={(e) => setFechaNacimiento(e.target.value)}
+          style={styles.input}
+        />
+        <fieldset style={styles.fieldset}>
+          <legend>Género</legend>
           <label>
             <input
               type="radio"
-              value="mujer"
-              checked={genero === "mujer"}
-              onChange={() => setGenero("mujer")}
+              name="genero"
+              value="Mujer"
+              checked={genero === "Mujer"}
+              onChange={(e) => setGenero(e.target.value)}
             />
             Mujer
           </label>
+          <br />
           <label>
             <input
               type="radio"
-              value="hombre"
-              checked={genero === "hombre"}
-              onChange={() => setGenero("hombre")}
+              name="genero"
+              value="Hombre"
+              checked={genero === "Hombre"}
+              onChange={(e) => setGenero(e.target.value)}
             />
             Hombre
           </label>
-          <label>
-            <input
-              type="radio"
-              value="personalizado"
-              checked={genero === "personalizado"}
-              onChange={() => setGenero("personalizado")}
-            />
-            Personalizado
-          </label>
-        </div>
+        </fieldset>
         <input
           type="email"
           placeholder="Correo electrónico"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           style={styles.input}
-          required
         />
-        <input
-          type="password"
-          placeholder="Contraseña nueva"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          style={styles.input}
-          required
-        />
-        {error && <p style={styles.error}>{error}</p>}
         <button type="submit" style={styles.button}>
-          Registrarte
+          Registrarse
         </button>
       </form>
     </div>
   );
 };
 
-// Estilos
 const styles = {
   container: {
     width: "320px",
@@ -131,11 +118,13 @@ const styles = {
     backgroundColor: "#425e62ff",
     color: "white",
   },
+
   form: {
     display: "flex",
     flexDirection: "column",
     width: "100%",
   },
+
   input: {
     margin: "10px 0",
     padding: "10px",
@@ -143,13 +132,21 @@ const styles = {
     borderRadius: "4px",
     border: "1px solid #ccc",
   },
-  dateContainer: {
-    margin: "10px 0",
-  },
-  radioContainer: {
-    margin: "10px 0",
+
+  fieldset: {
+    margin: "15px 0",
+    padding: "10px",
+    border: "1px solid #ccc",
+    borderRadius: "4px",
     textAlign: "left",
   },
+
+  label: {
+    display: "block",
+    marginBottom: "8px",
+    cursor: "pointer",
+  },
+
   button: {
     padding: "10px",
     backgroundColor: "#4CAF50",
@@ -159,6 +156,7 @@ const styles = {
     borderRadius: "4px",
     fontSize: "16px",
   },
+
   error: {
     color: "red",
     fontSize: "14px",

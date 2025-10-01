@@ -1,17 +1,42 @@
-import React from "react";
-import {
-  Routes,
-  Route,
-  Link,
-} from "react-router-dom";
-import Login from "./pages/Login";
+import React, { useState, useEffect } from "react";
+import { Routes, Route, Link, useNavigate, Navigate } from "react-router-dom";
+// Importa todos los componentes de página
+import Login from "./pages/Login"; 
 import AdminDashboard from "./pages/AdminDashboard";
 import ClienteDashboard from "./pages/ClienteDashboard";
 import Home from "./pages/Home";
 import CrearEvento from "./pages/CrearEvento";
 import Contactenos from "./pages/Contactenos";
+import Register from "./pages/Register";
 
 function App() {
+  const [userRole, setUserRole] = useState(localStorage.getItem('userRole') || null);
+  const navigate = useNavigate();
+
+  const handleLoginSuccess = (role) => {
+    localStorage.setItem('userRole', role);
+    setUserRole(role);
+    
+    if (role === "admin") {
+      navigate("/admin-dashboard");
+    } else if (role === "cliente") {
+      navigate("/cliente-dashboard");
+    } else {
+      navigate("/home");
+    }
+  };
+
+  const handleLogout = () => {
+    localStorage.removeItem('token');
+    localStorage.removeItem('userRole');
+    setUserRole(null);
+    navigate('/login');  // Redirige a login al cerrar sesión
+  };
+
+  const handleRegisterClick = () => {
+    navigate("/register");
+  };
+
   const styles = {
     appContainer: {
       display: "flex",
@@ -35,6 +60,7 @@ function App() {
       textDecoration: "none",
       fontSize: "1rem",
       fontWeight: "bold",
+      zIndex: 10,
     },
   };
 
@@ -43,13 +69,27 @@ function App() {
       <Link to="/contactenos" style={styles.contactButton}>
         Contáctenos
       </Link>
+      
       <Routes>
-        <Route path="/" element={<Login />} />
-        <Route path="/admin-dashboard" element={<AdminDashboard />} />
-        <Route path="/cliente-dashboard" element={<ClienteDashboard />} />
-        <Route path="/home" element={<Home />} />
-        <Route path="/crear-evento" element={<CrearEvento />} />
+        <Route path="/" element={
+          <Navigate to="/login" replace />  // Asegura que la raíz redirija a /login
+        } />
+        <Route path="/login" element={<Login onLoginSuccess={handleLoginSuccess} onRegisterClick={handleRegisterClick} />} />
+        <Route path="/admin-dashboard" element={
+          userRole === "admin" ? <AdminDashboard onLogout={handleLogout} /> : <Navigate to="/login" replace />
+        } />
+        <Route path="/cliente-dashboard" element={
+          userRole === "cliente" ? <ClienteDashboard onLogout={handleLogout} /> : <Navigate to="/login" replace />
+        } />
+        <Route path="/home" element={
+          userRole === "otros" ? <Home onLogout={handleLogout} /> : <Navigate to="/login" replace />
+        } />
+        <Route path="/crear-evento" element={
+             userRole === "admin" ? <CrearEvento /> : <Navigate to="/login" replace />
+        } />
         <Route path="/contactenos" element={<Contactenos />} />
+        <Route path="/register" element={<Register />} />
+        <Route path="*" element={<Navigate to="/login" replace />} />  {/* Para manejar cualquier ruta desconocida */}
       </Routes>
     </div>
   );
