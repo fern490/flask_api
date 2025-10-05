@@ -281,3 +281,9 @@ def eliminar_pago(id):
     db.session.commit()
     return jsonify({"mensaje": "Pago eliminado"})
 
+
+
+
+#estoy haciendo un proyecto con: React, Postman, Flask, Python y phpMyAdmin sobre un salon de eventos y su dinamica o organizacion, o la gestion. Y quiero que me des ideas buenas.
+#Y hice una pagina de 'Login.jsx', 'Register.jsx' para que dependiendo del rol(admin, cliente(alquila el salon y consulta sobre como lo quiere preparar el evento y el admin lo aprueba) y otros(servicios)).
+#Ahora quiero ideas sobre una vex 'logeado' cada uno, que mas podrian hacer(no esta de mas decir que tengo que usar archivos '.jsx') para la dinamica de lo que quiero agregar.
