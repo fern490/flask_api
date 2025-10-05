@@ -72,7 +72,7 @@ function App() {
       
       <Routes>
         <Route path="/" element={
-          <Navigate to="/login" replace />  // Asegura que la raíz redirija a /login
+          <Navigate to="/login" replace />
         } />
         <Route path="/login" element={<Login onLoginSuccess={handleLoginSuccess} onRegisterClick={handleRegisterClick} />} />
         <Route path="/admin-dashboard" element={
@@ -89,7 +89,7 @@ function App() {
         } />
         <Route path="/contactenos" element={<Contactenos />} />
         <Route path="/register" element={<Register />} />
-        <Route path="*" element={<Navigate to="/login" replace />} />  {/* Para manejar cualquier ruta desconocida */}
+        <Route path="*" element={<Navigate to="/login" replace />} />  {}
       </Routes>
     </div>
   );
