@@ -5,7 +5,7 @@ from routes import routes
 
 app = Flask(__name__)
 app.config.from_object(Config)
-CORS(app)  # Habilita CORS para todas las rutas
+CORS(app)
 db.init_app(app)
 
 app.register_blueprint(routes)
