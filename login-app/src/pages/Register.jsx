@@ -1,16 +1,28 @@
 import React, { useState } from "react";
 
 const Register = () => {
-  const [nombre, setNombre] = useState("");
-  const [apellido, setApellido] = useState("");
-  const [fechaNacimiento, setFechaNacimiento] = useState("");
-  const [genero, setGenero] = useState("");
-  const [email, setEmail] = useState("");
-  
+  const [formData, setFormData] = useState({
+    nombre: "",
+    apellido: "",
+    fecha_nacimiento: "",
+    genero: "",
+    email: "",
+  });
+
+  const [error, setError] = useState("");
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((prevData) => ({ ...prevData, [name]: value }));
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (!nombre || !apellido || !fechaNacimiento || !genero || !email || !password) {
+    const { nombre, apellido, fecha_nacimiento, genero, email } = formData;
+
+    // Validación simple
+    if (!nombre || !apellido || !fecha_nacimiento || !genero || !email) {
       setError("Por favor, completa todos los campos.");
       return;
     }
@@ -18,19 +30,26 @@ const Register = () => {
     try {
       setError("");
 
-      const response = await fetch("http://127.0.0.1:5000/usuarios", {
+      const response = await fetch("http://127.0.0.1:5000/registro-temporal", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ nombre, apellido, fechaNacimiento, genero, email, password })
+        body: JSON.stringify(formData),
       });
 
       const data = await response.json();
 
       if (response.ok) {
-        // Redirige a la página de login o a otro lugar si es necesario
-        alert("Cuenta creada exitosamente");
+        alert("¡Registro exitoso!");
+        // limpiar el formulario
+        setFormData({
+          nombre: "",
+          apellido: "",
+          fecha_nacimiento: "",
+          genero: "",
+          email: "",
+        });
       } else {
-        setError(data.message || "Error al crear cuenta");
+        setError(data.message || "Error al registrar datos.");
       }
     } catch (err) {
       console.error("Error al conectar:", err);
@@ -42,26 +61,34 @@ const Register = () => {
     <div style={styles.container}>
       <h2>Crear una cuenta</h2>
       <form onSubmit={handleSubmit} style={styles.form}>
+        {error && <div style={styles.error}>{error}</div>}
+
         <input
           type="text"
+          name="nombre"
           placeholder="Nombre"
-          value={nombre}
-          onChange={(e) => setNombre(e.target.value)}
+          value={formData.nombre}
+          onChange={handleChange}
           style={styles.input}
         />
+
         <input
           type="text"
+          name="apellido"
           placeholder="Apellido"
-          value={apellido}
-          onChange={(e) => setApellido(e.target.value)}
+          value={formData.apellido}
+          onChange={handleChange}
           style={styles.input}
         />
+
         <input
           type="date"
-          value={fechaNacimiento}
-          onChange={(e) => setFechaNacimiento(e.target.value)}
+          name="fecha_nacimiento"
+          value={formData.fecha_nacimiento}
+          onChange={handleChange}
           style={styles.input}
         />
+
         <fieldset style={styles.fieldset}>
           <legend>Género</legend>
           <label>
@@ -69,8 +96,8 @@ const Register = () => {
               type="radio"
               name="genero"
               value="Mujer"
-              checked={genero === "Mujer"}
-              onChange={(e) => setGenero(e.target.value)}
+              checked={formData.genero === "Mujer"}
+              onChange={handleChange}
             />
             Mujer
           </label>
@@ -80,22 +107,36 @@ const Register = () => {
               type="radio"
               name="genero"
               value="Hombre"
-              checked={genero === "Hombre"}
-              onChange={(e) => setGenero(e.target.value)}
+              checked={formData.genero === "Hombre"}
+              onChange={handleChange}
             />
             Hombre
           </label>
         </fieldset>
+
         <input
           type="email"
+          name="email"
           placeholder="Correo electrónico"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
+          value={formData.email}
+          onChange={handleChange}
           style={styles.input}
         />
+
         <button type="submit" style={styles.button}>
           Registrarse
         </button>
+        <a
+          href="/login"
+          style={{
+            marginTop: "10px",
+            display: "block",
+            color: "#a8e0ff",
+            textDecoration: "none",
+          }}
+        >
+          ¿Ya tenés una cuenta? Iniciá sesión
+        </a>
       </form>
     </div>
   );

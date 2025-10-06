@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Routes, Route, Link, useNavigate, Navigate } from "react-router-dom";
 // Importa todos los componentes de página
-import Login from "./pages/Login"; 
+import Login from "./pages/Login";
 import AdminDashboard from "./pages/AdminDashboard";
 import ClienteDashboard from "./pages/ClienteDashboard";
 import Home from "./pages/Home";
@@ -10,13 +10,15 @@ import Contactenos from "./pages/Contactenos";
 import Register from "./pages/Register";
 
 function App() {
-  const [userRole, setUserRole] = useState(localStorage.getItem('userRole') || null);
+  const [userRole, setUserRole] = useState(
+    localStorage.getItem("userRole") || null
+  );
   const navigate = useNavigate();
 
   const handleLoginSuccess = (role) => {
-    localStorage.setItem('userRole', role);
+    localStorage.setItem("userRole", role);
     setUserRole(role);
-    
+
     if (role === "admin") {
       navigate("/admin-dashboard");
     } else if (role === "cliente") {
@@ -27,10 +29,10 @@ function App() {
   };
 
   const handleLogout = () => {
-    localStorage.removeItem('token');
-    localStorage.removeItem('userRole');
+    localStorage.removeItem("token");
+    localStorage.removeItem("userRole");
     setUserRole(null);
-    navigate('/login');  // Redirige a login al cerrar sesión
+    navigate("/login"); // Redirige a login al cerrar sesión
   };
 
   const handleRegisterClick = () => {
@@ -69,27 +71,61 @@ function App() {
       <Link to="/contactenos" style={styles.contactButton}>
         Contáctenos
       </Link>
-      
+
       <Routes>
-        <Route path="/" element={
-          <Navigate to="/login" replace />
-        } />
-        <Route path="/login" element={<Login onLoginSuccess={handleLoginSuccess} onRegisterClick={handleRegisterClick} />} />
-        <Route path="/admin-dashboard" element={
-          userRole === "admin" ? <AdminDashboard onLogout={handleLogout} /> : <Navigate to="/login" replace />
-        } />
-        <Route path="/cliente-dashboard" element={
-          userRole === "cliente" ? <ClienteDashboard onLogout={handleLogout} /> : <Navigate to="/login" replace />
-        } />
-        <Route path="/home" element={
-          userRole === "otros" ? <Home onLogout={handleLogout} /> : <Navigate to="/login" replace />
-        } />
-        <Route path="/crear-evento" element={
-             userRole === "admin" ? <CrearEvento /> : <Navigate to="/login" replace />
-        } />
+        <Route path="/" element={<Navigate to="/login" replace />} />
+        <Route
+          path="/login"
+          element={
+            <Login
+              onLoginSuccess={handleLoginSuccess}
+              onRegisterClick={handleRegisterClick}
+            />
+          }
+        />
+        <Route
+          path="/admin-dashboard"
+          element={
+            userRole === "admin" ? (
+              <AdminDashboard onLogout={handleLogout} />
+            ) : (
+              <Navigate to="/login" replace />
+            )
+          }
+        />
+        <Route
+          path="/cliente-dashboard"
+          element={
+            userRole === "cliente" ? (
+              <ClienteDashboard onLogout={handleLogout} />
+            ) : (
+              <Navigate to="/login" replace />
+            )
+          }
+        />
+        <Route
+          path="/home"
+          element={
+            userRole === "otros" ? (
+              <Home onLogout={handleLogout} />
+            ) : (
+              <Navigate to="/login" replace />
+            )
+          }
+        />
+        <Route
+          path="/crear-evento"
+          element={
+            userRole === "admin" ? (
+              <CrearEvento />
+            ) : (
+              <Navigate to="/login" replace />
+            )
+          }
+        />
         <Route path="/contactenos" element={<Contactenos />} />
         <Route path="/register" element={<Register />} />
-        <Route path="*" element={<Navigate to="/login" replace />} />  {}
+        <Route path="*" element={<Navigate to="/login" replace />} /> {}
       </Routes>
     </div>
   );

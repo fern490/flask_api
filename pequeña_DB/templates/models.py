@@ -8,8 +8,9 @@ class Usuario(db.Model):
     fecha_nacimiento = db.Column(db.Date, nullable=False)
     genero = db.Column(db.String(20), nullable=False)
     email = db.Column(db.String(100), unique=True, nullable=False)
-    password = db.Column(db.String(200), nullable=False)  # Contraseña encriptada
-    
+    password = db.Column(db.String(100), nullable=False)
+    rol = db.Column(db.String(50), nullable=False)
+
     # Relación con eventos
     eventos = db.relationship('Evento', backref='usuario', lazy=True)
 

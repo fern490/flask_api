@@ -5,6 +5,38 @@ from werkzeug.security import generate_password_hash, check_password_hash
 
 routes = Blueprint('routes', __name__)
 
+# Lista temporal para guardar los datos del registro
+usuarios_temporales = []
+
+# =========================================
+# 🧩 Ruta 1: Guardar los datos del registro
+# =========================================
+@routes.route('/registro-temporal', methods=['POST'])
+def registro_temporal():
+    data = request.json
+
+    # Verificar que estén los campos necesarios
+    campos = ["nombre", "apellido", "fecha_nacimiento", "genero", "email"]
+    if not all(campo in data for campo in campos):
+        return jsonify({"error": "Faltan campos obligatorios"}), 400
+
+    # Guardar en la lista temporal
+    usuarios_temporales.append(data)
+    print("Datos guardados temporalmente:", usuarios_temporales)
+
+    return jsonify({
+        "message": "Datos guardados temporalmente en memoria",
+        "usuario": data
+    }), 200
+
+# =========================================
+# 🧩 Ruta 2: Ver todos los usuarios temporales
+# =========================================
+@routes.route('/usuarios-temporales', methods=['GET'])
+def listar_temporales():
+    return jsonify(usuarios_temporales)
+
+
 
 # USUARIOS
 
