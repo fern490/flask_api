@@ -28,9 +28,6 @@ const CrearEvento = () => {
           fecha: fecha,
           tema: tema,
           informe_detallado: informeDetallado,
-          // Aquí necesitas enviar los IDs del salón y del usuario
-          // Por ejemplo, de un estado o de una selección
-          // Por ahora, usamos IDs de prueba
           salon_id: 1,
           cliente_id: 1,
         }),

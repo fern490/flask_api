@@ -31,7 +31,7 @@ def registro_temporal():
     print("📋 Lista actual de usuarios temporales:", usuarios_temporales)
 
     return jsonify({
-        "message": "Usuario temporal guardado correctamente",
+        "message": "¡Usuario guardado temporalmente!",
         "usuario": data
     }), 201
 

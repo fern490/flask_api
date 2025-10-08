@@ -1,10 +1,9 @@
 import React, { useState, useEffect } from "react";
 import { Routes, Route, Link, useNavigate, Navigate } from "react-router-dom";
-// Importa todos los componentes de página
 import Login from "./pages/Login";
 import AdminDashboard from "./pages/AdminDashboard";
 import ClienteDashboard from "./pages/ClienteDashboard";
-import Home from "./pages/Home";
+import OtrosDashboard from "./pages/OtrosDashboard";
 import CrearEvento from "./pages/CrearEvento";
 import Contactenos from "./pages/Contactenos";
 import Register from "./pages/Register";
@@ -23,7 +22,10 @@ function App() {
       navigate("/admin-dashboard");
     } else if (role === "cliente") {
       navigate("/cliente-dashboard");
-    } else {
+    } else if (role == "otros") {
+      navigate("/home")
+    } 
+    else {
       navigate("/home");
     }
   };
@@ -32,7 +34,7 @@ function App() {
     localStorage.removeItem("token");
     localStorage.removeItem("userRole");
     setUserRole(null);
-    navigate("/login"); // Redirige a login al cerrar sesión
+    navigate("/login");
   };
 
   const handleRegisterClick = () => {
@@ -107,7 +109,7 @@ function App() {
           path="/home"
           element={
             userRole === "otros" ? (
-              <Home onLogout={handleLogout} />
+              <OtrosDashboard onLogout={handleLogout} />
             ) : (
               <Navigate to="/login" replace />
             )
@@ -125,7 +127,7 @@ function App() {
         />
         <Route path="/contactenos" element={<Contactenos />} />
         <Route path="/register" element={<Register />} />
-        <Route path="*" element={<Navigate to="/login" replace />} /> {}
+        <Route path="*" element={<Navigate to="/login" replace />} />
       </Routes>
     </div>
   );

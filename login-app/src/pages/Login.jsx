@@ -1,6 +1,5 @@
 import React, { useState } from "react";
 
-
 const Login = ({ onLoginSuccess, onRegisterClick }) => { 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -41,9 +40,23 @@ const Login = ({ onLoginSuccess, onRegisterClick }) => {
   };
 
   const styles = {
+    wrapper: {
+      padding: "30px",
+      borderRadius: "16px",
+      backgroundColor: "rgba(255, 255, 255, 0.15)",
+      boxShadow: "0 8px 32px 0 rgba(31, 38, 135, 0.37)",
+      backdropFilter: "blur(6px)",
+      WebkitBackdropFilter: "blur(6px)",
+      border: "1px solid rgba(255, 255, 255, 0.18)",
+      display: "flex",
+      justifyContent: "center",
+      alignItems: "center",
+      height: "auto",
+      with: "900px"
+    },
+
     container: {
-      width: "320px",
-      margin: "20px auto",
+      width: "100%",
       padding: "20px",
       border: "5px solid #cccccc3d",
       borderRadius: "8px",
@@ -116,76 +129,78 @@ const Login = ({ onLoginSuccess, onRegisterClick }) => {
   };
 
   return (
-    <div style={styles.container}>
-      <h2>Iniciar Sesión</h2>
-      <form onSubmit={handleSubmit} style={styles.form}>
-        <input
-          type="email"
-          placeholder="Correo electrónico"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          style={styles.input}
-          autoComplete="email"
-          required
-        />
+    <div style={styles.wrapper}>
+      <div style={styles.container}>
+        <h2>Iniciar Sesión</h2>
+        <form onSubmit={handleSubmit} style={styles.form}>
+          <input
+            type="email"
+            placeholder="Correo electrónico"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            style={styles.input}
+            autoComplete="email"
+            required
+          />
 
-        <input
-          type="password"
-          placeholder="Contraseña"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          style={styles.input}
-          autoComplete="current-password"
-          required
-        />
+          <input
+            type="password"
+            placeholder="Contraseña"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            style={styles.input}
+            autoComplete="current-password"
+            required
+          />
 
-        <fieldset style={styles.fieldset}>
-          <legend>Selecciona un rol:</legend>
+          <fieldset style={styles.fieldset}>
+            <legend>Selecciona un rol:</legend>
 
-          <label style={styles.label}>
-            <input
-              type="radio"
-              name="role"
-              value="admin"
-              checked={role === "admin"}
-              onChange={(e) => setRole(e.target.value)}
-            />
-            Administrador
-          </label>
+            <label style={styles.label}>
+              <input
+                type="radio"
+                name="role"
+                value="admin"
+                checked={role === "admin"}
+                onChange={(e) => setRole(e.target.value)}
+              />
+              Administrador
+            </label>
 
-          <label style={styles.label}>
-            <input
-              type="radio"
-              name="role"
-              value="cliente"
-              checked={role === "cliente"}
-              onChange={(e) => setRole(e.target.value)}
-            />
-            Cliente
-          </label>
+            <label style={styles.label}>
+              <input
+                type="radio"
+                name="role"
+                value="cliente"
+                checked={role === "cliente"}
+                onChange={(e) => setRole(e.target.value)}
+              />
+              Cliente
+            </label>
 
-          <label style={styles.label}>
-            <input
-              type="radio"
-              name="role"
-              value="otros"
-              checked={role === "otros"}
-              onChange={(e) => setRole(e.target.value)}
-            />
-            Otros
-          </label>
-        </fieldset>
+            <label style={styles.label}>
+              <input
+                type="radio"
+                name="role"
+                value="otros"
+                checked={role === "otros"}
+                onChange={(e) => setRole(e.target.value)}
+              />
+              Otros
+            </label>
+          </fieldset>
 
-        {error && <p style={styles.error}>{error}</p>}
+          {error && <p style={styles.error}>{error}</p>}
 
-        <button type="submit" style={styles.button}>
-          Entrar
+          <button type="submit" style={styles.button}>
+            Entrar
+          </button>
+        </form>
+
+        <button onClick={onRegisterClick} style={styles.registerButton}>
+          Registrarse
         </button>
-      </form>
-      {}
-      <button onClick={onRegisterClick} style={styles.registerButton}>
-        Registrarse
-      </button>
+      </div>
     </div>
   );
 };
