@@ -26,7 +26,7 @@ def registro_temporal():
     # Guardar en la lista temporal
     usuarios_temporales.append(data)
 
-    print("\n🟢 Nuevo registro temporal recibido:")
+    print("\nNuevo registro temporal recibido:")
     print(data)
     print("📋 Lista actual de usuarios temporales:", usuarios_temporales)
 

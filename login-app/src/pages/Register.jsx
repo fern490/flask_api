@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 const Register = () => {
   const [formData, setFormData] = useState({
@@ -11,40 +12,55 @@ const Register = () => {
   });
 
   const [error, setError] = useState("");
+  const navigate = useNavigate();
 
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prevData) => ({ ...prevData, [name]: value }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
     const { nombre, apellido, fecha_nacimiento, genero, email, rol } = formData;
 
-    // Validación simple
     if (!nombre || !apellido || !fecha_nacimiento || !genero || !email || !rol) {
       setError("Por favor, completa todos los campos.");
       return;
     }
 
     try {
-      localStorage.setItem("usuarioTemporal", JSON.stringify(formData));
-      alert("¡Registro éxitoso!");
-      console.log("Usuario temporal:", formData);
-
-      setFormData({
-        nombre: "",
-        apellido: "",
-        fecha_nacimiento: "",
-        genero: "",
-        email: "",
-        rol: "",
+      const response = await fetch('http://127.0.0.1:5000/registro-temporal', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formData),
       });
-      setError("");
+
+      if (response.ok) {
+        const data = await response.json();
+        alert(data.message);
+        console.log("Usuario temporal enviado a Flask:", formData);
+
+        localStorage.setItem("usuarioTemporalGuardado", JSON.stringify(formData));
+        
+        setFormData({
+          nombre: "",
+          apellido: "",
+          fecha_nacimiento: "",
+          genero: "",
+          email: "",
+          rol: "",
+        });
+        setError("");
+      } else {
+        const errorData = await response.json();
+        setError(errorData.error || "Error al registrar usuario temporal en el servidor.");
+      }
     } catch (err) {
-      console.error("Error al guardar en localStorage:", err);
-      setError("Ocurrió un error al guardar los datos.");
+      console.error("Error de red o del servidor al enviar datos:", err);
+      setError("Ocurrió un error al intentar conectar con el servidor.");
     }
   };
 
