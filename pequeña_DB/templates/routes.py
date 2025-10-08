@@ -5,36 +5,43 @@ from werkzeug.security import generate_password_hash, check_password_hash
 
 routes = Blueprint('routes', __name__)
 
-# Lista temporal para guardar los datos del registro
 usuarios_temporales = []
 
 # =========================================
-# 🧩 Ruta 1: Guardar los datos del registro
+# 🧩 Ruta 1: Guardar registro temporal
 # =========================================
 @routes.route('/registro-temporal', methods=['POST'])
 def registro_temporal():
-    data = request.json
+    data = request.get_json()
 
-    # Verificar que estén los campos necesarios
-    campos = ["nombre", "apellido", "fecha_nacimiento", "genero", "email"]
+    # Verificar que estén los campos requeridos
+    campos = ["nombre", "apellido", "fecha_nacimiento", "genero", "email", "rol"]
     if not all(campo in data for campo in campos):
         return jsonify({"error": "Faltan campos obligatorios"}), 400
 
+    # Evitar duplicados por email
+    if any(u["email"] == data["email"] for u in usuarios_temporales):
+        return jsonify({"error": "Ya existe un usuario temporal con ese correo"}), 409
+
     # Guardar en la lista temporal
     usuarios_temporales.append(data)
-    print("Datos guardados temporalmente:", usuarios_temporales)
+
+    print("\n🟢 Nuevo registro temporal recibido:")
+    print(data)
+    print("📋 Lista actual de usuarios temporales:", usuarios_temporales)
 
     return jsonify({
-        "message": "Datos guardados temporalmente en memoria",
+        "message": "Usuario temporal guardado correctamente",
         "usuario": data
-    }), 200
+    }), 201
+
 
 # =========================================
 # 🧩 Ruta 2: Ver todos los usuarios temporales
 # =========================================
 @routes.route('/usuarios-temporales', methods=['GET'])
 def listar_temporales():
-    return jsonify(usuarios_temporales)
+    return jsonify(usuarios_temporales), 200
 
 
 

@@ -7,6 +7,7 @@ const Register = () => {
     fecha_nacimiento: "",
     genero: "",
     email: "",
+    rol: "",
   });
 
   const [error, setError] = useState("");
@@ -16,44 +17,34 @@ const Register = () => {
     setFormData((prevData) => ({ ...prevData, [name]: value }));
   };
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = (e) => {
     e.preventDefault();
 
-    const { nombre, apellido, fecha_nacimiento, genero, email } = formData;
+    const { nombre, apellido, fecha_nacimiento, genero, email, rol } = formData;
 
     // Validación simple
-    if (!nombre || !apellido || !fecha_nacimiento || !genero || !email) {
+    if (!nombre || !apellido || !fecha_nacimiento || !genero || !email || !rol) {
       setError("Por favor, completa todos los campos.");
       return;
     }
 
     try {
-      setError("");
+      localStorage.setItem("usuarioTemporal", JSON.stringify(formData));
+      alert("¡Registro éxitoso!");
+      console.log("Usuario temporal:", formData);
 
-      const response = await fetch("http://127.0.0.1:5000/registro-temporal", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(formData),
+      setFormData({
+        nombre: "",
+        apellido: "",
+        fecha_nacimiento: "",
+        genero: "",
+        email: "",
+        rol: "",
       });
-
-      const data = await response.json();
-
-      if (response.ok) {
-        alert("¡Registro exitoso!");
-        // limpiar el formulario
-        setFormData({
-          nombre: "",
-          apellido: "",
-          fecha_nacimiento: "",
-          genero: "",
-          email: "",
-        });
-      } else {
-        setError(data.message || "Error al registrar datos.");
-      }
+      setError("");
     } catch (err) {
-      console.error("Error al conectar:", err);
-      setError("Error al conectar con el servidor. Inténtalo de nuevo.");
+      console.error("Error al guardar en localStorage:", err);
+      setError("Ocurrió un error al guardar los datos.");
     }
   };
 
@@ -122,6 +113,18 @@ const Register = () => {
           onChange={handleChange}
           style={styles.input}
         />
+
+        <select
+          name="rol"
+          value={formData.rol}
+          onChange={handleChange}
+          style={styles.input}
+        >
+          <option value="">Seleccionar rol...</option>
+          <option value="administrador">Administrador</option>
+          <option value="cliente">Cliente</option>
+          <option value="otros">Otros</option>
+        </select>
 
         <button type="submit" style={styles.button}>
           Registrarse

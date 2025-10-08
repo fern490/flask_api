@@ -1,8 +1,6 @@
 import React, { useState } from "react";
-// Ya no necesitamos useNavigate aquí para la redirección de login
-// import { useNavigate } from "react-router-dom"; 
 
-// Acepta onLoginSuccess y onRegisterClick como props
+
 const Login = ({ onLoginSuccess, onRegisterClick }) => { 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -96,19 +94,18 @@ const Login = ({ onLoginSuccess, onRegisterClick }) => {
       cursor: "pointer",
       borderRadius: "4px",
       fontSize: "16px",
-      marginTop: "10px", // Espacio entre botones
+      marginTop: "10px",
     },
     
-    // Nuevo estilo para el botón de registro
     registerButton: {
       padding: "10px",
-      backgroundColor: "#3498db", // Un azul diferente
+      backgroundColor: "#3498db",
       color: "white",
       border: "none",
       cursor: "pointer",
       borderRadius: "4px",
       fontSize: "16px",
-      marginTop: "10px", // Espacio entre el botón de login y este
+      marginTop: "10px",
     },
 
     error: {
@@ -185,7 +182,7 @@ const Login = ({ onLoginSuccess, onRegisterClick }) => {
           Entrar
         </button>
       </form>
-      {/* Nuevo botón de Registrarse */}
+      {}
       <button onClick={onRegisterClick} style={styles.registerButton}>
         Registrarse
       </button>
