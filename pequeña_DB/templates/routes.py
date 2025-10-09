@@ -5,45 +5,6 @@ from werkzeug.security import generate_password_hash, check_password_hash
 
 routes = Blueprint('routes', __name__)
 
-usuarios_temporales = []
-
-# =========================================
-# 🧩 Ruta 1: Guardar registro temporal
-# =========================================
-@routes.route('/registro-temporal', methods=['POST'])
-def registro_temporal():
-    data = request.get_json()
-
-    # Verificar que estén los campos requeridos
-    campos = ["nombre", "apellido", "fecha_nacimiento", "genero", "email", "rol"]
-    if not all(campo in data for campo in campos):
-        return jsonify({"error": "Faltan campos obligatorios"}), 400
-
-    # Evitar duplicados por email
-    if any(u["email"] == data["email"] for u in usuarios_temporales):
-        return jsonify({"error": "Ya existe un usuario temporal con ese correo"}), 409
-
-    # Guardar en la lista temporal
-    usuarios_temporales.append(data)
-
-    print("\nNuevo registro temporal recibido:")
-    print(data)
-    print("📋 Lista actual de usuarios temporales:", usuarios_temporales)
-
-    return jsonify({
-        "message": "¡Usuario guardado temporalmente!",
-        "usuario": data
-    }), 201
-
-
-# =========================================
-# 🧩 Ruta 2: Ver todos los usuarios temporales
-# =========================================
-@routes.route('/usuarios-temporales', methods=['GET'])
-def listar_temporales():
-    return jsonify(usuarios_temporales), 200
-
-
 
 # USUARIOS
 
@@ -52,14 +13,14 @@ def listar_temporales():
 def crear_usuario():
     data = request.json
     nombre = data.get('nombre')
-    apellido = data.get('apellido') # NUEVO
-    fecha_nacimiento = data.get('fecha_nacimiento') # NUEVO
-    genero = data.get('genero') # NUEVO
+    apellido = data.get('apellido') 
+    fecha_nacimiento = data.get('fecha_nacimiento')
+    genero = data.get('genero')
     email = data.get('email')
     password = data.get('password')
     rol = data.get('rol') 
 
-    # Validación básica de campos requeridos por el modelo actual
+    # Validación básica de campos requeridos
     if not all([nombre, email, password, rol]):
         return jsonify({"message": "Faltan datos obligatorios (nombre, email, password, rol)"}), 400
 
@@ -78,9 +39,9 @@ def crear_usuario():
 
     usuario = Usuario(
         nombre=nombre,
-        apellido=apellido,  # Asigna el valor del JSON (puede ser None)
-        fecha_nacimiento=fecha_nacimiento_dt, # Asigna el valor convertido (puede ser None)
-        genero=genero,      # Asigna el valor del JSON (puede ser None)
+        apellido=apellido,
+        fecha_nacimiento=fecha_nacimiento_dt,
+        genero=genero,
         email=email,
         password=hashed_password,
         rol=rol
@@ -320,9 +281,3 @@ def eliminar_pago(id):
     db.session.commit()
     return jsonify({"mensaje": "Pago eliminado"})
 
-
-
-
-#estoy haciendo un proyecto con: React, Postman, Flask, Python y phpMyAdmin sobre un salon de eventos y su dinamica o organizacion, o la gestion. Y quiero que me des ideas buenas.
-#Y hice una pagina de 'Login.jsx', 'Register.jsx' para que dependiendo del rol(admin, cliente(alquila el salon y consulta sobre como lo quiere preparar el evento y el admin lo aprueba) y otros(servicios)).
-#Ahora quiero ideas sobre una vex 'logeado' cada uno, que mas podrian hacer(no esta de mas decir que tengo que usar archivos '.jsx') para la dinamica de lo que quiero agregar.
