@@ -1,9 +1,49 @@
 from flask import Blueprint, request, jsonify
-from models import db, Usuario, Salon, Evento, Servicio, EventoServicio, Pago
+from models import db, Usuario, Salon, Evento, Servicio, EventoServicio, Pago, Contacto
 from datetime import datetime
+#import secrets
 from werkzeug.security import generate_password_hash, check_password_hash
 
 routes = Blueprint('routes', __name__)
+
+usuarios_temporales = []
+
+# =========================================
+# 🧩 Ruta 1: Guardar registro temporal
+# =========================================
+@routes.route('/registro-temporal', methods=['POST'])
+def registro_temporal():
+    data = request.get_json()
+
+    # Verificar que estén los campos requeridos
+    campos = ["nombre", "apellido", "fecha_nacimiento", "genero", "email", "rol"]
+    if not all(campo in data for campo in campos):
+        return jsonify({"error": "Faltan campos obligatorios"}), 400
+
+    # Evitar duplicados por email
+    if any(u["email"] == data["email"] for u in usuarios_temporales):
+        return jsonify({"error": "Ya existe un usuario temporal con ese correo"}), 409
+
+    # Guardar en la lista temporal
+    usuarios_temporales.append(data)
+
+    print("\nNuevo registro temporal recibido:")
+    print(data)
+    print("📋 Lista actual de usuarios temporales:", usuarios_temporales)
+
+    return jsonify({
+        "message": "¡Usuario guardado temporalmente!",
+        "usuario": data
+    }), 201
+
+
+# =========================================
+# 🧩 Ruta 2: Ver todos los usuarios temporales
+# =========================================
+@routes.route('/usuarios-temporales', methods=['GET'])
+def listar_temporales():
+    return jsonify(usuarios_temporales), 200
+
 
 
 # USUARIOS
@@ -13,14 +53,14 @@ routes = Blueprint('routes', __name__)
 def crear_usuario():
     data = request.json
     nombre = data.get('nombre')
-    apellido = data.get('apellido') 
+    apellido = data.get('apellido')
     fecha_nacimiento = data.get('fecha_nacimiento')
     genero = data.get('genero')
     email = data.get('email')
     password = data.get('password')
     rol = data.get('rol') 
 
-    # Validación básica de campos requeridos
+    # Validación básica de campos requeridos por el modelo actual
     if not all([nombre, email, password, rol]):
         return jsonify({"message": "Faltan datos obligatorios (nombre, email, password, rol)"}), 400
 
@@ -281,3 +321,51 @@ def eliminar_pago(id):
     db.session.commit()
     return jsonify({"mensaje": "Pago eliminado"})
 
+# CONTACTO
+
+@routes.route('/contacto', methods=['POST'])
+def handle_contacto():
+    data = request.get_json()
+    nombre = data.get('nombre')
+    email = data.get('email')
+    mensaje = data.get('mensaje')
+
+    if not nombre or not email or not mensaje:
+        return jsonify({"mensaje": "Faltan campos obligatorios."}), 400
+
+    try:
+        nuevo_contacto = Contacto(
+            nombre=nombre,
+            email=email,
+            mensaje=mensaje
+        )
+        
+        db.session.add(nuevo_contacto)
+        db.session.commit()
+
+        return jsonify({"mensaje": "Mensaje enviado y guardado con éxito!"}), 201
+
+    except Exception as e:
+        db.session.rollback()
+        print(f"Error al guardar contacto: {e}")
+        return jsonify({"mensaje": "Error interno del servidor al guardar el mensaje."}), 500
+
+
+@routes.route('/contacto', methods=['GET'])
+def get_contactos():
+    try:
+        contactos = Contacto.query.order_by(Contacto.fecha_envio.desc()).all()
+        lista_contactos = [
+            {
+                "id": c.id,
+                "nombre": c.nombre,
+                "email": c.email,
+                "mensaje": c.mensaje,
+                "fecha_envio": c.fecha_envio.strftime('%Y-%m-%d %H:%M:%S')
+            } for c in contactos
+        ]
+        return jsonify(lista_contactos), 200
+
+    except Exception as e:
+        print(f"Error al obtener mensajes: {e}")
+        return jsonify({"mensaje": "Error al obtener los mensajes."}), 500

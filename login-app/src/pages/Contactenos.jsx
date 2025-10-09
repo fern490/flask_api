@@ -7,10 +7,27 @@ const Contactenos = () => {
   const [mensaje, setMensaje] = useState("");
   const [enviado, setEnviado] = useState(false);
 
-  const handleSubmit = (e) => {
+  // ✅ Enviar datos al backend
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log("Formulario enviado:", { nombre, email, mensaje });
-    setEnviado(true);
+
+    try {
+      const response = await fetch("http://127.0.0.1:5000/contacto", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ nombre, email, mensaje }),
+      });
+
+      const data = await response.json();
+      if (response.ok) {
+        setEnviado(true);
+        console.log("✅ Mensaje guardado en la base de datos:", data);
+      } else {
+        console.error("⚠️ Error al enviar:", data.error);
+      }
+    } catch (error) {
+      console.error("Error de conexión:", error);
+    }
   };
 
   const styles = {
@@ -25,10 +42,10 @@ const Contactenos = () => {
       alignItems: "center",
     },
     container: {
-      width: "320px", // 🔹 antes 380px
-      padding: "20px 25px", // 🔹 antes 30px 35px
+      width: "320px",
+      padding: "20px 25px",
       borderRadius: "10px",
-      backgroundColor: "rgba(255, 255, 255, 0.95)",
+      backgroundColor: "rgba(173, 202, 181, 0.95)",
       boxShadow: "0 4px 10px rgba(0,0,0,0.2)",
       display: "flex",
       flexDirection: "column",
@@ -37,7 +54,7 @@ const Contactenos = () => {
       color: "#333",
     },
     title: {
-      fontSize: "20px", // 🔹 antes 24px
+      fontSize: "20px",
       fontWeight: "bold",
       marginBottom: "15px",
       color: "#2c3e50",
@@ -58,7 +75,7 @@ const Contactenos = () => {
     },
     input: {
       width: "100%",
-      padding: "8px 10px", // 🔹 más pequeño
+      padding: "8px 10px",
       marginBottom: "12px",
       borderRadius: "5px",
       border: "1px solid #ccc",
@@ -73,7 +90,7 @@ const Contactenos = () => {
       border: "1px solid #ccc",
       resize: "vertical",
       fontSize: "14px",
-      height: "90px", // 🔹 antes 100px
+      height: "90px",
       boxSizing: "border-box",
     },
     button: {
@@ -97,7 +114,7 @@ const Contactenos = () => {
     },
     contactInfo: {
       marginTop: "20px",
-      fontSize: "13px", // 🔹 más compacto
+      fontSize: "13px",
       color: "#555",
       textAlign: "center",
       lineHeight: "1.5",

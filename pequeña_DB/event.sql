@@ -7,6 +7,9 @@ CREATE TABLE usuarios (
     email VARCHAR(100) UNIQUE NOT NULL,
     password VARCHAR(200) NOT NULL,
     rol VARCHAR(50) NOT NULL
+
+    /*reset_token VARCHAR(255),
+    reset_token_expira DATETIME ===> Funcion para recuperar la contraseña*/
 );
 
 CREATE TABLE salones (
@@ -39,7 +42,7 @@ CREATE TABLE servicios (
     FOREIGN KEY (proveedor_id) REFERENCES usuarios(id)
 );
 
--- Crear tabla eventos_servicios (tabla intermedia)
+-- Tabla eventos_servicios (tabla intermedia)
 CREATE TABLE eventos_servicios (
     id INT AUTO_INCREMENT PRIMARY KEY,
     evento_id INT NOT NULL,
@@ -68,3 +71,14 @@ CREATE TABLE mensajes (
     FOREIGN KEY (remitente_id) REFERENCES usuarios(id),
     FOREIGN KEY (receptor_id) REFERENCES usuarios(id)
 );
+
+CREATE TABLE contactos (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    nombre VARCHAR(100) NOT NULL,
+    email VARCHAR(150) NOT NULL,
+    mensaje TEXT NOT NULL,
+    fecha_envio DATETIME DEFAULT CURRENT_TIMESTAMP
+);
+
+
+/*usuarios. salones, eventos, servicios, eventos_servicios, pagos, mensajes y contactos*/

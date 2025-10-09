@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from "react";
-import { Routes, Route, Link, useNavigate, Navigate } from "react-router-dom";
+import React, { useState } from "react";
+import { Routes, Route, Link, useNavigate, Navigate, useLocation } from "react-router-dom";
 import Login from "./pages/Login";
 import AdminDashboard from "./pages/AdminDashboard";
 import ClienteDashboard from "./pages/ClienteDashboard";
@@ -9,10 +9,21 @@ import Contactenos from "./pages/Contactenos";
 import Register from "./pages/Register";
 
 function App() {
-  const [userRole, setUserRole] = useState(
-    localStorage.getItem("userRole") || null
-  );
+  const [userRole, setUserRole] = useState(localStorage.getItem("userRole") || null);
   const navigate = useNavigate();
+  const location = useLocation();
+
+  const contactButtonHiddenRoutes = [
+    "/contactenos",
+    "/admin-dashboard",
+    "/cliente-dashboard",
+    "/home", // OtrosDashboard
+    "/crear-evento",
+  ];
+  
+  // Muestra el botón solo si la ruta actual NO está en la lista de rutas a ocultar
+  const showContactButton = !contactButtonHiddenRoutes.includes(location.pathname);
+
 
   const handleLoginSuccess = (role) => {
     localStorage.setItem("userRole", role);
@@ -22,10 +33,7 @@ function App() {
       navigate("/admin-dashboard");
     } else if (role === "cliente") {
       navigate("/cliente-dashboard");
-    } else if (role == "otros") {
-      navigate("/home")
-    } 
-    else {
+    } else if (role === "otros") {
       navigate("/home");
     }
   };
@@ -70,10 +78,12 @@ function App() {
 
   return (
     <div style={styles.appContainer}>
-      <Link to="/contactenos" style={styles.contactButton}>
-        Contáctenos
-      </Link>
-
+      {}
+      {showContactButton && (
+        <Link to="/contactenos" style={styles.contactButton}>
+          Contáctenos
+        </Link>
+      )}
       <Routes>
         <Route path="/" element={<Navigate to="/login" replace />} />
         <Route
