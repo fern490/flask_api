@@ -80,5 +80,17 @@ CREATE TABLE contactos (
     fecha_envio DATETIME DEFAULT CURRENT_TIMESTAMP
 );
 
+CREATE TABLE postulaciones (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    nombre VARCHAR(100) NOT NULL,
+    telefono VARCHAR(20),
+    email VARCHAR(150),
+    localidad VARCHAR(100),
+    edad INT,
+    genero VARCHAR(20),
+    cv_url VARCHAR(255), -- almacena la ruta del archivo PDF subido
+    comentarios TEXT,
+    fecha_postulacion DATETIME DEFAULT CURRENT_TIMESTAMP
+);
 
 /*usuarios. salones, eventos, servicios, eventos_servicios, pagos, mensajes y contactos*/

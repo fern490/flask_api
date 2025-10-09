@@ -1,5 +1,6 @@
 from config import db
 from datetime import datetime
+from django.db import models
 
 class Usuario(db.Model):
     __tablename__ = 'usuarios'
@@ -80,3 +81,24 @@ class Contacto(db.Model):
 
     def __repr__(self):
         return f"<Contacto {self.nombre} - {self.email}>"
+    
+class Postulacion(models.Model):
+    GENERO_CHOICES = [
+        ('Masculino', 'Masculino'),
+        ('Femenino', 'Femenino'),
+        ('Otro', 'Otro'),
+        ('Prefiero no decir', 'Prefiero no decir'),
+    ]
+
+    nombre = models.CharField(max_length=100)
+    telefono = models.CharField(max_length=20, blank=True, null=True)
+    email = models.EmailField(max_length=150)
+    localidad = models.CharField(max_length=100, blank=True, null=True)
+    edad = models.PositiveIntegerField(blank=True, null=True)
+    genero = models.CharField(max_length=20, choices=GENERO_CHOICES, blank=True, null=True)
+    cv = models.FileField(upload_to='cv_postulaciones/', blank=True, null=True)  # Guarda en media/cv_postulaciones/
+    comentarios = models.TextField(blank=True, null=True)
+    fecha_postulacion = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.nombre} - {self.email}"
