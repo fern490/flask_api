@@ -395,3 +395,28 @@ def crear_postulacion():
     connection.close()
 
     return jsonify({"message": "Postulación enviada correctamente"}), 200
+
+@routes.route('/postulaciones', methods=['GET'])
+def obtener_postulaciones():
+    connection = db.engine.raw_connection()
+    cursor = connection.cursor()
+
+    cursor.execute("SELECT id, nombre, email, telefono, especialidad, experiencia FROM postulaciones")
+    rows = cursor.fetchall()
+
+    cursor.close()
+    connection.close()
+
+    # Convertir resultados a lista de diccionarios
+    postulaciones = []
+    for row in rows:
+        postulaciones.append({
+            "id": row[0],
+            "nombre": row[1],
+            "email": row[2],
+            "telefono": row[3],
+            "especialidad": row[4],
+            "experiencia": row[5],
+        })
+
+    return jsonify(postulaciones), 200

@@ -23,7 +23,7 @@ function App() {
     "/crear-evento",
   ];
 
-  // Muestra los botones solo si la ruta actual NO está en la lista de rutas a ocultar
+  // Mostrar botones solo si la ruta actual NO está en la lista de rutas a ocultar
   const showButtons = !contactButtonHiddenRoutes.includes(location.pathname);
 
   const handleLoginSuccess = (role) => {
@@ -98,6 +98,7 @@ function App() {
           <Link to="/contactenos">
             <button style={styles.contactButton}>Contáctenos</button>
           </Link>
+
           <Link to="/trabaja-con-nosotros">
             <button style={styles.workButton}>Trabajá con Nosotros</button>
           </Link>
@@ -158,7 +159,7 @@ function App() {
         <Route path="/contactenos" element={<Contactenos />} />
         <Route path="/register" element={<Register />} />
 
-        {/* Nueva ruta para "Trabajá con Nosotros" */}
+        {/* Ruta para Trabajá con Nosotros */}
         <Route path="/trabaja-con-nosotros" element={<TrabajaConNosotros />} />
 
         <Route path="*" element={<Navigate to="/login" replace />} />
