@@ -1,6 +1,5 @@
 from config import db
 from datetime import datetime
-from django.db import models
 
 class Usuario(db.Model):
     __tablename__ = 'usuarios'
@@ -10,19 +9,16 @@ class Usuario(db.Model):
     fecha_nacimiento = db.Column(db.Date, nullable=False)
     genero = db.Column(db.String(20), nullable=False)
     email = db.Column(db.String(100), unique=True, nullable=False)
-    password = db.Column(db.String(100), nullable=False)
+    password = db.Column(db.String(200), nullable=False)
     rol = db.Column(db.String(50), nullable=False)
-    #reset_token = db.Column(db.String(255), nullable=True)
-    #reset_token_expira = db.Column(db.DateTime, nullable=True)
 
-    #def set_password(self, password):
-        #self.password = generate_password_hash(password)
+    # Relaciones
+    eventos = db.relationship('Evento', backref='usuario', lazy='dynamic')
+    servicios_proveedor = db.relationship('Servicio', backref='proveedor', lazy='dynamic')
+    notificaciones = db.relationship('Notificacion', backref='usuario', lazy='dynamic')
+    mensajes_enviados = db.relationship('Mensaje', foreign_keys='Mensaje.remitente_id', backref='remitente', lazy='dynamic')
+    mensajes_recibidos = db.relationship('Mensaje', foreign_keys='Mensaje.receptor_id', backref='receptor', lazy='dynamic')
 
-    #def check_password(self, password):
-        #return check_password_hash(self.password, password)
-
-    # Relación con eventos
-    eventos = db.relationship('Evento', backref='usuario', lazy=True)
 
 class Salon(db.Model):
     __tablename__ = 'salones'
@@ -31,7 +27,8 @@ class Salon(db.Model):
     direccion = db.Column(db.String(255))
     capacidad = db.Column(db.Integer)
 
-    eventos = db.relationship('Evento', backref='salon', lazy=True)
+    eventos = db.relationship('Evento', backref='salon', lazy='dynamic')
+
 
 class Evento(db.Model):
     __tablename__ = 'eventos'
@@ -39,22 +36,26 @@ class Evento(db.Model):
     nombre_evento = db.Column(db.String(255), nullable=False)
     fecha = db.Column(db.Date, nullable=False)
     tema = db.Column(db.String(255))
-    informe_detallado = db.Column(db.Text)
-
+    cantidad_personas = db.Column(db.Integer)
+    informe = db.Column(db.Text)
+    estado = db.Column(db.Enum('pendiente', 'aprobado', 'rechazado'), default='pendiente')
     salon_id = db.Column(db.Integer, db.ForeignKey('salones.salon_id'), nullable=False)
     usuario_id = db.Column(db.Integer, db.ForeignKey('usuarios.id'), nullable=False)
 
-    pagos = db.relationship('Pago', backref='evento', lazy=True)
-    servicios = db.relationship('EventoServicio', backref='evento', lazy=True)
+    pagos = db.relationship('Pago', backref='evento', lazy='dynamic')
+    eventos_servicios = db.relationship('EventoServicio', backref='evento', lazy='dynamic')
+
 
 class Servicio(db.Model):
     __tablename__ = 'servicios'
     servicio_id = db.Column(db.Integer, primary_key=True)
     nombre_servicio = db.Column(db.String(100), nullable=False)
     descripcion = db.Column(db.Text)
-    costo = db.Column(db.Numeric(10, 2))
+    costo = db.Column(db.Numeric(10,2), nullable=False)
+    proveedor_id = db.Column(db.Integer, db.ForeignKey('usuarios.id'))
 
-    eventos = db.relationship('EventoServicio', backref='servicio', lazy=True)
+    eventos_servicios = db.relationship('EventoServicio', backref='servicio', lazy='dynamic')
+
 
 class EventoServicio(db.Model):
     __tablename__ = 'eventos_servicios'
@@ -62,43 +63,56 @@ class EventoServicio(db.Model):
     evento_id = db.Column(db.Integer, db.ForeignKey('eventos.evento_id'), nullable=False)
     servicio_id = db.Column(db.Integer, db.ForeignKey('servicios.servicio_id'), nullable=False)
 
+    __table_args__ = (db.UniqueConstraint('evento_id', 'servicio_id', name='uq_evento_servicio'),)
+
+
 class Pago(db.Model):
     __tablename__ = 'pagos'
     pago_id = db.Column(db.Integer, primary_key=True)
     evento_id = db.Column(db.Integer, db.ForeignKey('eventos.evento_id'), nullable=False)
-    monto = db.Column(db.Numeric(10, 2), nullable=False)
+    monto = db.Column(db.Numeric(10,2), nullable=False)
     fecha_pago = db.Column(db.Date, nullable=False)
-    metodo = db.Column(db.String(50))
+    metodo_pago = db.Column(db.String(50))
+
+
+class Mensaje(db.Model):
+    __tablename__ = 'mensajes'
+    id = db.Column(db.Integer, primary_key=True)
+    remitente_id = db.Column(db.Integer, db.ForeignKey('usuarios.id'), nullable=False)
+    receptor_id = db.Column(db.Integer, db.ForeignKey('usuarios.id'), nullable=False)
+    contenido = db.Column(db.Text, nullable=False)
+    fecha_envio = db.Column(db.DateTime, default=datetime.utcnow)
+
 
 class Contacto(db.Model):
     __tablename__ = 'contactos'
-
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     nombre = db.Column(db.String(100), nullable=False)
     email = db.Column(db.String(150), nullable=False)
     mensaje = db.Column(db.Text, nullable=False)
     fecha_envio = db.Column(db.DateTime, default=datetime.utcnow)
 
-    def __repr__(self):
-        return f"<Contacto {self.nombre} - {self.email}>"
-    
-class Postulacion(models.Model):
-    GENERO_CHOICES = [
-        ('Masculino', 'Masculino'),
-        ('Femenino', 'Femenino'),
-        ('Otro', 'Otro'),
-        ('Prefiero no decir', 'Prefiero no decir'),
-    ]
 
-    nombre = models.CharField(max_length=100)
-    telefono = models.CharField(max_length=20, blank=True, null=True)
-    email = models.EmailField(max_length=150)
-    localidad = models.CharField(max_length=100, blank=True, null=True)
-    edad = models.PositiveIntegerField(blank=True, null=True)
-    genero = models.CharField(max_length=20, choices=GENERO_CHOICES, blank=True, null=True)
-    cv = models.FileField(upload_to='cv_postulaciones/', blank=True, null=True)  # Guarda en media/cv_postulaciones/
-    comentarios = models.TextField(blank=True, null=True)
-    fecha_postulacion = models.DateTimeField(auto_now_add=True)
+class Postulacion(db.Model):
+    __tablename__ = 'postulaciones'
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    nombre = db.Column(db.String(100), nullable=False)
+    telefono = db.Column(db.String(20))
+    email = db.Column(db.String(150))
+    localidad = db.Column(db.String(100))
+    especialidad = db.Column(db.String(100))
+    experiencia = db.Column(db.Text)
+    edad = db.Column(db.Integer)
+    genero = db.Column(db.String(20))
+    cv_url = db.Column(db.String(255))
+    comentarios = db.Column(db.Text)
+    fecha_postulacion = db.Column(db.DateTime, default=datetime.utcnow)
 
-    def __str__(self):
-        return f"{self.nombre} - {self.email}"
+
+class Notificacion(db.Model):
+    __tablename__ = 'notificaciones'
+    id = db.Column(db.Integer, primary_key=True)
+    usuario_id = db.Column(db.Integer, db.ForeignKey('usuarios.id'))
+    mensaje = db.Column(db.Text)
+    leido = db.Column(db.Boolean, default=False)
+    fecha = db.Column(db.DateTime, default=datetime.utcnow)

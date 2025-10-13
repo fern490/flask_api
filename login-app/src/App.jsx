@@ -7,6 +7,7 @@ import OtrosDashboard from "./pages/OtrosDashboard";
 import CrearEvento from "./pages/CrearEvento";
 import Contactenos from "./pages/Contactenos";
 import Register from "./pages/Register";
+import TrabajaConNosotros from "./pages/TrabajaConNosotros";
 
 function App() {
   const [userRole, setUserRole] = useState(localStorage.getItem("userRole") || null);
@@ -15,15 +16,15 @@ function App() {
 
   const contactButtonHiddenRoutes = [
     "/contactenos",
+    "/trabaja-con-nosotros",
     "/admin-dashboard",
     "/cliente-dashboard",
     "/home", // OtrosDashboard
     "/crear-evento",
   ];
-  
-  // Muestra el botón solo si la ruta actual NO está en la lista de rutas a ocultar
-  const showContactButton = !contactButtonHiddenRoutes.includes(location.pathname);
 
+  // Muestra los botones solo si la ruta actual NO está en la lista de rutas a ocultar
+  const showButtons = !contactButtonHiddenRoutes.includes(location.pathname);
 
   const handleLoginSuccess = (role) => {
     localStorage.setItem("userRole", role);
@@ -61,29 +62,48 @@ function App() {
       backgroundRepeat: "no-repeat",
       position: "relative",
     },
-    contactButton: {
+    buttonContainer: {
       position: "absolute",
       top: "20px",
       right: "20px",
+      display: "flex",
+      gap: "10px",
+      zIndex: 10,
+    },
+    contactButton: {
       backgroundColor: "#e74c3c",
       color: "white",
+      border: "none",
       padding: "10px 15px",
       borderRadius: "5px",
-      textDecoration: "none",
-      fontSize: "1rem",
+      cursor: "pointer",
       fontWeight: "bold",
-      zIndex: 10,
+    },
+    workButton: {
+      backgroundColor: "#27ae60",
+      color: "white",
+      border: "none",
+      padding: "10px 15px",
+      borderRadius: "5px",
+      cursor: "pointer",
+      fontWeight: "bold",
     },
   };
 
   return (
     <div style={styles.appContainer}>
-      {}
-      {showContactButton && (
-        <Link to="/contactenos" style={styles.contactButton}>
-          Contáctenos
-        </Link>
+      {/* Botones de acceso rápido */}
+      {showButtons && (
+        <div style={styles.buttonContainer}>
+          <Link to="/contactenos">
+            <button style={styles.contactButton}>Contáctenos</button>
+          </Link>
+          <Link to="/trabaja-con-nosotros">
+            <button style={styles.workButton}>Trabajá con Nosotros</button>
+          </Link>
+        </div>
       )}
+
       <Routes>
         <Route path="/" element={<Navigate to="/login" replace />} />
         <Route
@@ -137,6 +157,10 @@ function App() {
         />
         <Route path="/contactenos" element={<Contactenos />} />
         <Route path="/register" element={<Register />} />
+
+        {/* Nueva ruta para "Trabajá con Nosotros" */}
+        <Route path="/trabaja-con-nosotros" element={<TrabajaConNosotros />} />
+
         <Route path="*" element={<Navigate to="/login" replace />} />
       </Routes>
     </div>

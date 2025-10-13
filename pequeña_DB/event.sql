@@ -86,11 +86,22 @@ CREATE TABLE postulaciones (
     telefono VARCHAR(20),
     email VARCHAR(150),
     localidad VARCHAR(100),
+    especialidad VARCHAR(100),
+    experiencia TEXT,
     edad INT,
     genero VARCHAR(20),
     cv_url VARCHAR(255), -- almacena la ruta del archivo PDF subido
     comentarios TEXT,
     fecha_postulacion DATETIME DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE notificaciones (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    usuario_id INT,
+    mensaje TEXT,
+    leido BOOLEAN DEFAULT FALSE,
+    fecha DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (usuario_id) REFERENCES usuarios(id)
 );
 
 /*usuarios. salones, eventos, servicios, eventos_servicios, pagos, mensajes y contactos*/

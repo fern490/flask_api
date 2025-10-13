@@ -369,3 +369,29 @@ def get_contactos():
     except Exception as e:
         print(f"Error al obtener mensajes: {e}")
         return jsonify({"mensaje": "Error al obtener los mensajes."}), 500
+    
+# POSTULACIONES
+
+@routes.route('/postulaciones', methods=['POST'])
+def crear_postulacion():
+    data = request.json
+    nombre = data.get('nombre')
+    email = data.get('email')
+    telefono = data.get('telefono')
+    especialidad = data.get('especialidad')
+    experiencia = data.get('experiencia')
+
+    if not all([nombre, email, telefono, especialidad, experiencia]):
+        return jsonify({"error": "Faltan campos"}), 400
+
+    connection = db.engine.raw_connection()
+    cursor = connection.cursor()
+    cursor.execute("""
+        INSERT INTO postulaciones (nombre, email, telefono, especialidad, experiencia)
+        VALUES (%s, %s, %s, %s, %s)
+    """, (nombre, email, telefono, especialidad, experiencia))
+    connection.commit()
+    cursor.close()
+    connection.close()
+
+    return jsonify({"message": "Postulación enviada correctamente"}), 200
