@@ -32,10 +32,9 @@ def registro_temporal():
     print("📋 Lista actual de usuarios temporales:", usuarios_temporales)
 
     return jsonify({
-        "message": "¡Usuario guardado temporalmente!",
+        "message": "¡Registro éxitoso!",
         "usuario": data
     }), 201
-
 
 # =========================================
 # 🧩 Ruta 2: Ver todos los usuarios temporales
@@ -120,6 +119,7 @@ def eliminar_usuario(id):
 
 # LOGIN
 
+
 @routes.route("/login", methods=["POST"])
 def login():
     data = request.get_json()
@@ -136,6 +136,7 @@ def login():
 
 
 #SALONES
+
 
 @routes.route('/salones', methods=['POST'])
 def crear_salon():
@@ -169,6 +170,7 @@ def eliminar_salon(id):
 
 
 # EVENTOS
+
 
 @routes.route('/eventos', methods=['POST'])
 def crear_evento():
@@ -222,6 +224,7 @@ def eliminar_evento(id):
 
 # SERVICIOS
 
+
 @routes.route('/servicios', methods=['POST'])
 def crear_servicio():
     data = request.json
@@ -256,6 +259,7 @@ def eliminar_servicio(id):
 
 #CONECTA (eventos_servicios)
 
+
 @routes.route('/eventos/<int:evento_id>/servicios', methods=['POST'])
 def asignar_servicio(evento_id):
     data = request.json
@@ -281,6 +285,7 @@ def eliminar_evento_servicio(id):
 
 
 # PAGOS
+
 
 @routes.route('/pagos', methods=['POST'])
 def registrar_pago():
@@ -321,7 +326,9 @@ def eliminar_pago(id):
     db.session.commit()
     return jsonify({"mensaje": "Pago eliminado"})
 
+
 # CONTACTO
+
 
 @routes.route('/contacto', methods=['POST'])
 def handle_contacto():
@@ -369,3 +376,67 @@ def get_contactos():
     except Exception as e:
         print(f"Error al obtener mensajes: {e}")
         return jsonify({"mensaje": "Error al obtener los mensajes."}), 500
+    
+
+# POSTULACIONES
+
+
+@routes.route('/postulaciones', methods=['POST'])
+def crear_postulacion():
+    data = request.json
+
+    nombre = data.get('nombre')
+    email = data.get('email')
+    telefono = data.get('telefono')
+    localidad = data.get('localidad')
+    edad = data.get('edad')
+    genero = data.get('genero')
+    especialidad = data.get('especialidad')
+    experiencia = data.get('experiencia')
+    cv_url = data.get('cv_url', '')
+
+    campos_obligatorios = [nombre, email, telefono, localidad, edad, genero, especialidad, experiencia]
+    if not all(campos_obligatorios):
+        return jsonify({"error": "Faltan campos obligatorios para la postulación"}), 400
+
+    try:
+        connection = db.engine.raw_connection()
+        cursor = connection.cursor()
+
+        cursor.execute("""
+            INSERT INTO postulaciones 
+            (nombre, email, telefono, localidad, edad, genero, especialidad, experiencia, cv_url)
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
+        """, (nombre, email, telefono, localidad, edad, genero, especialidad, experiencia, cv_url))
+
+        connection.commit()
+        cursor.close()
+        connection.close()
+
+        print(f"✅ Nueva postulación registrada: {nombre} ({especialidad})")
+        return jsonify({"message": "Postulación enviada correctamente"}), 201
+    except Exception as e:
+        print(f"❌ Error al crear postulación: {e}")
+        return jsonify({"error": "Error interno del servidor al procesar la postulación."}), 500
+
+
+@routes.route('/postulaciones', methods=['GET'])
+def obtener_postulaciones():
+    connection = db.engine.raw_connection()
+    cursor = connection.cursor()
+
+    cursor.execute("SELECT id, nombre, email, telefono, localidad, edad, genero, especialidad, experiencia, cv_url, fecha_postulacion FROM postulaciones")
+    rows = cursor.fetchall()
+
+    cursor.close()
+    connection.close()
+
+    column_names = ["id", "nombre", "email", "telefono", "localidad", "edad", "genero", "especialidad", "experiencia", "cv_url", "fecha_postulacion"]
+    postulaciones = []
+    for row in rows:
+        postulacion = dict(zip(column_names, row))
+        postulaciones.append(postulacion)
+
+    return jsonify(postulaciones), 200
+
+

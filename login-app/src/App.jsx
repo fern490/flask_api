@@ -7,6 +7,7 @@ import OtrosDashboard from "./pages/OtrosDashboard";
 import CrearEvento from "./pages/CrearEvento";
 import Contactenos from "./pages/Contactenos";
 import Register from "./pages/Register";
+import TrabajaConNosotros from "./pages/TrabajaConNosotros";
 
 function App() {
   const [userRole, setUserRole] = useState(localStorage.getItem("userRole") || null);
@@ -15,27 +16,22 @@ function App() {
 
   const contactButtonHiddenRoutes = [
     "/contactenos",
+    "/trabaja-con-nosotros",
     "/admin-dashboard",
     "/cliente-dashboard",
-    "/home", // OtrosDashboard
+    "/home",
     "/crear-evento",
   ];
-  
-  // Muestra el botón solo si la ruta actual NO está en la lista de rutas a ocultar
-  const showContactButton = !contactButtonHiddenRoutes.includes(location.pathname);
 
+  const showButtons = !contactButtonHiddenRoutes.includes(location.pathname);
 
   const handleLoginSuccess = (role) => {
     localStorage.setItem("userRole", role);
     setUserRole(role);
 
-    if (role === "admin") {
-      navigate("/admin-dashboard");
-    } else if (role === "cliente") {
-      navigate("/cliente-dashboard");
-    } else if (role === "otros") {
-      navigate("/home");
-    }
+    if (role === "admin") navigate("/admin-dashboard");
+    else if (role === "cliente") navigate("/cliente-dashboard");
+    else if (role === "otros") navigate("/home");
   };
 
   const handleLogout = () => {
@@ -45,9 +41,7 @@ function App() {
     navigate("/login");
   };
 
-  const handleRegisterClick = () => {
-    navigate("/register");
-  };
+  const handleRegisterClick = () => navigate("/register");
 
   const styles = {
     appContainer: {
@@ -61,82 +55,96 @@ function App() {
       backgroundRepeat: "no-repeat",
       position: "relative",
     },
-    contactButton: {
-      position: "absolute",
-      top: "20px",
-      right: "20px",
-      backgroundColor: "#e74c3c",
-      color: "white",
-      padding: "10px 15px",
-      borderRadius: "5px",
-      textDecoration: "none",
-      fontSize: "1rem",
-      fontWeight: "bold",
-      zIndex: 10,
+    topBar: {
+      position: "fixed",
+      top: 0,
+      left: 0,
+      width: "100%",
+      height: "60px",
+      backgroundColor: "rgba(0, 0, 0, 0.9)",
+      zIndex: 9,
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "flex-end",
+      paddingRight: "30px",
+      boxShadow: "0 2px 10px rgba(0,0,0,0.5)",
     },
+    sectionContainer: {
+      display: "flex",
+      gap: "15px",
+    },
+    section: {
+      backgroundColor: "rgba(255,255,255,0.1)",
+      border: "1px solid rgba(255,255,255,0.2)",
+      borderRadius: "8px",
+      padding: "10px 18px",
+      color: "white",
+      fontWeight: "bold",
+      cursor: "pointer",
+      transition: "all 0.3s ease",
+      backdropFilter: "blur(8px)",
+    },
+    sectionHover: {
+      transform: "scale(1.08)",
+      backgroundColor: "rgba(255,255,255,0.25)",
+    },
+  };
+
+  const SectionButton = ({ to, label }) => {
+    const [hover, setHover] = useState(false);
+    return (
+      <Link to={to} style={{ textDecoration: "none" }}>
+        <div
+          style={{
+            ...styles.section,
+            ...(hover ? styles.sectionHover : {}),
+          }}
+          onMouseEnter={() => setHover(true)}
+          onMouseLeave={() => setHover(false)}
+        >
+          {label}
+        </div>
+      </Link>
+    );
   };
 
   return (
     <div style={styles.appContainer}>
-      {}
-      {showContactButton && (
-        <Link to="/contactenos" style={styles.contactButton}>
-          Contáctenos
-        </Link>
+      {/* Barra negra superior */}
+      {showButtons && (
+        <div style={styles.topBar}>
+          <div style={styles.sectionContainer}>
+            <SectionButton to="/contactenos" label="Contáctenos" />
+            <SectionButton to="/trabaja-con-nosotros" label="Trabajá con Nosotros" />
+          </div>
+        </div>
       )}
+
       <Routes>
         <Route path="/" element={<Navigate to="/login" replace />} />
         <Route
           path="/login"
-          element={
-            <Login
-              onLoginSuccess={handleLoginSuccess}
-              onRegisterClick={handleRegisterClick}
-            />
-          }
+          element={<Login onLoginSuccess={handleLoginSuccess} onRegisterClick={handleRegisterClick} />}
         />
         <Route
           path="/admin-dashboard"
-          element={
-            userRole === "admin" ? (
-              <AdminDashboard onLogout={handleLogout} />
-            ) : (
-              <Navigate to="/login" replace />
-            )
-          }
+          element={userRole === "admin" ? <AdminDashboard onLogout={handleLogout} /> : <Navigate to="/login" replace />}
         />
         <Route
           path="/cliente-dashboard"
-          element={
-            userRole === "cliente" ? (
-              <ClienteDashboard onLogout={handleLogout} />
-            ) : (
-              <Navigate to="/login" replace />
-            )
-          }
+          element={userRole === "cliente" ? <ClienteDashboard onLogout={handleLogout} /> : <Navigate to="/login" replace />}
         />
         <Route
           path="/home"
-          element={
-            userRole === "otros" ? (
-              <OtrosDashboard onLogout={handleLogout} />
-            ) : (
-              <Navigate to="/login" replace />
-            )
-          }
+          element={userRole === "otros" ? <OtrosDashboard onLogout={handleLogout} /> : <Navigate to="/login" replace />}
         />
         <Route
           path="/crear-evento"
-          element={
-            userRole === "admin" ? (
-              <CrearEvento />
-            ) : (
-              <Navigate to="/login" replace />
-            )
-          }
+          element={userRole === "admin" ? <CrearEvento /> : <Navigate to="/login" replace />}
         />
         <Route path="/contactenos" element={<Contactenos />} />
         <Route path="/register" element={<Register />} />
+        <Route path="/trabaja-con-nosotros" element={<TrabajaConNosotros />} />
         <Route path="*" element={<Navigate to="/login" replace />} />
       </Routes>
     </div>

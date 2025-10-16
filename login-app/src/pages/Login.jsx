@@ -41,7 +41,8 @@ const Login = ({ onLoginSuccess, onRegisterClick }) => {
 
   const styles = {
     wrapper: {
-      padding: "30px",
+      paddingTop: "110px", // desplaza el cuadro debajo de la barra negra
+      transform: "scale(0.95)", // reduce todo el tamaño un 5%
       borderRadius: "16px",
       backgroundColor: "rgba(255, 255, 255, 0.15)",
       boxShadow: "0 8px 32px 0 rgba(31, 38, 135, 0.37)",
@@ -51,12 +52,12 @@ const Login = ({ onLoginSuccess, onRegisterClick }) => {
       display: "flex",
       justifyContent: "center",
       alignItems: "center",
-      height: "auto",
-      with: "900px"
+      height: "100vh",
     },
 
     container: {
       width: "100%",
+      maxWidth: "340px",
       padding: "20px",
       border: "5px solid #cccccc3d",
       borderRadius: "8px",
@@ -78,16 +79,16 @@ const Login = ({ onLoginSuccess, onRegisterClick }) => {
     },
 
     input: {
-      margin: "10px 0",
-      padding: "10px",
-      fontSize: "16px",
+      margin: "8px 0",
+      padding: "8px",
+      fontSize: "15px",
       borderRadius: "4px",
       border: "1px solid #ccc",
     },
 
     fieldset: {
-      margin: "15px 0",
-      padding: "10px",
+      margin: "12px 0",
+      padding: "8px",
       border: "1px solid #ccc",
       borderRadius: "4px",
       textAlign: "left",
@@ -95,36 +96,36 @@ const Login = ({ onLoginSuccess, onRegisterClick }) => {
 
     label: {
       display: "block",
-      marginBottom: "8px",
+      marginBottom: "6px",
       cursor: "pointer",
     },
 
     button: {
-      padding: "10px",
+      padding: "9px",
       backgroundColor: "#4CAF50",
       color: "white",
       border: "none",
       cursor: "pointer",
       borderRadius: "4px",
-      fontSize: "16px",
+      fontSize: "15px",
       marginTop: "10px",
     },
     
     registerButton: {
-      padding: "10px",
+      padding: "9px",
       backgroundColor: "#3498db",
       color: "white",
       border: "none",
       cursor: "pointer",
       borderRadius: "4px",
-      fontSize: "16px",
+      fontSize: "15px",
       marginTop: "10px",
     },
 
     error: {
       color: "red",
-      fontSize: "14px",
-      margin: "10px 0",
+      fontSize: "13px",
+      margin: "8px 0",
     },
   };
 

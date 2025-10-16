@@ -148,10 +148,11 @@ const Register = () => {
         <a
           href="/login"
           style={{
-            marginTop: "10px",
+            marginTop: "7px",
             display: "block",
             color: "#a8e0ff",
             textDecoration: "none",
+            fontSize: "12px",
           }}
         >
           ¿Ya tenés una cuenta? Iniciá sesión
@@ -163,11 +164,11 @@ const Register = () => {
 
 const styles = {
   container: {
-    width: "320px",
-    margin: "20px auto",
-    padding: "20px",
-    border: "5px solid #cccccc3d",
-    borderRadius: "8px",
+    width: "272px",
+    margin: "16px auto",
+    padding: "16px",
+    border: "4px solid #cccccc3d",
+    borderRadius: "6.5px",
     textAlign: "center",
     display: "flex",
     flexDirection: "column",
@@ -186,41 +187,42 @@ const styles = {
   },
 
   input: {
-    margin: "10px 0",
-    padding: "10px",
-    fontSize: "16px",
-    borderRadius: "4px",
-    border: "1px solid #ccc",
+    margin: "8px 0",
+    padding: "8px",
+    fontSize: "13px",
+    borderRadius: "3px",
+    border: "0.8px solid #ccc",
   },
 
   fieldset: {
-    margin: "15px 0",
-    padding: "10px",
-    border: "1px solid #ccc",
-    borderRadius: "4px",
+    margin: "12px 0",
+    padding: "8px",
+    border: "0.8px solid #ccc",
+    borderRadius: "3px",
     textAlign: "left",
+    fontSize: "13px",
   },
 
   label: {
     display: "block",
-    marginBottom: "8px",
+    marginBottom: "6.5px",
     cursor: "pointer",
   },
 
   button: {
-    padding: "10px",
+    padding: "8px",
     backgroundColor: "#4CAF50",
     color: "white",
     border: "none",
     cursor: "pointer",
-    borderRadius: "4px",
-    fontSize: "16px",
+    borderRadius: "3px",
+    fontSize: "13px",
   },
 
   error: {
     color: "red",
-    fontSize: "14px",
-    margin: "10px 0",
+    fontSize: "12px",
+    margin: "8px 0",
   },
 };
 
