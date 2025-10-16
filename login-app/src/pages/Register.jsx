@@ -166,24 +166,6 @@ const Register = () => {
             Registrarse
           </button>
 
-<<<<<<< HEAD
-        <button type="submit" style={styles.button}>
-          Registrarse
-        </button>
-        <a
-          href="/login"
-          style={{
-            marginTop: "7px",
-            display: "block",
-            color: "#a8e0ff",
-            textDecoration: "none",
-            fontSize: "12px",
-          }}
-        >
-          ¿Ya tenés una cuenta? Iniciá sesión
-        </a>
-      </form>
-=======
           <a
             href="/login"
             style={{
@@ -197,26 +179,17 @@ const Register = () => {
           </a>
         </form>
       </div>
->>>>>>> bcf0959d203530ab77fc6217c5dd9542cefe912d
     </div>
   );
 };
 
 const styles = {
   container: {
-<<<<<<< HEAD
-    width: "272px",
-    margin: "16px auto",
-    padding: "16px",
-    border: "4px solid #cccccc3d",
-    borderRadius: "6.5px",
-=======
     width: "260px",  // un poco más pequeño
     margin: "0 auto",
     padding: "14px",
     border: "4px solid #cccccc3d",
     borderRadius: "6px",
->>>>>>> bcf0959d203530ab77fc6217c5dd9542cefe912d
     textAlign: "center",
     display: "flex",
     flexDirection: "column",
@@ -236,32 +209,6 @@ const styles = {
   },
 
   input: {
-<<<<<<< HEAD
-    margin: "8px 0",
-    padding: "8px",
-    fontSize: "13px",
-    borderRadius: "3px",
-    border: "0.8px solid #ccc",
-  },
-
-  fieldset: {
-    margin: "12px 0",
-    padding: "8px",
-    border: "0.8px solid #ccc",
-    borderRadius: "3px",
-    textAlign: "left",
-    fontSize: "13px",
-  },
-
-  label: {
-    display: "block",
-    marginBottom: "6.5px",
-    cursor: "pointer",
-  },
-
-  button: {
-    padding: "8px",
-=======
     margin: "6px 0",
     padding: "7px",
     fontSize: "13px",
@@ -280,7 +227,6 @@ const styles = {
 
   button: {
     padding: "7px",
->>>>>>> bcf0959d203530ab77fc6217c5dd9542cefe912d
     backgroundColor: "#4CAF50",
     color: "white",
     border: "none",
@@ -292,9 +238,6 @@ const styles = {
   error: {
     color: "red",
     fontSize: "12px",
-<<<<<<< HEAD
-    margin: "8px 0",
-=======
     margin: "6px 0",
   },
 
@@ -344,7 +287,6 @@ const styles = {
     justifyContent: "center",
     alignItems: "center",
     width: "fit-content",
->>>>>>> bcf0959d203530ab77fc6217c5dd9542cefe912d
   },
 };
 

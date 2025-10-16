@@ -23,7 +23,6 @@ function App() {
     "/crear-evento",
   ];
 
-  // Mostrar botones solo si la ruta actual NO está en la lista de rutas a ocultar
   const showButtons = !contactButtonHiddenRoutes.includes(location.pathname);
 
   const handleLoginSuccess = (role) => {
