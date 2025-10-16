@@ -41,18 +41,15 @@ const Login = ({ onLoginSuccess, onRegisterClick }) => {
 
   const styles = {
     wrapper: {
-      paddingTop: "110px", // desplaza el cuadro debajo de la barra negra
-      transform: "scale(0.95)", // reduce todo el tamaño un 5%
+      // ✅ MANTENIDO: El padding superior original que causaba la superposición y la escala reducida fueron eliminados en la corrección anterior.
       borderRadius: "16px",
       backgroundColor: "rgba(255, 255, 255, 0.15)",
       boxShadow: "0 8px 32px 0 rgba(31, 38, 135, 0.37)",
       backdropFilter: "blur(6px)",
       WebkitBackdropFilter: "blur(6px)",
       border: "1px solid rgba(255, 255, 255, 0.18)",
-      display: "flex",
-      justifyContent: "center",
-      alignItems: "center",
-      height: "100vh",
+      padding: "20px", 
+      margin: "0 20px", 
     },
 
     container: {

@@ -1,8 +1,5 @@
 import React, { useState } from "react";
-<<<<<<< HEAD
 import { useNavigate } from "react-router-dom";
-=======
->>>>>>> bcf0959d203530ab77fc6217c5dd9542cefe912d
 
 const TrabajaConNosotros = () => {
   const [formData, setFormData] = useState({
@@ -11,7 +8,6 @@ const TrabajaConNosotros = () => {
     telefono: "",
     especialidad: "",
     experiencia: "",
-<<<<<<< HEAD
     localidad: "",
     edad: "",
     genero: "",
@@ -20,10 +16,6 @@ const TrabajaConNosotros = () => {
 
   const [mensaje, setMensaje] = useState("");
   const navigate = useNavigate();
-=======
-  });
-  const [mensaje, setMensaje] = useState("");
->>>>>>> bcf0959d203530ab77fc6217c5dd9542cefe912d
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -32,20 +24,12 @@ const TrabajaConNosotros = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-<<<<<<< HEAD
-=======
-
->>>>>>> bcf0959d203530ab77fc6217c5dd9542cefe912d
     try {
       const response = await fetch("http://127.0.0.1:5000/postulaciones", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(formData),
       });
-<<<<<<< HEAD
-=======
-
->>>>>>> bcf0959d203530ab77fc6217c5dd9542cefe912d
       if (response.ok) {
         setMensaje("✅ ¡Tu postulación fue enviada correctamente!");
         setFormData({
@@ -54,13 +38,10 @@ const TrabajaConNosotros = () => {
           telefono: "",
           especialidad: "",
           experiencia: "",
-<<<<<<< HEAD
           localidad: "",
           edad: "",
           genero: "",
           cv_url: "",
-=======
->>>>>>> bcf0959d203530ab77fc6217c5dd9542cefe912d
         });
       } else {
         setMensaje("⚠️ Hubo un error al enviar tu postulación.");
@@ -83,15 +64,10 @@ const TrabajaConNosotros = () => {
       display: "flex",
       justifyContent: "center",
       alignItems: "center",
-<<<<<<< HEAD
       overflow: "auto",
       position: "relative",
       padding: "14.44px",
       boxSizing: "border-box",
-=======
-      overflow: "hidden",
-      position: "relative",
->>>>>>> bcf0959d203530ab77fc6217c5dd9542cefe912d
     },
     overlay: {
       position: "absolute",
@@ -105,7 +81,6 @@ const TrabajaConNosotros = () => {
     wrapper: {
       position: "relative",
       zIndex: 1,
-<<<<<<< HEAD
       width: "432.6px",
       maxWidth: "100%",
       padding: "21.66px 18.05px",
@@ -209,83 +184,6 @@ const TrabajaConNosotros = () => {
       padding: "8px 12px",
       cursor: "pointer",
       fontSize: "0.75rem",
-=======
-      width: "400px",
-      maxWidth: "90%",
-      padding: "30px",
-      borderRadius: "16px",
-      backgroundColor: "rgba(255, 255, 255, 0.95)",
-      boxShadow: "0 8px 32px rgba(0, 0, 0, 0.25)",
-      backdropFilter: "blur(6px)",
-      display: "flex",
-      flexDirection: "column",
-      justifyContent: "center",
-      alignItems: "center",
-      minHeight: "550px",
-      boxSizing: "border-box",
-      textAlign: "center",
-      animation: "fadeIn 0.6s ease-in-out",
-    },
-    title: {
-      fontSize: "1.8rem",
-      fontWeight: "bold",
-      color: "#2c3e50",
-      marginBottom: "10px",
-    },
-    subtitle: {
-      fontSize: "1rem",
-      color: "#555",
-      marginBottom: "30px",
-      lineHeight: "1.5",
-    },
-    formInputsWrapper: {
-      display: "flex",
-      flexDirection: "column",
-      alignItems: "center",
-      width: "100%",
-      flexGrow: 1,
-      justifyContent: "center",
-    },
-    input: {
-      width: "90%",
-      padding: "12px",
-      marginBottom: "14px",
-      borderRadius: "8px",
-      border: "1px solid #ccc",
-      fontSize: "15px",
-      backgroundColor: "#f7f9fa",
-      color: "#000",
-      transition: "all 0.2s ease",
-    },
-    textarea: {
-      width: "90%",
-      padding: "12px",
-      height: "100px",
-      borderRadius: "8px",
-      border: "1px solid #ccc",
-      resize: "vertical",
-      fontSize: "15px",
-      backgroundColor: "#f7f9fa",
-      marginBottom: "18px",
-      color: "#000",
-    },
-    button: {
-      width: "90%",
-      padding: "12px",
-      backgroundColor: "#27ae60",
-      color: "white",
-      border: "none",
-      borderRadius: "8px",
-      cursor: "pointer",
-      fontWeight: "bold",
-      fontSize: "16px",
-      transition: "background-color 0.3s ease, transform 0.1s ease",
-    },
-    message: {
-      marginTop: "20px",
-      color: "#2ecc71",
-      fontWeight: "bold",
->>>>>>> bcf0959d203530ab77fc6217c5dd9542cefe912d
     },
   };
 
@@ -293,30 +191,17 @@ const TrabajaConNosotros = () => {
     <div style={styles.background}>
       <div style={styles.overlay}></div>
       <div style={styles.wrapper}>
-<<<<<<< HEAD
         <div style={styles.headerWrapper}>
           <h1 style={styles.title}>¿Querés formar parte de Nosotros?</h1>
           <p style={styles.subtitle}>
             ¿Tenés talento para eventos? ¡Sumate y mostralo al mundo!
           </p>
         </div>
-=======
-        <h1 style={styles.title}>Trabajá con Nosotros</h1>
-        <p style={styles.subtitle}>
-          Si ofrecés servicios para eventos (DJ, fotografía, decoración,
-          catering...), completá el formulario y sumate a nuestro equipo.
-        </p>
-
->>>>>>> bcf0959d203530ab77fc6217c5dd9542cefe912d
         <form onSubmit={handleSubmit} style={styles.formInputsWrapper}>
           <input
             type="text"
             name="nombre"
-<<<<<<< HEAD
             placeholder="Nombre"
-=======
-            placeholder="Nombre completo"
->>>>>>> bcf0959d203530ab77fc6217c5dd9542cefe912d
             style={styles.input}
             value={formData.nombre}
             onChange={handleChange}
@@ -334,11 +219,7 @@ const TrabajaConNosotros = () => {
           <input
             type="text"
             name="telefono"
-<<<<<<< HEAD
             placeholder="Teléfono"
-=======
-            placeholder="Teléfono o WhatsApp"
->>>>>>> bcf0959d203530ab77fc6217c5dd9542cefe912d
             style={styles.input}
             value={formData.telefono}
             onChange={handleChange}
@@ -346,7 +227,6 @@ const TrabajaConNosotros = () => {
           />
           <input
             type="text"
-<<<<<<< HEAD
             name="localidad"
             placeholder="Localidad"
             style={styles.input}
@@ -376,10 +256,6 @@ const TrabajaConNosotros = () => {
             type="text"
             name="especialidad"
             placeholder="Especialidad"
-=======
-            name="especialidad"
-            placeholder="Especialidad (DJ, fotógrafo, decorador...)"
->>>>>>> bcf0959d203530ab77fc6217c5dd9542cefe912d
             style={styles.input}
             value={formData.especialidad}
             onChange={handleChange}
@@ -393,7 +269,6 @@ const TrabajaConNosotros = () => {
             onChange={handleChange}
             required
           />
-<<<<<<< HEAD
           <input
             type="url"
             name="cv_url"
@@ -402,8 +277,6 @@ const TrabajaConNosotros = () => {
             value={formData.cv_url}
             onChange={handleChange}
           />
-=======
->>>>>>> bcf0959d203530ab77fc6217c5dd9542cefe912d
           <button
             type="submit"
             style={styles.button}
@@ -413,15 +286,10 @@ const TrabajaConNosotros = () => {
             Enviar Postulación
           </button>
         </form>
-<<<<<<< HEAD
         {mensaje && <p style={styles.message}>{mensaje}</p>}
         <button onClick={() => navigate("/login")} style={styles.loginRedirect}>
           Volver al inicio
         </button>
-=======
-
-        {mensaje && <p style={styles.message}>{mensaje}</p>}
->>>>>>> bcf0959d203530ab77fc6217c5dd9542cefe912d
       </div>
     </div>
   );

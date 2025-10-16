@@ -377,7 +377,6 @@ def get_contactos():
         print(f"Error al obtener mensajes: {e}")
         return jsonify({"mensaje": "Error al obtener los mensajes."}), 500
     
-<<<<<<< HEAD
 
 # POSTULACIONES
 
@@ -420,50 +419,18 @@ def crear_postulacion():
         print(f"❌ Error al crear postulación: {e}")
         return jsonify({"error": "Error interno del servidor al procesar la postulación."}), 500
 
-=======
-# POSTULACIONES
-
-@routes.route('/postulaciones', methods=['POST'])
-def crear_postulacion():
-    data = request.json
-    nombre = data.get('nombre')
-    email = data.get('email')
-    telefono = data.get('telefono')
-    especialidad = data.get('especialidad')
-    experiencia = data.get('experiencia')
-
-    if not all([nombre, email, telefono, especialidad, experiencia]):
-        return jsonify({"error": "Faltan campos"}), 400
-
-    connection = db.engine.raw_connection()
-    cursor = connection.cursor()
-    cursor.execute("""
-        INSERT INTO postulaciones (nombre, email, telefono, especialidad, experiencia)
-        VALUES (%s, %s, %s, %s, %s)
-    """, (nombre, email, telefono, especialidad, experiencia))
-    connection.commit()
-    cursor.close()
-    connection.close()
-
-    return jsonify({"message": "Postulación enviada correctamente"}), 200
->>>>>>> bcf0959d203530ab77fc6217c5dd9542cefe912d
 
 @routes.route('/postulaciones', methods=['GET'])
 def obtener_postulaciones():
     connection = db.engine.raw_connection()
     cursor = connection.cursor()
 
-<<<<<<< HEAD
     cursor.execute("SELECT id, nombre, email, telefono, localidad, edad, genero, especialidad, experiencia, cv_url, fecha_postulacion FROM postulaciones")
-=======
-    cursor.execute("SELECT id, nombre, email, telefono, especialidad, experiencia FROM postulaciones")
->>>>>>> bcf0959d203530ab77fc6217c5dd9542cefe912d
     rows = cursor.fetchall()
 
     cursor.close()
     connection.close()
 
-<<<<<<< HEAD
     column_names = ["id", "nombre", "email", "telefono", "localidad", "edad", "genero", "especialidad", "experiencia", "cv_url", "fecha_postulacion"]
     postulaciones = []
     for row in rows:
@@ -471,20 +438,3 @@ def obtener_postulaciones():
         postulaciones.append(postulacion)
 
     return jsonify(postulaciones), 200
-
-
-=======
-    # Convertir resultados a lista de diccionarios
-    postulaciones = []
-    for row in rows:
-        postulaciones.append({
-            "id": row[0],
-            "nombre": row[1],
-            "email": row[2],
-            "telefono": row[3],
-            "especialidad": row[4],
-            "experiencia": row[5],
-        })
-
-    return jsonify(postulaciones), 200
->>>>>>> bcf0959d203530ab77fc6217c5dd9542cefe912d

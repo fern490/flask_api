@@ -23,10 +23,6 @@ function App() {
     "/crear-evento",
   ];
 
-<<<<<<< HEAD
-=======
-  // Mostrar botones solo si la ruta actual NO está en la lista de rutas a ocultar
->>>>>>> bcf0959d203530ab77fc6217c5dd9542cefe912d
   const showButtons = !contactButtonHiddenRoutes.includes(location.pathname);
 
   const handleLoginSuccess = (role) => {
@@ -51,15 +47,15 @@ function App() {
     appContainer: {
       display: "flex",
       justifyContent: "center",
-      alignItems: "center",
+      alignItems: "flex-end",
       minHeight: "100vh",
       backgroundImage: `url(https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQJdRiuEpxYquiiW-1dvYyOSuGuuHL6kvxehw&s)`,
       backgroundSize: "cover",
       backgroundPosition: "center",
       backgroundRepeat: "no-repeat",
       position: "relative",
+      paddingBottom: "20px",
     },
-<<<<<<< HEAD
     topBar: {
       position: "fixed",
       top: 0,
@@ -70,36 +66,31 @@ function App() {
       zIndex: 9,
       display: "flex",
       alignItems: "center",
-      justifyContent: "flex-end",
-      paddingRight: "30px",
+      justifyContent: "space-between", 
+      padding: "0 30px",
       boxShadow: "0 2px 10px rgba(0,0,0,0.5)",
-=======
-    buttonContainer: {
-      position: "absolute",
-      top: "20px",
-      right: "20px",
-      display: "flex",
-      gap: "10px",
-      zIndex: 10,
     },
-    contactButton: {
-      backgroundColor: "#e74c3c",
-      color: "white",
-      border: "none",
-      padding: "10px 15px",
-      borderRadius: "5px",
-      cursor: "pointer",
-      fontWeight: "bold",
+    logoContainer: {
+        display: "flex",
+        alignItems: "center",
+        color: "white",
+        fontSize: "20px",
+        fontWeight: "bold",
+        textDecoration: "none",
+        gap: "10px",
     },
-    workButton: {
-      backgroundColor: "#27ae60",
-      color: "white",
-      border: "none",
-      padding: "10px 15px",
-      borderRadius: "5px",
-      cursor: "pointer",
-      fontWeight: "bold",
->>>>>>> bcf0959d203530ab77fc6217c5dd9542cefe912d
+    logo: {
+        width: "30px",
+        height: "30px",
+        backgroundColor: "#00796B",
+        borderRadius: "50%",
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
+        fontSize: "16px",
+        color: "#FF9800",
+        fontWeight: "bolder",
+        border: "2px solid #FF9800",
     },
     sectionContainer: {
       display: "flex",
@@ -142,26 +133,19 @@ function App() {
 
   return (
     <div style={styles.appContainer}>
-<<<<<<< HEAD
-      {/* Barra negra superior */}
+      {}
       {showButtons && (
         <div style={styles.topBar}>
+            {}
+            <Link to="/login" style={styles.logoContainer}>
+                <div style={styles.logo}>S</div>
+                SYNAPSIS
+            </Link>
+
           <div style={styles.sectionContainer}>
             <SectionButton to="/contactenos" label="Contáctenos" />
             <SectionButton to="/trabaja-con-nosotros" label="Trabajá con Nosotros" />
           </div>
-=======
-      {/* Botones de acceso rápido */}
-      {showButtons && (
-        <div style={styles.buttonContainer}>
-          <Link to="/contactenos">
-            <button style={styles.contactButton}>Contáctenos</button>
-          </Link>
-
-          <Link to="/trabaja-con-nosotros">
-            <button style={styles.workButton}>Trabajá con Nosotros</button>
-          </Link>
->>>>>>> bcf0959d203530ab77fc6217c5dd9542cefe912d
         </div>
       )}
 
@@ -189,14 +173,7 @@ function App() {
         />
         <Route path="/contactenos" element={<Contactenos />} />
         <Route path="/register" element={<Register />} />
-<<<<<<< HEAD
         <Route path="/trabaja-con-nosotros" element={<TrabajaConNosotros />} />
-=======
-
-        {/* Ruta para Trabajá con Nosotros */}
-        <Route path="/trabaja-con-nosotros" element={<TrabajaConNosotros />} />
-
->>>>>>> bcf0959d203530ab77fc6217c5dd9542cefe912d
         <Route path="*" element={<Navigate to="/login" replace />} />
       </Routes>
     </div>

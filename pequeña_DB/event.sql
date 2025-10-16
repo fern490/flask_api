@@ -90,25 +90,9 @@ CREATE TABLE postulaciones (
     experiencia TEXT,
     edad INT,
     genero VARCHAR(20),
-<<<<<<< HEAD
     cv_url VARCHAR(255),
     fecha_postulacion DATETIME DEFAULT CURRENT_TIMESTAMP
 );
-=======
-    cv_url VARCHAR(255), -- almacena la ruta del archivo PDF subido
-    comentarios TEXT,
-    fecha_postulacion DATETIME DEFAULT CURRENT_TIMESTAMP
-);
-
-CREATE TABLE notificaciones (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    usuario_id INT,
-    mensaje TEXT,
-    leido BOOLEAN DEFAULT FALSE,
-    fecha DATETIME DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (usuario_id) REFERENCES usuarios(id)
-);
->>>>>>> bcf0959d203530ab77fc6217c5dd9542cefe912d
 
 CREATE TABLE notificaciones (
     id INT AUTO_INCREMENT PRIMARY KEY,
