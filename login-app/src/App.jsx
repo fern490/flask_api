@@ -23,10 +23,7 @@ function App() {
     "/crear-evento",
   ];
 
-<<<<<<< HEAD
-=======
   // Mostrar botones solo si la ruta actual NO está en la lista de rutas a ocultar
->>>>>>> bcf0959d203530ab77fc6217c5dd9542cefe912d
   const showButtons = !contactButtonHiddenRoutes.includes(location.pathname);
 
   const handleLoginSuccess = (role) => {
@@ -59,7 +56,6 @@ function App() {
       backgroundRepeat: "no-repeat",
       position: "relative",
     },
-<<<<<<< HEAD
     topBar: {
       position: "fixed",
       top: 0,
@@ -73,7 +69,7 @@ function App() {
       justifyContent: "flex-end",
       paddingRight: "30px",
       boxShadow: "0 2px 10px rgba(0,0,0,0.5)",
-=======
+    },
     buttonContainer: {
       position: "absolute",
       top: "20px",
@@ -99,7 +95,6 @@ function App() {
       borderRadius: "5px",
       cursor: "pointer",
       fontWeight: "bold",
->>>>>>> bcf0959d203530ab77fc6217c5dd9542cefe912d
     },
     sectionContainer: {
       display: "flex",
@@ -142,7 +137,6 @@ function App() {
 
   return (
     <div style={styles.appContainer}>
-<<<<<<< HEAD
       {/* Barra negra superior */}
       {showButtons && (
         <div style={styles.topBar}>
@@ -150,7 +144,9 @@ function App() {
             <SectionButton to="/contactenos" label="Contáctenos" />
             <SectionButton to="/trabaja-con-nosotros" label="Trabajá con Nosotros" />
           </div>
-=======
+        </div>
+      )}
+
       {/* Botones de acceso rápido */}
       {showButtons && (
         <div style={styles.buttonContainer}>
@@ -161,7 +157,6 @@ function App() {
           <Link to="/trabaja-con-nosotros">
             <button style={styles.workButton}>Trabajá con Nosotros</button>
           </Link>
->>>>>>> bcf0959d203530ab77fc6217c5dd9542cefe912d
         </div>
       )}
 
@@ -189,14 +184,8 @@ function App() {
         />
         <Route path="/contactenos" element={<Contactenos />} />
         <Route path="/register" element={<Register />} />
-<<<<<<< HEAD
-        <Route path="/trabaja-con-nosotros" element={<TrabajaConNosotros />} />
-=======
-
         {/* Ruta para Trabajá con Nosotros */}
         <Route path="/trabaja-con-nosotros" element={<TrabajaConNosotros />} />
-
->>>>>>> bcf0959d203530ab77fc6217c5dd9542cefe912d
         <Route path="*" element={<Navigate to="/login" replace />} />
       </Routes>
     </div>
