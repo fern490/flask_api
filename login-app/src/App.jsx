@@ -8,6 +8,7 @@ import CrearEvento from "./pages/CrearEvento";
 import Contactenos from "./pages/Contactenos";
 import Register from "./pages/Register";
 import TrabajaConNosotros from "./pages/TrabajaConNosotros";
+import Inicio from "./pages/Inicio";
 
 function App() {
   const [userRole, setUserRole] = useState(localStorage.getItem("userRole") || null);
@@ -19,8 +20,9 @@ function App() {
     "/trabaja-con-nosotros",
     "/admin-dashboard",
     "/cliente-dashboard",
-    "/home",
+    "/OtrosDashboard",
     "/crear-evento",
+    "/inicio",
   ];
 
   const showButtons = !contactButtonHiddenRoutes.includes(location.pathname);
@@ -31,7 +33,7 @@ function App() {
 
     if (role === "admin") navigate("/admin-dashboard");
     else if (role === "cliente") navigate("/cliente-dashboard");
-    else if (role === "otros") navigate("/home");
+    else if (role === "otros") navigate("/OtrosDashboard");
   };
 
   const handleLogout = () => {
@@ -66,46 +68,56 @@ function App() {
       zIndex: 9,
       display: "flex",
       alignItems: "center",
-      justifyContent: "space-between", 
+      justifyContent: "space-between",
       padding: "0 30px",
       boxShadow: "0 2px 10px rgba(0,0,0,0.5)",
     },
     logoContainer: {
-        display: "flex",
-        alignItems: "center",
-        color: "white",
-        fontSize: "20px",
-        fontWeight: "bold",
-        textDecoration: "none",
-        gap: "10px",
+      display: "flex",
+      alignItems: "center",
+      color: "white",
+      fontSize: "22px",
+      fontWeight: "bold",
+      textDecoration: "none",
+      gap: "8px",
+      letterSpacing: "1px",
     },
     logo: {
-        width: "30px",
-        height: "30px",
-        backgroundColor: "#00796B",
-        borderRadius: "50%",
-        display: "flex",
-        justifyContent: "center",
-        alignItems: "center",
-        fontSize: "16px",
-        color: "#FF9800",
-        fontWeight: "bolder",
-        border: "2px solid #FF9800",
+      width: "35px",
+      height: "35px",
+      backgroundColor: "#8E24AA",
+      borderRadius: "50%",
+      display: "flex",
+      justifyContent: "center",
+      alignItems: "center",
+      fontSize: "20px",
+      color: "#FFC107",
+      fontWeight: "bolder",
+      border: "3px solid #FFC107",
+      transform: "rotate(20deg)",
+      fontFamily: "Oswald, sans-serif",
     },
     sectionContainer: {
       display: "flex",
       gap: "15px",
+      justifyContent: "flex-end",
+      minWidth: "fit-content",
+      flexWrap: "nowrap",
+      paddingRight: "30px",
     },
     section: {
       backgroundColor: "rgba(255,255,255,0.1)",
       border: "1px solid rgba(255,255,255,0.2)",
       borderRadius: "8px",
-      padding: "10px 18px",
+      padding: "10px 22px",
       color: "white",
       fontWeight: "bold",
       cursor: "pointer",
+      fontSize: "14px",
       transition: "all 0.3s ease",
       backdropFilter: "blur(8px)",
+      whiteSpace: "nowrap",
+      textAlign: "center",
     },
     sectionHover: {
       transform: "scale(1.08)",
@@ -133,16 +145,14 @@ function App() {
 
   return (
     <div style={styles.appContainer}>
-      {}
       {showButtons && (
         <div style={styles.topBar}>
-            {}
-            <Link to="/login" style={styles.logoContainer}>
-                <div style={styles.logo}>S</div>
-                SYNAPSIS
-            </Link>
-
+          <Link to="/login" style={styles.logoContainer}>
+            <div style={styles.logo}>F</div>
+            FESTIUM
+          </Link>
           <div style={styles.sectionContainer}>
+            <SectionButton to="/inicio" label="Inicio" />
             <SectionButton to="/contactenos" label="Contáctenos" />
             <SectionButton to="/trabaja-con-nosotros" label="Trabajá con Nosotros" />
           </div>
@@ -151,6 +161,7 @@ function App() {
 
       <Routes>
         <Route path="/" element={<Navigate to="/login" replace />} />
+        <Route path="/inicio" element={<Inicio />} />
         <Route
           path="/login"
           element={<Login onLoginSuccess={handleLoginSuccess} onRegisterClick={handleRegisterClick} />}
@@ -164,7 +175,7 @@ function App() {
           element={userRole === "cliente" ? <ClienteDashboard onLogout={handleLogout} /> : <Navigate to="/login" replace />}
         />
         <Route
-          path="/home"
+          path="/OtrosDashboard"
           element={userRole === "otros" ? <OtrosDashboard onLogout={handleLogout} /> : <Navigate to="/login" replace />}
         />
         <Route

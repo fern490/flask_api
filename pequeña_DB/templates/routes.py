@@ -128,7 +128,7 @@ def login():
     # Se agrego la validacion del rol, para que solo pueda ingresar si el email, la contraseña y el rol coinciden
     if user and check_password_hash(user.password, data.get("password")) and user.rol == data.get("role"):
         return jsonify({
-            "token": "fake-jwt-token",
+            "token": "jwt-token",
             "role": user.rol
         })
     else:

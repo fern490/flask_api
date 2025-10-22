@@ -41,7 +41,6 @@ const Login = ({ onLoginSuccess, onRegisterClick }) => {
 
   const styles = {
     wrapper: {
-      // ✅ MANTENIDO: El padding superior original que causaba la superposición y la escala reducida fueron eliminados en la corrección anterior.
       borderRadius: "16px",
       backgroundColor: "rgba(255, 255, 255, 0.15)",
       boxShadow: "0 8px 32px 0 rgba(31, 38, 135, 0.37)",

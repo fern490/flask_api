@@ -1,5 +1,4 @@
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
 
 const Register = () => {
   const [formData, setFormData] = useState({
@@ -12,7 +11,6 @@ const Register = () => {
   });
 
   const [error, setError] = useState("");
-  const navigate = useNavigate();
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -30,10 +28,10 @@ const Register = () => {
     }
 
     try {
-      const response = await fetch('http://127.0.0.1:5000/registro-temporal', {
-        method: 'POST',
+      const response = await fetch("http://127.0.0.1:5000/registro-temporal", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify(formData),
       });
@@ -44,7 +42,7 @@ const Register = () => {
         console.log("Usuario temporal enviado a Flask:", formData);
 
         localStorage.setItem("usuarioTemporalGuardado", JSON.stringify(formData));
-        
+
         setFormData({
           nombre: "",
           apellido: "",
@@ -66,6 +64,8 @@ const Register = () => {
 
   return (
     <div style={styles.container}>
+      <div style={styles.boxBehind}></div>
+
       <h2>Crear una cuenta</h2>
       <form onSubmit={handleSubmit} style={styles.form}>
         {error && <div style={styles.error}>{error}</div>}
@@ -145,6 +145,7 @@ const Register = () => {
         <button type="submit" style={styles.button}>
           Registrarse
         </button>
+
         <a
           href="/login"
           style={{
@@ -167,7 +168,6 @@ const styles = {
     width: "272px",
     margin: "16px auto",
     padding: "16px",
-    border: "4px solid #cccccc3d",
     borderRadius: "6.5px",
     textAlign: "center",
     display: "flex",
@@ -178,6 +178,21 @@ const styles = {
     boxSizing: "border-box",
     backgroundColor: "#425e62ff",
     color: "white",
+    position: "relative",
+    zIndex: 1,
+  },
+
+  boxBehind: {
+    position: "absolute",
+    width: "320px",
+    height: "calc(100% + 20px)",
+    backgroundColor: "rgba(255, 255, 255, 0.02)",
+    border: "2px solid rgba(255, 255, 255, 0.25)",
+    borderRadius: "12px",
+    zIndex: 0,
+    top: "-10px",
+    left: "50%",
+    transform: "translateX(-50%)",
   },
 
   form: {
