@@ -3,170 +3,177 @@ import React from "react";
 const Inicio = () => {
   const styles = {
     container: {
-      fontFamily: "Arial, sans-serif",
+      width: "100%",
+      overflowX: "hidden",
+      fontFamily: "'Arial', sans-serif",
       color: "#fff",
       backgroundColor: "#000",
-      overflowX: "hidden",
     },
+
     heroSection: {
-      position: "relative",
-      width: "100%",
-      height: "90vh",
+      width: "100vw",
+      height: "100vh",
       backgroundImage:
-        "url('https://images.unsplash.com/photo-1525182008055-f88b95ff7980?auto=format&fit=crop&w=1400&q=80')",
+        "url('Gemini_Generated_Image_oty5shoty5shoty5.jpg')",
       backgroundSize: "cover",
-      backgroundPosition: "center",
+      backgroundPosition: "center center",
+      backgroundRepeat: "no-repeat",
       display: "flex",
       flexDirection: "column",
       justifyContent: "center",
       alignItems: "center",
       textAlign: "center",
+      position: "relative",
     },
+
     overlay: {
       position: "absolute",
       top: 0,
       left: 0,
       right: 0,
       bottom: 0,
-      backgroundColor: "rgba(0,0,0,0.5)",
+      backgroundColor: "rgba(0, 0, 0, 0.5)",
+      zIndex: 0,
     },
-    heroText: {
+
+    content: {
       position: "relative",
-      zIndex: 2,
-      fontSize: "36px",
+      zIndex: 1,
+      padding: "20px",
+    },
+
+    title: {
+      fontSize: "2.8rem",
       fontWeight: "bold",
-      textTransform: "uppercase",
+      marginBottom: "12px",
       letterSpacing: "1px",
     },
-    subText: {
-      position: "relative",
-      zIndex: 2,
-      fontSize: "16px",
-      color: "#ddd",
-      marginTop: "10px",
-    },
-    videoButton: {
-      position: "relative",
-      zIndex: 2,
-      marginTop: "30px",
-      width: "70px",
-      height: "70px",
-      borderRadius: "50%",
-      backgroundColor: "rgba(255,255,255,0.2)",
-      border: "2px solid #fff",
-      display: "flex",
-      justifyContent: "center",
-      alignItems: "center",
-      cursor: "pointer",
-      transition: "0.3s",
-    },
-    triangle: {
-      width: 0,
-      height: 0,
-      borderLeft: "14px solid #fff",
-      borderTop: "10px solid transparent",
-      borderBottom: "10px solid transparent",
-      marginLeft: "4px",
-    },
-    infoSection: {
-      backgroundColor: "#000",
-      textAlign: "center",
-      padding: "60px 20px",
-    },
-    title: {
-      fontSize: "24px",
-      fontWeight: "bold",
-      textTransform: "uppercase",
-      color: "#fff",
-      marginBottom: "10px",
-    },
+
     subtitle: {
-      fontSize: "16px",
-      color: "#bbb",
-      marginBottom: "20px",
-    },
-    paragraph: {
-      color: "#ccc",
-      maxWidth: "800px",
-      margin: "0 auto",
+      fontSize: "1.1rem",
+      maxWidth: "700px",
       lineHeight: "1.6",
-      fontSize: "15px",
     },
-    logosSection: {
-      backgroundColor: "#fff",
-      color: "#000",
+
+    empresasSection: {
+      backgroundColor: "#111",
       textAlign: "center",
       padding: "40px 0",
+      overflow: "hidden",
     },
-    logosTitle: {
-      fontSize: "18px",
+
+    empresasTitle: {
+      fontSize: "1.3rem",
       fontWeight: "bold",
-      marginBottom: "30px",
+      color: "#fff",
+      marginBottom: "25px",
     },
+
     logosContainer: {
       display: "flex",
-      justifyContent: "center",
-      alignItems: "center",
-      flexWrap: "wrap",
       gap: "50px",
+      width: "200%",
+      animation: "scroll 25s linear infinite",
     },
+
     logo: {
-      height: "40px",
-      opacity: 0.8,
-      transition: "0.3s",
+      height: "80px",
+      objectFit: "contain",
+      filter: "brightness(0) invert(1)",
+    },
+
+    "@keyframes scroll": {
+      "0%": { transform: "translateX(0)" },
+      "100%": { transform: "translateX(-50%)" },
     },
   };
 
   return (
     <div style={styles.container}>
-      {/* Sección principal con imagen de fondo */}
+      {/* HERO / IMAGEN PRINCIPAL */}
       <section style={styles.heroSection}>
         <div style={styles.overlay}></div>
-        <h1 style={styles.heroText}>EL ARTE DE CREAR MOMENTOS ÚNICOS</h1>
-        <p style={styles.subText}>
-          DESCUBRÍ LA MAGIA DE LOS EVENTOS EN FESTIUM <br />
-          DONDE CADA DETALLE ESTÁ PENSADO PARA EMOCIONAR.
-        </p>
-        <div style={styles.videoButton}>
-          <div style={styles.triangle}></div>
+        <div style={styles.content}>
+          <h1 style={styles.title}>EL ARTE DE CREAR MOMENTOS ÚNICOS</h1>
+          <p style={styles.subtitle}>
+            DESCUBRÍ LA MAGIA DE LOS EVENTOS EN FESTIUM EVENTOS.  
+            DONDE CADA DETALLE ESTÁ PENSADO PARA EMOCIONAR.
+          </p>
         </div>
       </section>
 
-      {/* Sección Elegancia y Modernidad */}
-      <section style={styles.infoSection}>
-        <h2 style={styles.title}>ELEGANCIA Y MODERNIDAD</h2>
-        <p style={styles.subtitle}>El lugar ideal para cada evento</p>
-        <p style={styles.paragraph}>
-          Un espacio elegante y moderno, perfecto para eventos de todas las
-          escalas, desde íntimas reuniones hasta grandes celebraciones. FESTIUM
-          ofrece un servicio excepcional y profesional, asegurando que cada
-          ocasión sea una experiencia memorable y llena de distinción.
-        </p>
-      </section>
-
-      {/* Logos de empresas o confianza */}
-      <section style={styles.logosSection}>
-        <h3 style={styles.logosTitle}>
+      {/* EMPRESAS QUE CONFÍAN */}
+      <section style={styles.empresasSection}>
+        <h2 style={styles.empresasTitle}>
           Algunas empresas que confían en nosotros:
-        </h3>
-        <div style={styles.logosContainer}>
-          <img
-            src="https://upload.wikimedia.org/wikipedia/commons/a/a9/Example.jpg"
-            alt="Logo 1"
-            style={styles.logo}
-          />
-          <img
-            src="https://upload.wikimedia.org/wikipedia/commons/4/47/PNG_transparency_demonstration_1.png"
-            alt="Logo 2"
-            style={styles.logo}
-          />
-          <img
-            src="https://upload.wikimedia.org/wikipedia/commons/3/3a/Cat03.jpg"
-            alt="Logo 3"
-            style={styles.logo}
-          />
+        </h2>
+
+        <div style={{ display: "flex", justifyContent: "center", overflow: "hidden" }}>
+          <div style={styles.logosContainer}>
+            <img
+              src=""
+              alt="Logo 1"
+              style={styles.logo}
+            />
+            <img
+              src=""
+              alt="Logo 2"
+              style={styles.logo}
+            />
+            <img
+              src=""
+              alt="Logo 3"
+              style={styles.logo}
+            />
+            <img
+              src=""
+              alt="Logo 4"
+              style={styles.logo}
+            />
+            <img
+              src=""
+              alt="Logo 5"
+              style={styles.logo}
+            />
+            {/* Duplicamos los logos para efecto infinito */}
+            <img
+              src=""
+              alt="Logo 1b"
+              style={styles.logo}
+            />
+            <img
+              src=""
+              alt="Logo 2b"
+              style={styles.logo}
+            />
+            <img
+              src=""
+              alt="Logo 3b"
+              style={styles.logo}
+            />
+            <img
+              src=""
+              alt="Logo 4b"
+              style={styles.logo}
+            />
+            <img
+              src=""
+              alt="Logo 5b"
+              style={styles.logo}
+            />
+          </div>
         </div>
       </section>
+
+      {/* Animación CSS inline */}
+      <style>
+        {`
+          @keyframes scroll {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(-50%); }
+          }
+        `}
+      </style>
     </div>
   );
 };

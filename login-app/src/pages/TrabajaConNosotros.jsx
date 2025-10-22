@@ -55,22 +55,25 @@ const TrabajaConNosotros = () => {
   const styles = {
     background: {
       backgroundImage:
-        "url('https://images.unsplash.com/photo-1529156069898-49953e39b3ac?auto=format&fit=crop&w=1470&q=80')",
+        "url('')",
       backgroundSize: "cover",
       backgroundPosition: "center center",
       backgroundRepeat: "no-repeat",
-      height: "100vh",
+      minHeight: "100vh",
+      height: "auto",
+      minWidth: "100vw",
       width: "100%",
       display: "flex",
       justifyContent: "center",
       alignItems: "center",
-      overflow: "auto",
+      overflowY: "scroll",
       position: "relative",
-      padding: "14.44px",
+      paddingTop: "14.44px",
+      paddingBottom: "0px",
       boxSizing: "border-box",
     },
     overlay: {
-      position: "absolute",
+      position: "fixed",
       top: 0,
       left: 0,
       right: 0,
@@ -94,21 +97,24 @@ const TrabajaConNosotros = () => {
       boxSizing: "border-box",
       animation: "fadeIn 0.6s ease-in-out",
       transformOrigin: "top center",
+      marginTop: "55px"
     },
     headerWrapper: {
-      marginBottom: "16px",
+      marginBottom: "8px",
       textAlign: "center",
     },
     title: {
       fontSize: "1.15rem",
       fontWeight: "bold",
       color: "#2c3e50",
-      marginBottom: "8px",
+      marginBottom: "4px",
     },
     subtitle: {
       fontSize: "0.75rem",
       color: "#555",
       lineHeight: "1.4",
+       marginTop: "0",
+  marginBottom: "0",
     },
     formInputsWrapper: {
       display: "flex",
