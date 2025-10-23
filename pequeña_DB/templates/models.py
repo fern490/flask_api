@@ -105,10 +105,6 @@ class Postulacion(db.Model):
     edad = db.Column(db.Integer)
     genero = db.Column(db.String(20))
     cv_url = db.Column(db.String(255))
-<<<<<<< HEAD
-=======
-    comentarios = db.Column(db.Text)
->>>>>>> bcf0959d203530ab77fc6217c5dd9542cefe912d
     fecha_postulacion = db.Column(db.DateTime, default=datetime.utcnow)
 
 
@@ -118,8 +114,4 @@ class Notificacion(db.Model):
     usuario_id = db.Column(db.Integer, db.ForeignKey('usuarios.id'))
     mensaje = db.Column(db.Text)
     leido = db.Column(db.Boolean, default=False)
-<<<<<<< HEAD
     fecha = db.Column(db.DateTime, default=datetime.utcnow)
-=======
-    fecha = db.Column(db.DateTime, default=datetime.utcnow)
->>>>>>> bcf0959d203530ab77fc6217c5dd9542cefe912d

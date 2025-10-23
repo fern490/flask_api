@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import { Routes, Route, Link, useNavigate, Navigate, useLocation } from "react-router-dom";
+import React, { useState, useEffect } from "react";
+import { Routes, Route, Link, useNavigate, Navigate } from "react-router-dom";
 import Login from "./pages/Login";
 import AdminDashboard from "./pages/AdminDashboard";
 import ClienteDashboard from "./pages/ClienteDashboard";
@@ -8,22 +8,20 @@ import CrearEvento from "./pages/CrearEvento";
 import Contactenos from "./pages/Contactenos";
 import Register from "./pages/Register";
 import TrabajaConNosotros from "./pages/TrabajaConNosotros";
+import Inicio from "./pages/Inicio";
 
 function App() {
   const [userRole, setUserRole] = useState(localStorage.getItem("userRole") || null);
   const navigate = useNavigate();
-  const location = useLocation();
 
-  const contactButtonHiddenRoutes = [
-    "/contactenos",
-    "/trabaja-con-nosotros",
-    "/admin-dashboard",
-    "/cliente-dashboard",
-    "/home",
-    "/crear-evento",
-  ];
+  useEffect(() => {
+    const storedRole = localStorage.getItem("userRole");
+    if (storedRole && !userRole) {
+      setUserRole(storedRole);
+    }
+  }, [userRole]);
 
-  const showButtons = !contactButtonHiddenRoutes.includes(location.pathname);
+  const showHeader = !userRole;
 
   const handleLoginSuccess = (role) => {
     localStorage.setItem("userRole", role);
@@ -31,7 +29,7 @@ function App() {
 
     if (role === "admin") navigate("/admin-dashboard");
     else if (role === "cliente") navigate("/cliente-dashboard");
-    else if (role === "otros") navigate("/home");
+    else if (role === "otros") navigate("/OtrosDashboard");
   };
 
   const handleLogout = () => {
@@ -47,13 +45,14 @@ function App() {
     appContainer: {
       display: "flex",
       justifyContent: "center",
-      alignItems: "center",
+      alignItems: "flex-start",
       minHeight: "100vh",
       backgroundImage: `url(https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQJdRiuEpxYquiiW-1dvYyOSuGuuHL6kvxehw&s)`,
       backgroundSize: "cover",
       backgroundPosition: "center",
       backgroundRepeat: "no-repeat",
       position: "relative",
+      paddingBottom: "20px",
     },
     topBar: {
       position: "fixed",
@@ -62,53 +61,59 @@ function App() {
       width: "100%",
       height: "60px",
       backgroundColor: "rgba(0, 0, 0, 0.9)",
-      zIndex: 9,
+      zIndex: 1000,
       display: "flex",
       alignItems: "center",
-      justifyContent: "flex-end",
-      paddingRight: "30px",
+      justifyContent: "space-between",
+      padding: "0 30px",
       boxShadow: "0 2px 10px rgba(0,0,0,0.5)",
     },
-    buttonContainer: {
-      position: "absolute",
-      top: "20px",
-      right: "20px",
+    logoContainer: {
       display: "flex",
-      gap: "10px",
-      zIndex: 10,
-    },
-    contactButton: {
-      backgroundColor: "#e74c3c",
+      alignItems: "center",
       color: "white",
-      border: "none",
-      padding: "10px 15px",
-      borderRadius: "5px",
-      cursor: "pointer",
+      fontSize: "22px",
       fontWeight: "bold",
+      textDecoration: "none",
+      gap: "8px",
+      letterSpacing: "1px",
     },
-    workButton: {
-      backgroundColor: "#27ae60",
-      color: "white",
-      border: "none",
-      padding: "10px 15px",
-      borderRadius: "5px",
-      cursor: "pointer",
-      fontWeight: "bold",
+    logo: {
+      width: "35px",
+      height: "35px",
+      backgroundColor: "#8E24AA",
+      borderRadius: "50%",
+      display: "flex",
+      justifyContent: "center",
+      alignItems: "center",
+      fontSize: "20px",
+      color: "#FFC107",
+      fontWeight: "bolder",
+      border: "3px solid #FFC107",
+      transform: "rotate(20deg)",
+      fontFamily: "Oswald, sans-serif",
     },
     sectionContainer: {
       display: "flex",
       gap: "15px",
+      justifyContent: "flex-end",
+      minWidth: "fit-content",
+      flexWrap: "nowrap",
+      paddingRight: "30px",
     },
     section: {
       backgroundColor: "rgba(255,255,255,0.1)",
       border: "1px solid rgba(255,255,255,0.2)",
       borderRadius: "8px",
-      padding: "10px 18px",
+      padding: "10px 22px",
       color: "white",
       fontWeight: "bold",
       cursor: "pointer",
+      fontSize: "14px",
       transition: "all 0.3s ease",
       backdropFilter: "blur(8px)",
+      whiteSpace: "nowrap",
+      textAlign: "center",
     },
     sectionHover: {
       transform: "scale(1.08)",
@@ -136,31 +141,23 @@ function App() {
 
   return (
     <div style={styles.appContainer}>
-      {/* Barra negra superior */}
-      {showButtons && (
+      {showHeader && (
         <div style={styles.topBar}>
+          <Link to="/login" style={styles.logoContainer}>
+            <div style={styles.logo}>F</div>
+            FESTIUM
+          </Link>
           <div style={styles.sectionContainer}>
+            <SectionButton to="/inicio" label="Inicio" />
             <SectionButton to="/contactenos" label="Contáctenos" />
             <SectionButton to="/trabaja-con-nosotros" label="Trabajá con Nosotros" />
           </div>
         </div>
       )}
 
-      {/* Botones de acceso rápido */}
-      {showButtons && (
-        <div style={styles.buttonContainer}>
-          <Link to="/contactenos">
-            <button style={styles.contactButton}>Contáctenos</button>
-          </Link>
-
-          <Link to="/trabaja-con-nosotros">
-            <button style={styles.workButton}>Trabajá con Nosotros</button>
-          </Link>
-        </div>
-      )}
-
       <Routes>
         <Route path="/" element={<Navigate to="/login" replace />} />
+        <Route path="/inicio" element={<Inicio />} />
         <Route
           path="/login"
           element={<Login onLoginSuccess={handleLoginSuccess} onRegisterClick={handleRegisterClick} />}
@@ -174,7 +171,7 @@ function App() {
           element={userRole === "cliente" ? <ClienteDashboard onLogout={handleLogout} /> : <Navigate to="/login" replace />}
         />
         <Route
-          path="/home"
+          path="/OtrosDashboard"
           element={userRole === "otros" ? <OtrosDashboard onLogout={handleLogout} /> : <Navigate to="/login" replace />}
         />
         <Route
@@ -183,7 +180,6 @@ function App() {
         />
         <Route path="/contactenos" element={<Contactenos />} />
         <Route path="/register" element={<Register />} />
-        {/* Ruta para Trabajá con Nosotros */}
         <Route path="/trabaja-con-nosotros" element={<TrabajaConNosotros />} />
         <Route path="*" element={<Navigate to="/login" replace />} />
       </Routes>

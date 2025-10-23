@@ -41,37 +41,46 @@ const Login = ({ onLoginSuccess, onRegisterClick }) => {
 
   const styles = {
     wrapper: {
-      paddingTop: "110px", // desplaza el cuadro debajo de la barra negra
-      transform: "scale(0.95)", // reduce todo el tamaño un 5%
       borderRadius: "16px",
-      backgroundColor: "rgba(255, 255, 255, 0.15)",
+      backgroundColor: "rgba(255, 255, 255, 0.05)",
       boxShadow: "0 8px 32px 0 rgba(31, 38, 135, 0.37)",
-      backdropFilter: "blur(6px)",
-      WebkitBackdropFilter: "blur(6px)",
-      border: "1px solid rgba(255, 255, 255, 0.18)",
+      backdropFilter: "blur(10px)",
+      WebkitBackdropFilter: "blur(10px)",
+      border: "1px solid rgba(255, 255, 255, 0.2)",
+      padding: "25px",
+      margin: "0 20px",
       display: "flex",
       justifyContent: "center",
       alignItems: "center",
-      height: "100vh",
+      marginTop: "60px"
     },
 
     container: {
       width: "100%",
-      maxWidth: "340px",
-      padding: "20px",
-      border: "5px solid #cccccc3d",
-      borderRadius: "8px",
+      maxWidth: "280px",
+      padding: "20px 15px",
+      borderRadius: "16px",
+      background: "rgba(59, 117, 126, 0.7)",
+      boxShadow: "0 8px 32px 0 rgba(31, 38, 135, 0.37)",
+      backdropFilter: "blur(10px)",
+      WebkitBackdropFilter: "blur(10px)",      
+      border: "1px solid rgba(255, 255, 255, 0.2)",
       textAlign: "center",
       display: "flex",
       flexDirection: "column",
-      justifyContent: "center",
       alignItems: "center",
-      fontFamily: "Arial, sans-serif",
-      boxSizing: "border-box",
-      backgroundColor: "#425e62ff",
-      color: "white",
+      fontFamily: "'Poppins', sans-serif",
+      color: "#fff",
     },
 
+    title: {
+      fontSize: "21px",
+      fontWeight: "600",
+      marginBottom: "20px",
+      color: "#fff",
+      textShadow: "0 0 6px rgba(255,255,255,0.6)",
+    },
+    
     form: {
       display: "flex",
       flexDirection: "column",
@@ -79,60 +88,81 @@ const Login = ({ onLoginSuccess, onRegisterClick }) => {
     },
 
     input: {
-      margin: "8px 0",
-      padding: "8px",
+      margin: "10px 0",
+      padding: "10px 12px",
       fontSize: "15px",
-      borderRadius: "4px",
-      border: "1px solid #ccc",
+      borderRadius: "8px",
+      border: "1px solid rgba(255,255,255,0.3)",
+      background: "rgba(255,255,255,0.15)",
+      color: "#fff",
+      outline: "none",
+      transition: "0.3s ease",
     },
 
     fieldset: {
       margin: "12px 0",
-      padding: "8px",
-      border: "1px solid #ccc",
-      borderRadius: "4px",
+      padding: "10px",
+      border: "1px solid rgba(255,255,255,0.3)",
+      borderRadius: "8px",
       textAlign: "left",
+      color: "#ddd",
     },
 
     label: {
       display: "block",
       marginBottom: "6px",
       cursor: "pointer",
+      fontSize: "14px",
     },
 
     button: {
-      padding: "9px",
-      backgroundColor: "#4CAF50",
-      color: "white",
-      border: "none",
-      cursor: "pointer",
-      borderRadius: "4px",
-      fontSize: "15px",
       marginTop: "10px",
+      padding: "10px",
+      width: "100%",
+      borderRadius: "8px",
+      border: "none",
+      background: "linear-gradient(90deg, #6a11cb, #2575fc)",
+      color: "#fff",
+      fontWeight: "600",
+      fontSize: "15px",
+      cursor: "pointer",
+      transition: "transform 0.2s ease, box-shadow 0.2s ease",
     },
-    
+
+    buttonHover: {
+      transform: "translateY(-2px)",
+      boxShadow: "0 0 10px rgba(106,17,203,0.6)",
+    },
+
     registerButton: {
-      padding: "9px",
-      backgroundColor: "#3498db",
-      color: "white",
-      border: "none",
-      cursor: "pointer",
-      borderRadius: "4px",
-      fontSize: "15px",
       marginTop: "10px",
+      padding: "10px",
+      width: "100%",
+      borderRadius: "8px",
+      border: "1px solid rgba(255,255,255,0.3)",
+      background: "transparent",
+      color: "#fff",
+      fontWeight: "500",
+      fontSize: "15px",
+      cursor: "pointer",
+      transition: "background 0.3s ease, border 0.3s ease",
     },
 
     error: {
-      color: "red",
+      color: "#ff6b6b",
       fontSize: "13px",
       margin: "8px 0",
     },
   };
+  
+  const [hoveredButton, setHoveredButton] = useState(false);
+  const [hoveredRegister, setHoveredRegister] = useState(false);
 
   return (
     <div style={styles.wrapper}>
       <div style={styles.container}>
-        <h2>Iniciar Sesión</h2>
+        <h2 style={styles.title}>Iniciar Sesión</h2>
+
         <form onSubmit={handleSubmit} style={styles.form}>
           <input
             type="email"
@@ -164,7 +194,7 @@ const Login = ({ onLoginSuccess, onRegisterClick }) => {
                 value="admin"
                 checked={role === "admin"}
                 onChange={(e) => setRole(e.target.value)}
-              />
+              />{" "}
               Administrador
             </label>
 
@@ -175,7 +205,7 @@ const Login = ({ onLoginSuccess, onRegisterClick }) => {
                 value="cliente"
                 checked={role === "cliente"}
                 onChange={(e) => setRole(e.target.value)}
-              />
+              />{" "}
               Cliente
             </label>
 
@@ -186,19 +216,37 @@ const Login = ({ onLoginSuccess, onRegisterClick }) => {
                 value="otros"
                 checked={role === "otros"}
                 onChange={(e) => setRole(e.target.value)}
-              />
+              />{" "}
               Otros
             </label>
           </fieldset>
 
           {error && <p style={styles.error}>{error}</p>}
 
-          <button type="submit" style={styles.button}>
+          <button
+            type="submit"
+            style={{
+              ...styles.button,
+              ...(hoveredButton ? styles.buttonHover : {}),
+            }}
+            onMouseEnter={() => setHoveredButton(true)}
+            onMouseLeave={() => setHoveredButton(false)}
+          >
             Entrar
           </button>
         </form>
 
-        <button onClick={onRegisterClick} style={styles.registerButton}>
+        <button
+          onClick={onRegisterClick}
+          style={{
+            ...styles.registerButton,
+            ...(hoveredRegister
+              ? { background: "rgba(255,255,255,0.2)", border: "1px solid #fff" }
+              : {}),
+          }}
+          onMouseEnter={() => setHoveredRegister(true)}
+          onMouseLeave={() => setHoveredRegister(false)}
+        >
           Registrarse
         </button>
       </div>
