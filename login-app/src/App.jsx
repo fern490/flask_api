@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Routes, Route, Link, useNavigate, Navigate} from "react-router-dom";
+import { Routes, Route, Link, useNavigate, Navigate, useLocation } from "react-router-dom";
 import Login from "./pages/Login";
 import AdminDashboard from "./pages/AdminDashboard";
 import ClienteDashboard from "./pages/ClienteDashboard";
@@ -13,8 +13,15 @@ import Inicio from "./pages/Inicio";
 function App() {
   const [userRole, setUserRole] = useState(localStorage.getItem("userRole") || null);
   const navigate = useNavigate();
+  const location = useLocation();
 
-  const showHeader = userRole === null;
+  const contactButtonHiddenRoutes = [
+    "/admin-dashboard",
+    "/cliente-dashboard",
+    "/OtrosDashboard",
+  ];
+
+  const showButtons = !contactButtonHiddenRoutes.includes(location.pathname);
 
   const handleLoginSuccess = (role) => {
     localStorage.setItem("userRole", role);
@@ -134,8 +141,7 @@ function App() {
 
   return (
     <div style={styles.appContainer}>
-      {}
-      {showHeader && (
+      {showButtons && (
         <div style={styles.topBar}>
           <Link to="/login" style={styles.logoContainer}>
             <div style={styles.logo}>F</div>
