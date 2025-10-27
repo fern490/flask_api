@@ -1,4 +1,5 @@
-from config import db
+from flask_sqlalchemy import SQLAlchemy
+from pequeña_DB.templates.config import db
 from datetime import datetime
 
 class Usuario(db.Model):

@@ -1,5 +1,5 @@
 from flask import Blueprint, request, jsonify
-from models import db, Usuario, Salon, Evento, Servicio, EventoServicio, Pago, Contacto
+from pequeña_DB.templates.models import db, Usuario, Salon, Evento, Servicio, EventoServicio, Pago, Contacto
 from datetime import datetime
 #import secrets
 from werkzeug.security import generate_password_hash, check_password_hash
