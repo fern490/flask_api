@@ -37,7 +37,7 @@ CREATE TABLE servicios (
     servicio_id INT AUTO_INCREMENT PRIMARY KEY,
     nombre_servicio VARCHAR(100) NOT NULL,
     descripcion TEXT,
-    costo DECIMAL(10,2) NOT NULL.
+    costo DECIMAL(10,2) NOT NULL,
     proveedor_id INT,
     FOREIGN KEY (proveedor_id) REFERENCES usuarios(id)
 );
@@ -50,7 +50,7 @@ CREATE TABLE eventos_servicios (
     CONSTRAINT fk_evento_servicio_evento FOREIGN KEY (evento_id) REFERENCES eventos(evento_id),
     CONSTRAINT fk_evento_servicio_servicio FOREIGN KEY (servicio_id) REFERENCES servicios(servicio_id),
     CONSTRAINT uq_evento_servicio UNIQUE (evento_id, servicio_id)
-)
+);
 
 CREATE TABLE pagos (
     pago_id INT AUTO_INCREMENT PRIMARY KEY,

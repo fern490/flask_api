@@ -181,7 +181,7 @@ function App() {
         <Route path="/contactenos" element={<Contactenos />} />
         <Route path="/register" element={<Register />} />
         <Route path="/trabaja-con-nosotros" element={<TrabajaConNosotros />} />
-        <Route path="*" element={<Navigate to="/login" replace />} />
+        
       </Routes>
     </div>
   );

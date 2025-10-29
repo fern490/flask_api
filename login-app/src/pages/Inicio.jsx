@@ -12,7 +12,7 @@ const Inicio = () => {
 
     heroSection: {
       width: "100vw",
-      height: "100vh",
+      height: "80vh",
       backgroundImage:
         "url('Gemini_Generated_Image_oty5shoty5shoty5.jpg')",
       backgroundSize: "cover",
@@ -43,16 +43,17 @@ const Inicio = () => {
     },
 
     title: {
-      fontSize: "2.8rem",
+      fontSize: "2.5rem",
       fontWeight: "bold",
       marginBottom: "12px",
-      letterSpacing: "1px",
+      letterSpacing: "-0.5px",
     },
 
     subtitle: {
       fontSize: "1.1rem",
       maxWidth: "700px",
       lineHeight: "1.6",
+      marginLeft: "30px",
     },
 
     empresasSection: {
@@ -90,19 +91,19 @@ const Inicio = () => {
 
   return (
     <div style={styles.container}>
-      {/* HERO / IMAGEN PRINCIPAL */}
+      {/* IMAGEN PRINCIPAL */}
       <section style={styles.heroSection}>
         <div style={styles.overlay}></div>
         <div style={styles.content}>
           <h1 style={styles.title}>EL ARTE DE CREAR MOMENTOS ÚNICOS</h1>
           <p style={styles.subtitle}>
-            DESCUBRÍ LA MAGIA DE LOS EVENTOS EN FESTIUM EVENTOS.  
+            DESCUBRÍ LA MAGIA DE LOS EVENTOS EN FESTIUM EVENTOS.<br></br>
             DONDE CADA DETALLE ESTÁ PENSADO PARA EMOCIONAR.
           </p>
         </div>
       </section>
 
-      {/* EMPRESAS QUE CONFÍAN */}
+      {/* EMPRESAS */}
       <section style={styles.empresasSection}>
         <h2 style={styles.empresasTitle}>
           Algunas empresas que confían en nosotros:

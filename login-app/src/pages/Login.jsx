@@ -30,6 +30,9 @@ const Login = ({ onLoginSuccess, onRegisterClick }) => {
 
       if (response.ok) {
         localStorage.setItem("token", data.token); 
+        localStorage.setItem("userRole", data.role);
+        localStorage.setItem("userId", data.user_id);
+
         onLoginSuccess(data.role); 
       } else {
         setError(data.message || "Credenciales inválidas");
@@ -220,7 +223,7 @@ const Login = ({ onLoginSuccess, onRegisterClick }) => {
                 value="admin"
                 checked={role === "admin"}
                 onChange={(e) => setRole(e.target.value)}
-                style={{ marginRight: '8px' }} // Espacio entre radio e ícono
+                style={{ marginRight: '8px' }}
               />
               <FaUserShield style={styles.radioIcon} />
               Administrador
