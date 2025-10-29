@@ -1,6 +1,6 @@
 from flask_sqlalchemy import SQLAlchemy
 from pequeña_DB.templates.config import db
-from datetime import datetime
+from datetime import datetime, UTC
 
 class Usuario(db.Model):
     __tablename__ = 'usuarios'
@@ -91,8 +91,7 @@ class Contacto(db.Model):
     nombre = db.Column(db.String(100), nullable=False)
     email = db.Column(db.String(150), nullable=False)
     mensaje = db.Column(db.Text, nullable=False)
-    fecha_envio = db.Column(db.DateTime, default=datetime.utcnow)
-
+    fecha_envio = db.Column(db.DateTime, default=lambda: datetime.now(UTC))
 
 class Postulacion(db.Model):
     __tablename__ = 'postulaciones'

@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
+// eslint-disable-next-line no-unused-vars
 import { motion } from "framer-motion";
 
 const OtrosDashboard = ({ onLogout }) => {
@@ -11,51 +12,53 @@ const OtrosDashboard = ({ onLogout }) => {
   const proveedorId = localStorage.getItem("userId");
   const BASE_URL = "http://127.0.0.1:5000/";
 
-  const fetchServicios = async () => {
-    try {
-      const response = await fetch(`${BASE_URL}/api/servicios?proveedor_id=${proveedorId}`);
-      if (!response.ok) throw new Error("Error al obtener servicios");
-      const data = await response.json();
-      setServicios(data);
-    } catch (error) {
-      console.error("Error al obtener servicios:", error);
+const fetchServicios = useCallback(async () => {
+  try {
+    const response = await fetch(`${BASE_URL}/api/servicios?proveedor_id=${proveedorId}`);
+    if (!response.ok) throw new Error("Error al obtener servicios");
+    const data = await response.json();
+    setServicios(data);
+  } catch (error) {
+    console.error("Error al obtener servicios:", error);
+  }
+}, [proveedorId]);
+
+const fetchSolicitudes = useCallback(async () => {
+  try {
+    const response = await fetch(`${BASE_URL}/api/solicitudes`);
+    if (!response.ok) throw new Error("Error al obtener solicitudes");
+    const data = await response.json();
+    setSolicitudes(data);
+  } catch (error) {
+    console.error("Error al obtener solicitudes:", error);
+  }
+}, []); // No depende de nada externo
+
+const fetchMensajes = useCallback(async () => {
+  try {
+    const response = await fetch(`${BASE_URL}/api/mensajes?proveedor_id=${proveedorId}`);
+    if (!response.ok) throw new Error("Error al obtener mensajes");
+    const data = await response.json();
+    setMensajes(data);
+  } catch (error) {
+    console.error("Error al obtener mensajes:", error);
+  }
+}, [proveedorId]);
+
+useEffect(() => {
+  const loadData = async () => {
+    setIsLoading(true);
+    if (proveedorId) {
+      await Promise.all([fetchServicios(), fetchSolicitudes(), fetchMensajes()]);
+    } else {
+      onLogout();
     }
+    setIsLoading(false);
   };
 
-  const fetchSolicitudes = async () => {
-    try {
-      const response = await fetch(`${BASE_URL}/api/solicitudes`);
-      if (!response.ok) throw new Error("Error al obtener solicitudes");
-      const data = await response.json();
-      setSolicitudes(data);
-    } catch (error) {
-      console.error("Error al obtener solicitudes:", error);
-    }
-  };
+  loadData();
+}, [proveedorId, onLogout, fetchServicios, fetchSolicitudes, fetchMensajes]);
 
-  const fetchMensajes = async () => {
-    try {
-      const response = await fetch(`${BASE_URL}/api/mensajes?proveedor_id=${proveedorId}`);
-      if (!response.ok) throw new Error("Error al obtener mensajes");
-      const data = await response.json();
-      setMensajes(data);
-    } catch (error) {
-      console.error("Error al obtener mensajes:", error);
-    }
-  };
-
-  useEffect(() => {
-    const loadData = async () => {
-      setIsLoading(true);
-      if (proveedorId) {
-        await Promise.all([fetchServicios(), fetchSolicitudes(), fetchMensajes()]);
-      } else {
-        onLogout();
-      }
-      setIsLoading(false);
-    };
-    loadData();
-  }, [proveedorId, onLogout]);
 
   const renderContenido = () => {
     if (isLoading) return <p style={{ textAlign: "center" }}>Cargando datos...</p>;

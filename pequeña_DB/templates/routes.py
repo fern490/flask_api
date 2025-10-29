@@ -179,7 +179,7 @@ def crear_evento():
         nombre_evento=data['nombre_evento'],
         fecha=datetime.strptime(data['fecha'], "%Y-%m-%d"),
         tema=data.get('tema'),
-        informe_detallado=data.get('informe_detallado'),
+        informe=data.get('informe_detallado'),
         salon_id=data['salon_id'],
         usuario_id=data['cliente_id']
     )
@@ -196,7 +196,7 @@ def listar_eventos():
             "nombre_evento": e.nombre_evento,
             "fecha": e.fecha.isoformat(),
             "tema": e.tema,
-            "informe_detallado": e.informe_detallado,
+            "informe": e.informe_detallado,
             "salon": e.salon.nombre,
             "cliente": e.usuario.nombre
         } for e in eventos
@@ -210,7 +210,7 @@ def actualizar_evento(id):
     if "fecha" in data:
         evento.fecha = datetime.strptime(data["fecha"], "%Y-%m-%d")
     evento.tema = data.get("tema", evento.tema)
-    evento.informe_detallado = data.get("informe_detallado", evento.informe_detallado)
+    evento.informe = data.get("informe_detallado", evento.informe_detallado)
     db.session.commit()
     return jsonify({"mensaje": "Evento actualizado"})
 
