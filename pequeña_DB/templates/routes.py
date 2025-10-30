@@ -419,6 +419,10 @@ def crear_postulacion():
         print(f"❌ Error al crear postulación: {e}")
         return jsonify({"error": "Error interno del servidor al procesar la postulación."}), 500
 
+<<<<<<< HEAD
+=======
+
+>>>>>>> f13109f0ee2f7941899bd32e75f388465aa488db
 @routes.route('/postulaciones', methods=['GET'])
 def obtener_postulaciones():
     connection = db.engine.raw_connection()

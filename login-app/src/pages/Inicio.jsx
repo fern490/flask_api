@@ -13,6 +13,7 @@ const Inicio = () => {
     heroSection: {
       width: "100vw",
       height: "85vh",
+      height: "100vh",
       backgroundImage:
         "url('Gemini_Generated_Image_oty5shoty5shoty5.jpg')",
       backgroundSize: "cover",
@@ -58,13 +59,24 @@ const Inicio = () => {
       margin: "0 auto",
       lineHeight: "1.6",
       textShadow: "0 0 5px rgba(0,0,0,0.8)",
-      transform: "translateX(-20px)"
+      transform: "translateX(-20px)",
+      fontSize: "2.8rem",
+      fontWeight: "bold",
+      marginBottom: "12px",
+      letterSpacing: "1px",
+    },
+
+    subtitle: {
+      fontSize: "1.1rem",
+      maxWidth: "700px",
+      lineHeight: "1.6",
     },
 
     empresasSection: {
       backgroundColor: "#111",
       textAlign: "center",
       padding: "60px 0",
+      padding: "40px 0",
       overflow: "hidden",
     },
 
@@ -73,6 +85,10 @@ const Inicio = () => {
       fontWeight: "bold",
       color: "#fff",
       marginBottom: "35px",
+      fontSize: "1.3rem",
+      fontWeight: "bold",
+      color: "#fff",
+      marginBottom: "25px",
     },
 
     logosContainer: {
@@ -97,18 +113,21 @@ const Inicio = () => {
   return (
     <div style={styles.container}>
       {}
+      {/* HERO / IMAGEN PRINCIPAL */}
       <section style={styles.heroSection}>
         <div style={styles.overlay}></div>
         <div style={styles.content}>
           <h1 style={styles.title}>EL ARTE DE CREAR MOMENTOS ÚNICOS</h1>
           <p style={styles.subtitle}>
             DESCUBRÍ LA MAGIA DE LOS EVENTOS EN FESTIUM EVENTOS.<br></br>
+            DESCUBRÍ LA MAGIA DE LOS EVENTOS EN FESTIUM EVENTOS.  
             DONDE CADA DETALLE ESTÁ PENSADO PARA EMOCIONAR.
           </p>
         </div>
       </section>
 
       {}
+      {/* EMPRESAS QUE CONFÍAN */}
       <section style={styles.empresasSection}>
         <h2 style={styles.empresasTitle}>
           Algunas empresas que confían en nosotros:
@@ -127,11 +146,63 @@ const Inicio = () => {
             <img src="" alt="Logo 3b" style={styles.logo} />
             <img src="" alt="Logo 4b" style={styles.logo} />
             <img src="" alt="Logo 5b" style={styles.logo} />
+            <img
+              src=""
+              alt="Logo 1"
+              style={styles.logo}
+            />
+            <img
+              src=""
+              alt="Logo 2"
+              style={styles.logo}
+            />
+            <img
+              src=""
+              alt="Logo 3"
+              style={styles.logo}
+            />
+            <img
+              src=""
+              alt="Logo 4"
+              style={styles.logo}
+            />
+            <img
+              src=""
+              alt="Logo 5"
+              style={styles.logo}
+            />
+            {/* Duplicamos los logos para efecto infinito */}
+            <img
+              src=""
+              alt="Logo 1b"
+              style={styles.logo}
+            />
+            <img
+              src=""
+              alt="Logo 2b"
+              style={styles.logo}
+            />
+            <img
+              src=""
+              alt="Logo 3b"
+              style={styles.logo}
+            />
+            <img
+              src=""
+              alt="Logo 4b"
+              style={styles.logo}
+            />
+            <img
+              src=""
+              alt="Logo 5b"
+              style={styles.logo}
+            />
           </div>
         </div>
       </section>
 
       {}
+      {/* Animación CSS inline */}
       <style>
         {`
           @keyframes scroll {

@@ -44,6 +44,7 @@ const Login = ({ onLoginSuccess, onRegisterClick }) => {
       borderRadius: "16px",
       backgroundColor: "rgba(255, 255, 255, 0.05)",
       boxShadow: "0 8px 32px 0 rgba(31, 38, 135, 0.37)",
+<<<<<<< HEAD
       backdropFilter: "blur(10px)",
       WebkitBackdropFilter: "blur(10px)",
       border: "1px solid rgba(255, 255, 255, 0.2)",
@@ -53,6 +54,13 @@ const Login = ({ onLoginSuccess, onRegisterClick }) => {
       justifyContent: "center",
       alignItems: "center",
       marginTop: "60px"
+=======
+      backdropFilter: "blur(6px)",
+      WebkitBackdropFilter: "blur(6px)",
+      border: "1px solid rgba(255, 255, 255, 0.18)",
+      padding: "20px", 
+      margin: "0 20px", 
+>>>>>>> f13109f0ee2f7941899bd32e75f388465aa488db
     },
 
     container: {

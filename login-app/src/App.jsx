@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Routes, Route, Link, useNavigate, Navigate } from "react-router-dom";
+import React, { useState } from "react";
+import { Routes, Route, Link, useNavigate, Navigate} from "react-router-dom";
 import Login from "./pages/Login";
 import AdminDashboard from "./pages/AdminDashboard";
 import ClienteDashboard from "./pages/ClienteDashboard";
@@ -21,7 +23,7 @@ function App() {
     }
   }, [userRole]);
 
-  const showHeader = !userRole;
+  const showHeader = userRole === null;
 
   const handleLoginSuccess = (role) => {
     localStorage.setItem("userRole", role);
@@ -46,6 +48,7 @@ function App() {
       display: "flex",
       justifyContent: "center",
       alignItems: "flex-start",
+      alignItems: "flex-end",
       minHeight: "100vh",
       backgroundImage: `url(https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQJdRiuEpxYquiiW-1dvYyOSuGuuHL6kvxehw&s)`,
       backgroundSize: "cover",
@@ -141,6 +144,7 @@ function App() {
 
   return (
     <div style={styles.appContainer}>
+      {}
       {showHeader && (
         <div style={styles.topBar}>
           <Link to="/login" style={styles.logoContainer}>
