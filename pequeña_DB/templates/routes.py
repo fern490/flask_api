@@ -4,49 +4,44 @@ from datetime import datetime, date
 import secrets
 from werkzeug.security import generate_password_hash, check_password_hash
 
+try:
+    from google.oauth2 import id_token
+    from google.auth.transport import requests as google_requests 
+    GOOGLE_LIBS_AVAILABLE = True
+except ImportError:
+    GOOGLE_LIBS_AVAILABLE = False
+    class MockRequest:
+        def Request(self):
+            pass
+    google_requests = MockRequest() 
+    id_token = None
+
+CLIENT_ID = "110218343931-a1uctqsv8ir4a9vpl9tsrbctbit87k9g.apps.googleusercontent.com"
+
 routes = Blueprint('routes', __name__)
 
 usuarios_temporales = []
 
-# =========================================
-# 🧩 Ruta 1: Guardar registro temporal
-# =========================================
 @routes.route('/registro-temporal', methods=['POST'])
 def registro_temporal():
     data = request.get_json()
-
-    # Verificar que estén los campos requeridos
     campos = ["nombre", "apellido", "fecha_nacimiento", "genero", "email", "rol"]
     if not all(campo in data for campo in campos):
         return jsonify({"error": "Faltan campos obligatorios"}), 400
 
-    # Evitar duplicados por email
     if any(u["email"] == data["email"] for u in usuarios_temporales):
         return jsonify({"error": "Ya existe un usuario temporal con ese correo"}), 409
 
-
     usuarios_temporales.append(data)
-
-    print("\nNuevo registro temporal recibido:")
-    print(data)
-    print("📋 Lista actual de usuarios temporales:", usuarios_temporales)
 
     return jsonify({
         "message": "¡Registro éxitoso!",
         "usuario": data
     }), 201
 
-# =========================================
-# 🧩 Ruta 2: Ver todos los usuarios temporales
-# =========================================
 @routes.route('/usuarios-temporales', methods=['GET'])
 def listar_temporales():
     return jsonify(usuarios_temporales), 200
-
-
-
-# USUARIOS
-
 
 @routes.route('/usuarios', methods=['POST'])
 def crear_usuario():
@@ -59,7 +54,6 @@ def crear_usuario():
     password = data.get('password')
     rol = data.get('rol') 
 
-    # Validación básica de campos requeridos por el modelo actual
     if not all([nombre, email, password, rol]):
         return jsonify({"message": "Faltan datos obligatorios (nombre, email, password, rol)"}), 400
 
@@ -68,7 +62,6 @@ def crear_usuario():
 
     hashed_password = generate_password_hash(password, method='pbkdf2:sha256')
     
-    # Convertir fecha de nacimiento a objeto date si existe
     fecha_nacimiento_dt = None
     if fecha_nacimiento:
         try:
@@ -117,25 +110,66 @@ def eliminar_usuario(id):
     return jsonify({"mensaje": "Usuario eliminado"})
 
 
-# LOGIN
-
-
 @routes.route("/login", methods=["POST"])
 def login():
     data = request.get_json()
     user = Usuario.query.filter_by(email=data.get("email")).first()
 
-    # Se agrego la validacion del rol, para que solo pueda ingresar si el email, la contraseña y el rol coinciden
-    if user and check_password_hash(user.password, data.get("password")) and user.rol == data.get("role"):
+    if user and check_password_hash(user.password, data.get("password")) and user.rol == data.get("rol"):
         return jsonify({
             "token": "jwt-token",
-            "role": user.rol
-        })
+            "role": user.rol,
+            "user_id": user.id
+        }), 200
     else:
         return jsonify({"message": "Credenciales inválidas"}), 401
 
 
-#SALONES
+@routes.route("/login/google", methods=["POST"])
+def login_google():
+    if not GOOGLE_LIBS_AVAILABLE:
+        return jsonify({"message": "Librerías de Google OAuth no instaladas en el servidor."}), 500
+
+    data = request.get_json()
+    token = data.get("token")
+
+    if not token:
+        return jsonify({"message": "Falta el token de Google"}), 400
+
+    try:
+        idinfo = id_token.verify_oauth2_token(
+            token, google_requests.Request(), CLIENT_ID
+        )
+
+        email = idinfo.get("email")
+        nombre = idinfo.get("given_name", "Usuario") 
+        apellido = idinfo.get("family_name", "") 
+        
+        if not email:
+            return jsonify({"message": "Token de Google no contiene email."}), 401
+        
+        user = Usuario.query.filter_by(email=email).first()
+
+        if user:
+            return jsonify({
+                "message": "Login con Google exitoso",
+                "token": "jwt-google-token-generado", 
+                "role": user.rol, 
+                "user_id": user.id
+            }), 200
+        else:
+            return jsonify({
+                "message": "Usuario no registrado. Requiere selección de rol.",
+                "email": email, 
+                "nombre": nombre,
+                "apellido": apellido
+            }), 409
+
+    except ValueError:
+        return jsonify({"message": "Token de Google inválido o expirado"}), 401
+    except Exception as e:
+        print(f"Error en login de Google: {e}")
+        return jsonify({"message": "Error interno del servidor en la verificación de Google."}), 500
 
 
 @routes.route('/salones', methods=['POST'])
@@ -167,9 +201,6 @@ def eliminar_salon(id):
     db.session.delete(salon)
     db.session.commit()
     return jsonify({"mensaje": "Salón eliminado"})
-
-
-# EVENTOS
 
 
 @routes.route('/eventos', methods=['POST'])
@@ -222,9 +253,6 @@ def eliminar_evento(id):
     return jsonify({"mensaje": "Evento eliminado"})
 
 
-# SERVICIOS
-
-
 @routes.route('/servicios', methods=['POST'])
 def crear_servicio():
     data = request.json
@@ -257,9 +285,6 @@ def eliminar_servicio(id):
     return jsonify({"mensaje": "Servicio eliminado"})
 
 
-#CONECTA (eventos_servicios)
-
-
 @routes.route('/eventos/<int:evento_id>/servicios', methods=['POST'])
 def asignar_servicio(evento_id):
     data = request.json
@@ -282,9 +307,6 @@ def eliminar_evento_servicio(id):
     db.session.delete(es)
     db.session.commit()
     return jsonify({"mensaje": "Servicio eliminado del evento"})
-
-
-# PAGOS
 
 
 @routes.route('/pagos', methods=['POST'])
@@ -325,9 +347,6 @@ def eliminar_pago(id):
     db.session.delete(pago)
     db.session.commit()
     return jsonify({"mensaje": "Pago eliminado"})
-
-
-# CONTACTO
 
 
 @routes.route('/contacto', methods=['POST'])
@@ -378,9 +397,6 @@ def get_contactos():
         return jsonify({"mensaje": "Error al obtener los mensajes."}), 500
     
 
-# POSTULACIONES
-
-
 @routes.route('/postulaciones', methods=['POST'])
 def crear_postulacion():
     data = request.json
@@ -413,16 +429,10 @@ def crear_postulacion():
         cursor.close()
         connection.close()
 
-        print(f"✅ Nueva postulación registrada: {nombre} ({especialidad})")
         return jsonify({"message": "Postulación enviada correctamente"}), 201
     except Exception as e:
-        print(f"❌ Error al crear postulación: {e}")
         return jsonify({"error": "Error interno del servidor al procesar la postulación."}), 500
 
-<<<<<<< HEAD
-=======
-
->>>>>>> f13109f0ee2f7941899bd32e75f388465aa488db
 @routes.route('/postulaciones', methods=['GET'])
 def obtener_postulaciones():
     connection = db.engine.raw_connection()

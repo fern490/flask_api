@@ -180,6 +180,7 @@ const styles = {
     color: "white",
     position: "relative",
     zIndex: 1,
+    marginTop: "70px",
   },
 
   boxBehind: {
@@ -193,7 +194,7 @@ const styles = {
     top: "-10px",
     left: "50%",
     transform: "translateX(-50%)",
-    pointerEvents: "none", // ← ESTA LÍNEA ES LA CLAVE
+    pointerEvents: "none",
   },
 
   form: {

@@ -1,5 +1,3 @@
-import React, { useState, useEffect } from "react";
-import { Routes, Route, Link, useNavigate, Navigate } from "react-router-dom";
 import React, { useState } from "react";
 import { Routes, Route, Link, useNavigate, Navigate, useLocation } from "react-router-dom";
 import Login from "./pages/Login";
@@ -11,30 +9,21 @@ import Contactenos from "./pages/Contactenos";
 import Register from "./pages/Register";
 import TrabajaConNosotros from "./pages/TrabajaConNosotros";
 import Inicio from "./pages/Inicio";
+import GoogleRoleSelector from "./pages/GoogleRoleSelector";
 
 function App() {
   const [userRole, setUserRole] = useState(localStorage.getItem("userRole") || null);
   const navigate = useNavigate();
   const location = useLocation();
 
-<<<<<<< HEAD
-  useEffect(() => {
-    const storedRole = localStorage.getItem("userRole");
-    if (storedRole && !userRole) {
-      setUserRole(storedRole);
-    }
-  }, [userRole]);
-
-  const showHeader = userRole === null;
-=======
   const contactButtonHiddenRoutes = [
     "/admin-dashboard",
     "/cliente-dashboard",
     "/OtrosDashboard",
+    "/seleccionar-rol-google",
   ];
 
   const showButtons = !contactButtonHiddenRoutes.includes(location.pathname);
->>>>>>> 4f6821d953e275c06ac88329da07c045e28a7a91
 
   const handleLoginSuccess = (role) => {
     localStorage.setItem("userRole", role);
@@ -52,13 +41,19 @@ function App() {
     navigate("/login");
   };
 
-  const handleRegisterClick = () => navigate("/register");
+  const handleRegisterClick = (type, data) => {
+    if (type === 'google-select-role') {
+      sessionStorage.setItem('googleRegisterData', JSON.stringify(data));
+      navigate("/seleccionar-rol-google");
+    } else {
+      navigate("/register");
+    }
+  };
 
   const styles = {
     appContainer: {
       display: "flex",
       justifyContent: "center",
-      alignItems: "flex-start",
       alignItems: "flex-end",
       minHeight: "100vh",
       backgroundImage: `url(https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQJdRiuEpxYquiiW-1dvYyOSuGuuHL6kvxehw&s)`,
@@ -75,7 +70,7 @@ function App() {
       width: "100%",
       height: "60px",
       backgroundColor: "rgba(0, 0, 0, 0.9)",
-      zIndex: 1000,
+      zIndex: 9,
       display: "flex",
       alignItems: "center",
       justifyContent: "space-between",
@@ -152,7 +147,7 @@ function App() {
       </Link>
     );
   };
-
+  
   return (
     <div style={styles.appContainer}>
       {showButtons && (
@@ -195,7 +190,7 @@ function App() {
         <Route path="/contactenos" element={<Contactenos />} />
         <Route path="/register" element={<Register />} />
         <Route path="/trabaja-con-nosotros" element={<TrabajaConNosotros />} />
-        
+        <Route path="/seleccionar-rol-google" element={<GoogleRoleSelector onLoginSuccess={handleLoginSuccess} />} />
       </Routes>
     </div>
   );

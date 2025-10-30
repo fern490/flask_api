@@ -12,12 +12,7 @@ const Inicio = () => {
 
     heroSection: {
       width: "100vw",
-<<<<<<< HEAD
-      height: "85vh",
-      height: "100vh",
-=======
       height: "80vh",
->>>>>>> 4f6821d953e275c06ac88329da07c045e28a7a91
       backgroundImage:
         "url('Gemini_Generated_Image_oty5shoty5shoty5.jpg')",
       backgroundSize: "cover",
@@ -48,27 +43,7 @@ const Inicio = () => {
     },
 
     title: {
-<<<<<<< HEAD
-      fontSize: "35px",
-      fontWeight: "bold",
-      textTransform: "uppercase",
-      letterSpacing: "5px",
-      textShadow: "0 0 10px rgba(0,0,0,0.8)",
-      marginBottom: "20px",
-    },
-
-    subtitle: {
-      fontSize: "18px",
-      color: "#ddd",
-      maxWidth: "800px",
-      margin: "0 auto",
-      lineHeight: "1.6",
-      textShadow: "0 0 5px rgba(0,0,0,0.8)",
-      transform: "translateX(-20px)",
-      fontSize: "2.8rem",
-=======
       fontSize: "2.5rem",
->>>>>>> 4f6821d953e275c06ac88329da07c045e28a7a91
       fontWeight: "bold",
       marginBottom: "12px",
       letterSpacing: "-0.5px",
@@ -84,16 +59,11 @@ const Inicio = () => {
     empresasSection: {
       backgroundColor: "#111",
       textAlign: "center",
-      padding: "60px 0",
       padding: "40px 0",
       overflow: "hidden",
     },
 
     empresasTitle: {
-      fontSize: "1.5rem",
-      fontWeight: "bold",
-      color: "#fff",
-      marginBottom: "35px",
       fontSize: "1.3rem",
       fontWeight: "bold",
       color: "#fff",
@@ -121,33 +91,19 @@ const Inicio = () => {
 
   return (
     <div style={styles.container}>
-<<<<<<< HEAD
-      {}
-      {/* HERO / IMAGEN PRINCIPAL */}
-=======
       {/* IMAGEN PRINCIPAL */}
->>>>>>> 4f6821d953e275c06ac88329da07c045e28a7a91
       <section style={styles.heroSection}>
         <div style={styles.overlay}></div>
         <div style={styles.content}>
           <h1 style={styles.title}>EL ARTE DE CREAR MOMENTOS ÚNICOS</h1>
           <p style={styles.subtitle}>
             DESCUBRÍ LA MAGIA DE LOS EVENTOS EN FESTIUM EVENTOS.<br></br>
-<<<<<<< HEAD
-            DESCUBRÍ LA MAGIA DE LOS EVENTOS EN FESTIUM EVENTOS.  
-=======
->>>>>>> 4f6821d953e275c06ac88329da07c045e28a7a91
             DONDE CADA DETALLE ESTÁ PENSADO PARA EMOCIONAR.
           </p>
         </div>
       </section>
 
-<<<<<<< HEAD
-      {}
-      {/* EMPRESAS QUE CONFÍAN */}
-=======
       {/* EMPRESAS */}
->>>>>>> 4f6821d953e275c06ac88329da07c045e28a7a91
       <section style={styles.empresasSection}>
         <h2 style={styles.empresasTitle}>
           Algunas empresas que confían en nosotros:
@@ -155,17 +111,6 @@ const Inicio = () => {
 
         <div style={{ display: "flex", justifyContent: "center", overflow: "hidden" }}>
           <div style={styles.logosContainer}>
-            <img src="" alt="Logo 1" style={styles.logo} />
-            <img src="" alt="Logo 2" style={styles.logo} />
-            <img src="" alt="Logo 3" style={styles.logo} />
-            <img src="" alt="Logo 4" style={styles.logo} />
-            <img src="" alt="Logo 5" style={styles.logo} />
-            {}
-            <img src="" alt="Logo 1b" style={styles.logo} />
-            <img src="" alt="Logo 2b" style={styles.logo} />
-            <img src="" alt="Logo 3b" style={styles.logo} />
-            <img src="" alt="Logo 4b" style={styles.logo} />
-            <img src="" alt="Logo 5b" style={styles.logo} />
             <img
               src=""
               alt="Logo 1"
@@ -221,8 +166,7 @@ const Inicio = () => {
         </div>
       </section>
 
-      {}
-      {/* Animación CSS inline */}
+      {/* CSS inline */}
       <style>
         {`
           @keyframes scroll {
