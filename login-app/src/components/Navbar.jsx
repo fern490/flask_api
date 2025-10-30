@@ -6,8 +6,6 @@ const Navbar = () => {
 
   const links = [
     { path: "/", label: "Inicio" },
-    { path: "/eventos", label: "Eventos" },
-    { path: "/servicios", label: "Servicios" },
     { path: "/contactenos", label: "Contáctenos" },
     { path: "/trabaja-con-nosotros", label: "Trabajá con Nosotros" },
   ];

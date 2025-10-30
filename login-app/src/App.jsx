@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Routes, Route, Link, useNavigate, Navigate } from "react-router-dom";
 import React, { useState } from "react";
-import { Routes, Route, Link, useNavigate, Navigate} from "react-router-dom";
+import { Routes, Route, Link, useNavigate, Navigate, useLocation } from "react-router-dom";
 import Login from "./pages/Login";
 import AdminDashboard from "./pages/AdminDashboard";
 import ClienteDashboard from "./pages/ClienteDashboard";
@@ -15,7 +15,9 @@ import Inicio from "./pages/Inicio";
 function App() {
   const [userRole, setUserRole] = useState(localStorage.getItem("userRole") || null);
   const navigate = useNavigate();
+  const location = useLocation();
 
+<<<<<<< HEAD
   useEffect(() => {
     const storedRole = localStorage.getItem("userRole");
     if (storedRole && !userRole) {
@@ -24,6 +26,15 @@ function App() {
   }, [userRole]);
 
   const showHeader = userRole === null;
+=======
+  const contactButtonHiddenRoutes = [
+    "/admin-dashboard",
+    "/cliente-dashboard",
+    "/OtrosDashboard",
+  ];
+
+  const showButtons = !contactButtonHiddenRoutes.includes(location.pathname);
+>>>>>>> 4f6821d953e275c06ac88329da07c045e28a7a91
 
   const handleLoginSuccess = (role) => {
     localStorage.setItem("userRole", role);
@@ -144,8 +155,7 @@ function App() {
 
   return (
     <div style={styles.appContainer}>
-      {}
-      {showHeader && (
+      {showButtons && (
         <div style={styles.topBar}>
           <Link to="/login" style={styles.logoContainer}>
             <div style={styles.logo}>F</div>
@@ -185,7 +195,7 @@ function App() {
         <Route path="/contactenos" element={<Contactenos />} />
         <Route path="/register" element={<Register />} />
         <Route path="/trabaja-con-nosotros" element={<TrabajaConNosotros />} />
-        <Route path="*" element={<Navigate to="/login" replace />} />
+        
       </Routes>
     </div>
   );

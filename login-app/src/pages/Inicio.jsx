@@ -12,8 +12,12 @@ const Inicio = () => {
 
     heroSection: {
       width: "100vw",
+<<<<<<< HEAD
       height: "85vh",
       height: "100vh",
+=======
+      height: "80vh",
+>>>>>>> 4f6821d953e275c06ac88329da07c045e28a7a91
       backgroundImage:
         "url('Gemini_Generated_Image_oty5shoty5shoty5.jpg')",
       backgroundSize: "cover",
@@ -44,6 +48,7 @@ const Inicio = () => {
     },
 
     title: {
+<<<<<<< HEAD
       fontSize: "35px",
       fontWeight: "bold",
       textTransform: "uppercase",
@@ -61,15 +66,19 @@ const Inicio = () => {
       textShadow: "0 0 5px rgba(0,0,0,0.8)",
       transform: "translateX(-20px)",
       fontSize: "2.8rem",
+=======
+      fontSize: "2.5rem",
+>>>>>>> 4f6821d953e275c06ac88329da07c045e28a7a91
       fontWeight: "bold",
       marginBottom: "12px",
-      letterSpacing: "1px",
+      letterSpacing: "-0.5px",
     },
 
     subtitle: {
       fontSize: "1.1rem",
       maxWidth: "700px",
       lineHeight: "1.6",
+      marginLeft: "30px",
     },
 
     empresasSection: {
@@ -112,22 +121,33 @@ const Inicio = () => {
 
   return (
     <div style={styles.container}>
+<<<<<<< HEAD
       {}
       {/* HERO / IMAGEN PRINCIPAL */}
+=======
+      {/* IMAGEN PRINCIPAL */}
+>>>>>>> 4f6821d953e275c06ac88329da07c045e28a7a91
       <section style={styles.heroSection}>
         <div style={styles.overlay}></div>
         <div style={styles.content}>
           <h1 style={styles.title}>EL ARTE DE CREAR MOMENTOS ÚNICOS</h1>
           <p style={styles.subtitle}>
             DESCUBRÍ LA MAGIA DE LOS EVENTOS EN FESTIUM EVENTOS.<br></br>
+<<<<<<< HEAD
             DESCUBRÍ LA MAGIA DE LOS EVENTOS EN FESTIUM EVENTOS.  
+=======
+>>>>>>> 4f6821d953e275c06ac88329da07c045e28a7a91
             DONDE CADA DETALLE ESTÁ PENSADO PARA EMOCIONAR.
           </p>
         </div>
       </section>
 
+<<<<<<< HEAD
       {}
       {/* EMPRESAS QUE CONFÍAN */}
+=======
+      {/* EMPRESAS */}
+>>>>>>> 4f6821d953e275c06ac88329da07c045e28a7a91
       <section style={styles.empresasSection}>
         <h2 style={styles.empresasTitle}>
           Algunas empresas que confían en nosotros:

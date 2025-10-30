@@ -166,7 +166,7 @@ const Register = () => {
 const styles = {
   container: {
     width: "272px",
-    margin: "16px auto",
+    margin: "0px auto",
     padding: "16px",
     borderRadius: "6.5px",
     textAlign: "center",

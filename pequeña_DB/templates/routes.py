@@ -1,7 +1,7 @@
 from flask import Blueprint, request, jsonify
-from models import db, Usuario, Salon, Evento, Servicio, EventoServicio, Pago, Contacto
-from datetime import datetime
-#import secrets
+from pequeña_DB.templates.models import db, Usuario, Salon, Evento, Servicio, EventoServicio, Pago, Contacto, Mensaje
+from datetime import datetime, date
+import secrets
 from werkzeug.security import generate_password_hash, check_password_hash
 
 routes = Blueprint('routes', __name__)
@@ -24,7 +24,7 @@ def registro_temporal():
     if any(u["email"] == data["email"] for u in usuarios_temporales):
         return jsonify({"error": "Ya existe un usuario temporal con ese correo"}), 409
 
-    # Guardar en la lista temporal
+
     usuarios_temporales.append(data)
 
     print("\nNuevo registro temporal recibido:")
@@ -179,7 +179,7 @@ def crear_evento():
         nombre_evento=data['nombre_evento'],
         fecha=datetime.strptime(data['fecha'], "%Y-%m-%d"),
         tema=data.get('tema'),
-        informe_detallado=data.get('informe_detallado'),
+        informe=data.get('informe_detallado'),
         salon_id=data['salon_id'],
         usuario_id=data['cliente_id']
     )
@@ -196,7 +196,7 @@ def listar_eventos():
             "nombre_evento": e.nombre_evento,
             "fecha": e.fecha.isoformat(),
             "tema": e.tema,
-            "informe_detallado": e.informe_detallado,
+            "informe": e.informe_detallado,
             "salon": e.salon.nombre,
             "cliente": e.usuario.nombre
         } for e in eventos
@@ -210,7 +210,7 @@ def actualizar_evento(id):
     if "fecha" in data:
         evento.fecha = datetime.strptime(data["fecha"], "%Y-%m-%d")
     evento.tema = data.get("tema", evento.tema)
-    evento.informe_detallado = data.get("informe_detallado", evento.informe_detallado)
+    evento.informe = data.get("informe_detallado", evento.informe_detallado)
     db.session.commit()
     return jsonify({"mensaje": "Evento actualizado"})
 
@@ -441,3 +441,62 @@ def obtener_postulaciones():
         postulaciones.append(postulacion)
 
     return jsonify(postulaciones), 200
+
+@routes.route('/api/servicios', methods=['GET'])
+def obtener_servicios_proveedor():
+    proveedor_id = request.args.get("proveedor_id")
+    if not proveedor_id:
+        return jsonify({"error": "Falta el parámetro 'proveedor_id'."}), 400
+    
+    try:
+        servicios = Servicio.query.filter_by(proveedor_id=proveedor_id).all()
+        lista_servicios = [{
+            "id": s.servicio_id, "nombre_servicio": s.nombre_servicio, "descripcion": s.descripcion, 
+            "costo": str(s.costo), "proveedor_id": s.proveedor_id
+        } for s in servicios]
+        return jsonify(lista_servicios), 200
+    except Exception as e:
+        return jsonify({"error": "Error interno del servidor al obtener servicios."}), 500
+    
+@routes.route('/api/solicitudes', methods=['GET'])
+def obtener_solicitudes():
+    try:
+        today = date.today()
+        solicitudes = Evento.query.filter(Evento.fecha >= today).all()
+        
+        lista_solicitudes = [{
+            "id": e.evento_id, "nombre_evento": e.nombre_evento, 
+            "fecha_evento": e.fecha.strftime('%Y-%m-%d') if e.fecha else None,
+            "salon_id": e.salon_id, "usuario_id": e.usuario_id
+        } for e in solicitudes]
+        return jsonify(lista_solicitudes), 200
+    except Exception as e:
+        return jsonify({"error": "Error interno del servidor al obtener solicitudes."}), 500
+    
+@routes.route('/api/mensajes', methods=['GET'])
+def obtener_mensajes_proveedor():
+    proveedor_id = request.args.get("proveedor_id")
+    if not proveedor_id:
+        return jsonify({"error": "Falta el parámetro 'proveedor_id'."}), 400
+
+    try:
+        mensajes_q = db.session.query(
+            Mensaje.id, Mensaje.contenido, Mensaje.fecha_envio,
+            Usuario.nombre.label('cliente_nombre')
+        ).join(
+            Usuario, Usuario.id == Mensaje.remitente_id
+        ).filter(
+            Mensaje.receptor_id == proveedor_id
+        ).order_by(
+            Mensaje.fecha_envio.desc()
+        ).all()
+        
+        lista_mensajes = [{
+            "id": m.id, "mensaje": m.contenido, 
+            "fecha": m.fecha_envio.isoformat() if m.fecha_envio else None,
+            "cliente_nombre": m.cliente_nombre
+        } for m in mensajes_q]
+        
+        return jsonify(lista_mensajes), 200
+    except Exception as e:
+        return jsonify({"error": "Error interno del servidor al obtener mensajes."}), 500

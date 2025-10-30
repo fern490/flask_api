@@ -1,266 +1,269 @@
-import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import React, { useState, useEffect, useCallback } from "react";
+// eslint-disable-next-line no-unused-vars
 import { motion } from "framer-motion";
- 
+
 const OtrosDashboard = ({ onLogout }) => {
   const [seccion, setSeccion] = useState("servicios");
+  const [servicios, setServicios] = useState([]);
+  const [solicitudes, setSolicitudes] = useState([]);
+  const [mensajes, setMensajes] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  const proveedorId = localStorage.getItem("userId");
+  const BASE_URL = "http://127.0.0.1:5000/";
+
+const fetchServicios = useCallback(async () => {
+  try {
+    const response = await fetch(`${BASE_URL}/api/servicios?proveedor_id=${proveedorId}`);
+    if (!response.ok) throw new Error("Error al obtener servicios");
+    const data = await response.json();
+    setServicios(data);
+  } catch (error) {
+    console.error("Error al obtener servicios:", error);
+  }
+}, [proveedorId]);
+
+const fetchSolicitudes = useCallback(async () => {
+  try {
+    const response = await fetch(`${BASE_URL}/api/solicitudes`);
+    if (!response.ok) throw new Error("Error al obtener solicitudes");
+    const data = await response.json();
+    setSolicitudes(data);
+  } catch (error) {
+    console.error("Error al obtener solicitudes:", error);
+  }
+}, []); // No depende de nada externo
+
+const fetchMensajes = useCallback(async () => {
+  try {
+    const response = await fetch(`${BASE_URL}/api/mensajes?proveedor_id=${proveedorId}`);
+    if (!response.ok) throw new Error("Error al obtener mensajes");
+    const data = await response.json();
+    setMensajes(data);
+  } catch (error) {
+    console.error("Error al obtener mensajes:", error);
+  }
+}, [proveedorId]);
+
+useEffect(() => {
+  const loadData = async () => {
+    setIsLoading(true);
+    if (proveedorId) {
+      await Promise.all([fetchServicios(), fetchSolicitudes(), fetchMensajes()]);
+    } else {
+      onLogout();
+    }
+    setIsLoading(false);
+  };
+
+  loadData();
+}, [proveedorId, onLogout, fetchServicios, fetchSolicitudes, fetchMensajes]);
+
 
   const renderContenido = () => {
+    if (isLoading) return <p style={{ textAlign: "center" }}>Cargando datos...</p>;
+
     switch (seccion) {
       case "servicios":
         return (
-          <motion.div
-            key="servicios"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.4 }}
-          >
-            <h2>🎧 Mis Servicios</h2>
+          <motion.div key="servicios" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
+            <h2>🎧 Mis Servicios ({servicios.length})</h2>
             <p>Publicá, editá o eliminá los servicios que ofrecés en eventos.</p>
-            <ul>
-              <li>📸 Fotografía profesional</li>
-              <li>🎶 DJ para eventos</li>
-              <li>🍽️ Catering y mozos</li>
-            </ul>
-            <button style={styles.actionButton}>Agregar nuevo servicio</button>
+            <button
+              style={styles.actionButton}
+              onClick={() => (window.location.href = "/crear-servicio")}
+            >
+              Agregar nuevo servicio
+            </button>
+            <div style={styles.cardsGrid}>
+              {servicios.length > 0 ? (
+                servicios.map((s) => (
+                  <div key={s.id} style={styles.card}>
+                    <h4>{s.nombre_servicio}</h4>
+                    <p>{s.descripcion || "Sin descripción"}</p>
+                    <p style={{ fontWeight: "bold" }}>Costo: ${s.costo}</p>
+                  </div>
+                ))
+              ) : (
+                <p>No tienes servicios publicados.</p>
+              )}
+            </div>
           </motion.div>
         );
 
       case "solicitudes":
         return (
-          <motion.div
-            key="solicitudes"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.4 }}
-          >
-            <h2>🔔 Solicitudes de Servicio</h2>
-            <p>Consultá eventos que buscan personal o proveedores.</p>
-            <div style={styles.card}>
-              <h4>🎉 Cumpleaños 15 años - 20/11/2025</h4>
-              <p>Buscan: DJ, fotógrafo, decoración</p>
-              <button style={styles.actionButton}>Postularme</button>
-            </div>
-            <div style={styles.card}>
-              <h4>💼 Evento corporativo - 02/12/2025</h4>
-              <p>Buscan: catering, sonido, luces</p>
-              <button style={styles.actionButton}>Postularme</button>
+          <motion.div key="solicitudes" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
+            <h2>🔔 Solicitudes de Eventos ({solicitudes.length})</h2>
+            <p>Consultá eventos futuros que buscan personal o proveedores.</p>
+            <div style={styles.cardsGrid}>
+              {solicitudes.length > 0 ? (
+                solicitudes.map((sol) => (
+                  <div key={sol.id} style={styles.card}>
+                    <h4>🎉 {sol.nombre_evento}</h4>
+                    <p>Fecha: {sol.fecha_evento}</p>
+                    <p>
+                      <small>
+                        Salón ID: {sol.salon_id} | Cliente ID: {sol.usuario_id}
+                      </small>
+                    </p>
+                    <button style={styles.actionButton}>Ver Detalles/Postularse</button>
+                  </div>
+                ))
+              ) : (
+                <p>No hay solicitudes de eventos futuras por el momento.</p>
+              )}
             </div>
           </motion.div>
         );
 
       case "mensajes":
         return (
-          <motion.div
-            key="mensajes"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.4 }}
-          >
-            <h2>💬 Mensajería</h2>
-            <p>Chateá con organizadores o clientes interesados en tus servicios.</p>
-            <div style={styles.chatBox}>
-              <p><strong>Cliente:</strong> Hola, me interesa tu servicio de DJ.</p>
-              <p><strong>Vos:</strong> ¡Hola! Perfecto 😊 ¿Qué tipo de música buscan?</p>
-              <input type="text" placeholder="Escribí un mensaje..." style={styles.input} />
-              <button style={styles.actionButton}>Enviar</button>
+          <motion.div key="mensajes" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
+            <h2>📧 Mensajes Recibidos ({mensajes.length})</h2>
+            <p>Comunícate con clientes interesados en tus servicios.</p>
+            <div style={styles.cardsGrid}>
+              {mensajes.length > 0 ? (
+                mensajes.map((msg) => (
+                  <div key={msg.id} style={styles.card}>
+                    <h4>De: {msg.cliente_nombre}</h4>
+                    <p style={{ fontStyle: "italic" }}>"{msg.mensaje}"</p>
+                    <small>Fecha: {new Date(msg.fecha).toLocaleString()}</small>
+                  </div>
+                ))
+              ) : (
+                <p>No tienes mensajes nuevos.</p>
+              )}
             </div>
           </motion.div>
         );
 
-      case "perfil":
+      case "configuracion":
         return (
-          <motion.div
-            key="perfil"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.4 }}
-          >
-            <h2>🧑 Perfil Profesional</h2>
-            <p>Gestioná tu información, fotos y disponibilidad.</p>
-            <form style={styles.form}>
-              <input type="text" placeholder="Nombre comercial" style={styles.input} />
-              <input type="text" placeholder="Especialidad" style={styles.input} />
-              <textarea placeholder="Descripción breve de tus servicios" style={styles.textarea}></textarea>
-              <button style={styles.actionButton}>Actualizar perfil</button>
-            </form>
-          </motion.div>
-        );
-
-      case "estadisticas":
-        return (
-          <motion.div
-            key="estadisticas"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.4 }}
-          >
-            <h2>📊 Mis Estadísticas</h2>
-            <ul>
-              <li>Eventos realizados: 8</li>
-              <li>Postulaciones aceptadas: 12</li>
-              <li>Calificación promedio: ⭐ 4.7</li>
-              <li>Ganancias estimadas: $45.200</li>
-            </ul>
-          </motion.div>
-        );
-
-      case "recursos":
-        return (
-          <motion.div
-            key="recursos"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.4 }}
-          >
-            <h2>🧰 Recursos y Consejos</h2>
-            <ul>
-              <li>📖 Cómo destacar tu perfil profesional</li>
-              <li>🎥 Video: Tips para eventos exitosos</li>
-              <li>💡 Artículo: Cómo calcular tu presupuesto</li>
-            </ul>
+          <motion.div key="configuracion" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
+            <h2>⚙️ Configuración de Perfil</h2>
+            <p>Configura tu información de contacto, especialidades y servicios predeterminados.</p>
           </motion.div>
         );
 
       default:
-        return <p>Seleccioná una sección.</p>;
+        return null;
     }
   };
 
+  const handleLogout = () => onLogout();
+
+  const styles = {
+    layout: {
+      display: "flex",
+      minHeight: "100vh",
+      backgroundColor: "#1e2a38",
+      color: "white",
+      fontFamily: "Inter, sans-serif",
+    },
+    sidebar: {
+      width: "250px",
+      backgroundColor: "#273746",
+      display: "flex",
+      flexDirection: "column",
+      justifyContent: "space-between",
+      padding: "25px 20px",
+      boxShadow: "2px 0 8px rgba(0,0,0,0.3)",
+    },
+    navSection: {
+      display: "flex",
+      flexDirection: "column",
+      gap: "10px",
+    },
+    navButton: (active) => ({
+      padding: "12px 15px",
+      border: "none",
+      borderRadius: "8px",
+      color: "white",
+      textAlign: "left",
+      cursor: "pointer",
+      backgroundColor: active ? "#3498db" : "transparent",
+      transition: "all 0.3s ease",
+      fontWeight: active ? "bold" : "normal",
+    }),
+    logoutButton: {
+      backgroundColor: "#e74c3c",
+      border: "none",
+      padding: "12px",
+      borderRadius: "8px",
+      color: "white",
+      cursor: "pointer",
+    },
+    mainContent: {
+      flex: 1,
+      padding: "40px",
+      overflowY: "auto",
+    },
+    contentBox: {
+      backgroundColor: "#34495e",
+      borderRadius: "12px",
+      padding: "25px",
+      boxShadow: "0 0 15px rgba(0,0,0,0.3)",
+    },
+    cardsGrid: {
+      display: "grid",
+      gridTemplateColumns: "repeat(auto-fit, minmax(250px, 1fr))",
+      gap: "15px",
+      marginTop: "20px",
+    },
+    card: {
+      backgroundColor: "#3d566e",
+      padding: "15px",
+      borderRadius: "10px",
+      borderLeft: "4px solid #3498db",
+    },
+    actionButton: {
+      backgroundColor: "#27ae60",
+      border: "none",
+      padding: "8px 12px",
+      borderRadius: "6px",
+      color: "white",
+      cursor: "pointer",
+      marginTop: "10px",
+    },
+  };
+
   return (
-    <div style={styles.container}>
-      <h1 style={styles.title}>🎭 Panel de Servicios y Oportunidades</h1>
-      <p style={styles.subtitle}>
-        Bienvenido al panel para proveedores y colaboradores de eventos.
-      </p>
-
-      <nav style={styles.navbar}>
-        {["servicios", "solicitudes", "mensajes", "perfil", "estadisticas", "recursos"].map(
-          (item) => (
-            <button
-              key={item}
-              onClick={() => setSeccion(item)}
-              style={{
-                ...styles.navButton,
-                backgroundColor: seccion === item ? "#f39c12" : "#34495e",
-              }}
-            >
-              {item.charAt(0).toUpperCase() + item.slice(1)}
+    <div style={styles.layout}>
+      {/* Sidebar */}
+      <div style={styles.sidebar}>
+        <div>
+          <h2>🎵 Panel</h2>
+          <p style={{ fontSize: "0.9rem", color: "#bdc3c7" }}>
+            Proveedor ID: <strong>{proveedorId}</strong>
+          </p>
+          <div style={styles.navSection}>
+            <button style={styles.navButton(seccion === "servicios")} onClick={() => setSeccion("servicios")}>
+              Mis Servicios
             </button>
-          )
-        )}
-      </nav>
+            <button style={styles.navButton(seccion === "solicitudes")} onClick={() => setSeccion("solicitudes")}>
+              Solicitudes
+            </button>
+            <button style={styles.navButton(seccion === "mensajes")} onClick={() => setSeccion("mensajes")}>
+              Mensajes
+            </button>
+            <button style={styles.navButton(seccion === "configuracion")} onClick={() => setSeccion("configuracion")}>
+              Configuración
+            </button>
+          </div>
+        </div>
 
-      <div style={styles.content}>{renderContenido()}</div>
+        <button onClick={handleLogout} style={styles.logoutButton}>
+          Cerrar sesión
+        </button>
+      </div>
 
-      <div style={{ marginTop: "30px" }}>
-        {onLogout && (
-          <button onClick={onLogout} style={styles.logoutButton}>
-            🔒 Cerrar sesión
-          </button>
-        )}
-        <Link to="/" style={styles.link}>
-          Volver al inicio
-        </Link>
+      {/* Main content */}
+      <div style={styles.mainContent}>
+        <div style={styles.contentBox}>{renderContenido()}</div>
       </div>
     </div>
   );
-};
-
-const styles = {
-  container: {
-    minHeight: "100vh",
-    backgroundColor: "#2c3e50",
-    color: "white",
-    display: "flex",
-    flexDirection: "column",
-    alignItems: "center",
-    padding: "30px",
-  },
-  title: {
-    fontSize: "2rem",
-    color: "#f1c40f",
-  },
-  subtitle: {
-    fontSize: "1.1rem",
-    marginBottom: "20px",
-  },
-  navbar: {
-    display: "flex",
-    gap: "10px",
-    flexWrap: "wrap",
-    justifyContent: "center",
-    marginBottom: "20px",
-  },
-  navButton: {
-    padding: "10px 15px",
-    border: "none",
-    borderRadius: "6px",
-    color: "white",
-    cursor: "pointer",
-    fontWeight: "bold",
-  },
-  content: {
-    backgroundColor: "#34495e",
-    padding: "25px",
-    borderRadius: "12px",
-    width: "80%",
-    maxWidth: "800px",
-    minHeight: "300px",
-    boxShadow: "0 0 10px rgba(0,0,0,0.3)",
-  },
-  link: {
-    color: "#3498db",
-    textDecoration: "none",
-    display: "block",
-    marginTop: "10px",
-  },
-  logoutButton: {
-    padding: "10px 20px",
-    backgroundColor: "#e74c3c",
-    border: "none",
-    color: "white",
-    borderRadius: "6px",
-    cursor: "pointer",
-    marginRight: "15px",
-  },
-  card: {
-    backgroundColor: "#3d566e",
-    padding: "15px",
-    borderRadius: "10px",
-    marginBottom: "10px",
-  },
-  actionButton: {
-    backgroundColor: "#27ae60",
-    border: "none",
-    padding: "8px 15px",
-    borderRadius: "6px",
-    color: "white",
-    cursor: "pointer",
-    marginTop: "10px",
-  },
-  form: {
-    display: "flex",
-    flexDirection: "column",
-    gap: "10px",
-  },
-  input: {
-    padding: "8px",
-    borderRadius: "6px",
-    border: "none",
-  },
-  textarea: {
-    padding: "8px",
-    borderRadius: "6px",
-    border: "none",
-    minHeight: "80px",
-  },
-  chatBox: {
-    backgroundColor: "#3d566e",
-    padding: "15px",
-    borderRadius: "10px",
-    textAlign: "left",
-  },
 };
 
 export default OtrosDashboard;

@@ -97,7 +97,7 @@ const TrabajaConNosotros = () => {
       boxSizing: "border-box",
       animation: "fadeIn 0.6s ease-in-out",
       transformOrigin: "top center",
-      marginTop: "55px"
+      marginTop: "52px"
     },
     headerWrapper: {
       marginBottom: "8px",
