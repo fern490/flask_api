@@ -103,6 +103,8 @@ const Inicio = () => {
         </div>
       </section>
 
+      
+
       {/* EMPRESAS */}
       <section style={styles.empresasSection}>
         <h2 style={styles.empresasTitle}>

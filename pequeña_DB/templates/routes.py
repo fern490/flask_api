@@ -13,35 +13,14 @@ except ImportError:
     class MockRequest:
         def Request(self):
             pass
-    google_requests = MockRequest() 
+    google_requests = MockRequest()
     id_token = None
 
 CLIENT_ID = "110218343931-a1uctqsv8ir4a9vpl9tsrbctbit87k9g.apps.googleusercontent.com"
 
 routes = Blueprint('routes', __name__)
 
-usuarios_temporales = []
 
-@routes.route('/registro-temporal', methods=['POST'])
-def registro_temporal():
-    data = request.get_json()
-    campos = ["nombre", "apellido", "fecha_nacimiento", "genero", "email", "rol"]
-    if not all(campo in data for campo in campos):
-        return jsonify({"error": "Faltan campos obligatorios"}), 400
-
-    if any(u["email"] == data["email"] for u in usuarios_temporales):
-        return jsonify({"error": "Ya existe un usuario temporal con ese correo"}), 409
-
-    usuarios_temporales.append(data)
-
-    return jsonify({
-        "message": "¡Registro éxitoso!",
-        "usuario": data
-    }), 201
-
-@routes.route('/usuarios-temporales', methods=['GET'])
-def listar_temporales():
-    return jsonify(usuarios_temporales), 200
 
 @routes.route('/usuarios', methods=['POST'])
 def crear_usuario():
