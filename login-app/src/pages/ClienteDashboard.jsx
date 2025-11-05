@@ -28,7 +28,6 @@ const ClienteDashboard = ({ onLogout }) => {
     }
   }, [userId]);
 
-  // Función para obtener todos los servicios (provistos por rol 'Otros')
   const fetchServicios = useCallback(async () => {
     try {
       setIsLoading(true);

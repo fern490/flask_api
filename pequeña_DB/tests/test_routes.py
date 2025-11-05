@@ -1,7 +1,7 @@
 import json
 import uuid
 import pytest
-from pequeña_DB.templates.models import db, Usuario, Salon
+from pequeña_DB.templates.models import db, Usuario, Salon, Evento
 
 
 def test_crear_usuario(client):
