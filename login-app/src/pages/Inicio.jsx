@@ -13,8 +13,7 @@ const Inicio = () => {
     heroSection: {
       width: "100vw",
       height: "80vh",
-      backgroundImage:
-        "url('Gemini_Generated_Image_oty5shoty5shoty5.jpg')",
+      backgroundImage: "url('Gemini_Generated_Image_oty5shoty5shoty5.jpg')",
       backgroundSize: "cover",
       backgroundPosition: "center center",
       backgroundRepeat: "no-repeat",
@@ -40,6 +39,7 @@ const Inicio = () => {
       position: "relative",
       zIndex: 1,
       padding: "20px",
+      marginTop: "50px",
     },
 
     title: {
@@ -53,7 +53,26 @@ const Inicio = () => {
       fontSize: "1.1rem",
       maxWidth: "700px",
       lineHeight: "1.6",
-      marginLeft: "30px",
+      margin: "20px auto 0 auto",
+    },
+
+    eleganceSection: {
+      backgroundColor: "#111",
+      textAlign: "center",
+      padding: "40px 20px",
+    },
+
+    eleganceText: {
+      fontSize: "1.1rem",
+      lineHeight: "1.6",
+      maxWidth: "800px",
+      margin: "0 auto",
+    },
+
+    eleganceTitle: {
+      fontWeight: "bold",
+      fontSize: "1.3rem",
+      marginBottom: "20px",
     },
 
     empresasSection: {
@@ -82,11 +101,6 @@ const Inicio = () => {
       objectFit: "contain",
       filter: "brightness(0) invert(1)",
     },
-
-    "@keyframes scroll": {
-      "0%": { transform: "translateX(0)" },
-      "100%": { transform: "translateX(-50%)" },
-    },
   };
 
   return (
@@ -96,14 +110,28 @@ const Inicio = () => {
         <div style={styles.overlay}></div>
         <div style={styles.content}>
           <h1 style={styles.title}>EL ARTE DE CREAR MOMENTOS ÚNICOS</h1>
-          <p style={styles.subtitle}>
-            DESCUBRÍ LA MAGIA DE LOS EVENTOS EN FESTIUM EVENTOS.<br></br>
-            DONDE CADA DETALLE ESTÁ PENSADO PARA EMOCIONAR.
-          </p>
+          <div style={styles.subtitle}>
+            <p>
+              DESCUBRÍ LA MAGIA DE LOS EVENTOS EN FESTIUM EVENTOS.<br />
+              DONDE CADA DETALLE ESTÁ PENSADO PARA EMOCIONAR.
+            </p>
+          </div>
         </div>
       </section>
 
-      
+      {/* SECCIÓN DE ELEGANCIA Y MODERNIDAD */}
+      <section style={styles.eleganceSection}>
+        <div style={styles.eleganceText}>
+          <h2 style={styles.eleganceTitle}>ELEGANCIA Y MODERNIDAD</h2>
+          <p>
+            El lugar ideal para cada evento.<br />
+            Un espacio elegante y moderno, perfecto para eventos de todas las escalas,
+            desde íntimas reuniones hasta grandes celebraciones. Nuestro salón multifuncional
+            ofrece un servicio excepcional y profesional, asegurando que cada ocasión sea
+            una experiencia memorable y llena de distinción.
+          </p>
+        </div>
+      </section>
 
       {/* EMPRESAS */}
       <section style={styles.empresasSection}>
@@ -113,57 +141,18 @@ const Inicio = () => {
 
         <div style={{ display: "flex", justifyContent: "center", overflow: "hidden" }}>
           <div style={styles.logosContainer}>
-            <img
-              src=""
-              alt="Logo 1"
-              style={styles.logo}
-            />
-            <img
-              src=""
-              alt="Logo 2"
-              style={styles.logo}
-            />
-            <img
-              src=""
-              alt="Logo 3"
-              style={styles.logo}
-            />
-            <img
-              src=""
-              alt="Logo 4"
-              style={styles.logo}
-            />
-            <img
-              src=""
-              alt="Logo 5"
-              style={styles.logo}
-            />
-            {/* Duplicamos los logos para efecto infinito */}
-            <img
-              src=""
-              alt="Logo 1b"
-              style={styles.logo}
-            />
-            <img
-              src=""
-              alt="Logo 2b"
-              style={styles.logo}
-            />
-            <img
-              src=""
-              alt="Logo 3b"
-              style={styles.logo}
-            />
-            <img
-              src=""
-              alt="Logo 4b"
-              style={styles.logo}
-            />
-            <img
-              src=""
-              alt="Logo 5b"
-              style={styles.logo}
-            />
+            <img src="" alt="Logo 1" style={styles.logo} />
+            <img src="" alt="Logo 2" style={styles.logo} />
+            <img src="" alt="Logo 3" style={styles.logo} />
+            <img src="" alt="Logo 4" style={styles.logo} />
+            <img src="" alt="Logo 5" style={styles.logo} />
+
+            {/* Duplicamos para el efecto infinito */}
+            <img src="" alt="Logo 1b" style={styles.logo} />
+            <img src="" alt="Logo 2b" style={styles.logo} />
+            <img src="" alt="Logo 3b" style={styles.logo} />
+            <img src="" alt="Logo 4b" style={styles.logo} />
+            <img src="" alt="Logo 5b" style={styles.logo} />
           </div>
         </div>
       </section>

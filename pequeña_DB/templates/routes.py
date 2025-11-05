@@ -3,6 +3,7 @@ from pequeña_DB.templates.models import db, Usuario, Salon, Evento, Servicio, E
 from datetime import datetime, date
 import secrets
 from werkzeug.security import generate_password_hash, check_password_hash
+from sqlalchemy import or_
 
 try:
     from google.oauth2 import id_token
@@ -20,8 +21,9 @@ CLIENT_ID = "110218343931-a1uctqsv8ir4a9vpl9tsrbctbit87k9g.apps.googleuserconten
 
 routes = Blueprint('routes', __name__)
 
-
-
+# ----------------------------------------
+# REGISTRO DE USUARIOS
+# ----------------------------------------
 @routes.route('/usuarios', methods=['POST'])
 def crear_usuario():
     data = request.json
@@ -30,36 +32,38 @@ def crear_usuario():
     fecha_nacimiento = data.get('fecha_nacimiento')
     genero = data.get('genero')
     email = data.get('email')
+    usuario = data.get("usuario")
     password = data.get('password')
-    rol = data.get('rol') 
+    rol = data.get('rol')
 
-    if not all([nombre, email, password, rol]):
+    if not all([nombre, email, password, rol, usuario]):
         return jsonify({"message": "Faltan datos obligatorios (nombre, email, password, rol)"}), 400
 
-    if Usuario.query.filter_by(email=email).first():
-        return jsonify({"message": "El email ya está registrado"}), 409
+    if Usuario.query.filter(or_(Usuario.email == email, Usuario.usuario == usuario)).first():
+        return jsonify({"message": "El email o el nombre de usuario ya está registrado"}), 409
 
     hashed_password = generate_password_hash(password, method='pbkdf2:sha256')
-    
+
     fecha_nacimiento_dt = None
     if fecha_nacimiento:
         try:
             fecha_nacimiento_dt = datetime.strptime(fecha_nacimiento, '%Y-%m-%d').date()
         except ValueError:
-            return jsonify({"message": "Formato de fecha de nacimiento incorrecto. Usa YYYY-MM-DD"}), 400
+            return jsonify({"message": "Formato de fecha incorrecto (usar YYYY-MM-DD)"}), 400
 
-    usuario = Usuario(
+    usuario_nuevo = Usuario(
         nombre=nombre,
         apellido=apellido,
         fecha_nacimiento=fecha_nacimiento_dt,
         genero=genero,
         email=email,
+        usuario=usuario,
         password=hashed_password,
         rol=rol
     )
-    db.session.add(usuario)
+    db.session.add(usuario_nuevo)
     db.session.commit()
-    return jsonify({"mensaje": "Usuario creado"}), 201
+    return jsonify({"message": "Usuario creado correctamente"}), 201
 
 @routes.route('/usuarios', methods=['GET'])
 def listar_usuarios():
@@ -88,21 +92,32 @@ def eliminar_usuario(id):
     db.session.commit()
     return jsonify({"mensaje": "Usuario eliminado"})
 
-
+# ==================================================
+# 🧩 Ruta LOGIN (Funciona con email O nombre de usuario)
+# ==================================================
 @routes.route("/login", methods=["POST"])
 def login():
     data = request.get_json()
-    user = Usuario.query.filter_by(email=data.get("email")).first()
+    identifier = data.get("email") 
+    password = data.get("password")
+    rol = data.get("role") or data.get("rol")
 
-    if user and check_password_hash(user.password, data.get("password")) and user.rol == data.get("rol"):
+    if not all([identifier, password, rol]):
+        return jsonify({"message": "Faltan datos (email/usuario, contraseña o rol)"}), 400
+
+    user = Usuario.query.filter(
+        or_(Usuario.email == identifier, Usuario.usuario == identifier)
+    ).first()
+
+    if user and check_password_hash(user.password, password) and user.rol == rol:
         return jsonify({
-            "token": "jwt-token",
+            "token": "jwt-token-generado",
             "role": user.rol,
-            "user_id": user.id
+            "user_id": user.id,
+            "message": "Inicio de sesión exitoso"
         }), 200
     else:
         return jsonify({"message": "Credenciales inválidas"}), 401
-
 
 @routes.route("/login/google", methods=["POST"])
 def login_google():

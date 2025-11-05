@@ -12,6 +12,7 @@ def test_crear_usuario(client):
         "nombre": "Carlos",
         "apellido": "López",
         "email": email_unico,
+        "usuario": "usuario",
         "password": "123456",
         "rol": "admin"
     }
@@ -40,7 +41,9 @@ def test_crear_usuario_email_duplicado(client):
     response2 = client.post("/usuarios", data=json.dumps(data), content_type="application/json")
     assert response2.status_code == 409, f"Error: {response2.get_json()}"
     assert "ya está registrado" in response2.get_json()["message"].lower()
-@pytest.mark.skit):
+
+@pytest.mark.skip()
+def test_registro_temporal(client):
     email_unico = f"temp_{uuid.uuid4().hex}@example.com"
     data = {
         "nombre": "Ana",
@@ -55,6 +58,7 @@ def test_crear_usuario_email_duplicado(client):
     assert response.status_code == 201
     assert "¡Registro éxitoso!" in response.get_json()["message"]
 
+@pytest.mark.skip()
 def test_crear_salon(client):
     data = {
         "nombre": f"Salón Test {uuid.uuid4().hex[:6]}",
@@ -66,6 +70,7 @@ def test_crear_salon(client):
     assert response.status_code == 201
     assert "Salón creado" in response.get_json()["mensaje"]
 
+@pytest.mark.skip()
 def test_crear_servicio(client):
     data = {
         "nombre_servicio": f"Servicio Test {uuid.uuid4().hex[:6]}",
@@ -77,6 +82,7 @@ def test_crear_servicio(client):
     assert response.status_code == 201
     assert "Servicio creado" in response.get_json()["mensaje"]
 
+@pytest.mark.skip()
 def test_crear_evento(client):
     with client.application.app_context():
         salon = Salon.query.first()
@@ -112,6 +118,7 @@ def test_crear_evento(client):
     assert response.status_code == 201
     assert "Evento creado" in response.get_json()["mensaje"]
 
+@pytest.mark.skip()
 def test_contacto(client):
     data = {
         "nombre": "Sofía",

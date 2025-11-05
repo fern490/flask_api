@@ -5,6 +5,7 @@ CREATE TABLE usuarios (
     fecha_nacimiento DATE NOT NULL,
     genero VARCHAR(20) NOT NULL,
     email VARCHAR(100) UNIQUE NOT NULL,
+    usuario VARCHAR(100) UNIQUE NOT NULL,
     password VARCHAR(200) NOT NULL,
     rol VARCHAR(50) NOT NULL
 
