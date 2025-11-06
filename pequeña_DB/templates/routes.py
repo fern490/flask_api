@@ -446,6 +446,10 @@ def obtener_postulaciones():
 
     return jsonify(postulaciones), 200
 
+#
+# RUTAS QUE USAN APIs
+#
+
 @routes.route('/api/servicios', methods=['GET'])
 def obtener_servicios_proveedor():
     proveedor_id = request.args.get("proveedor_id")
@@ -504,3 +508,66 @@ def obtener_mensajes_proveedor():
         return jsonify(lista_mensajes), 200
     except Exception as e:
         return jsonify({"error": "Error interno del servidor al obtener mensajes."}), 500
+    
+
+@routes.route('/api/eventos/<int:evento_id>/ofertas', methods=['GET'])
+def listar_ofertas_por_evento(evento_id):
+    try:
+        # Consulta para unir EventoServicio, Servicio y Usuario (Proveedor)
+        ofertas_q = db.session.query(
+            EventoServicio.id.label('evento_servicio_id'), # ID de la tabla de enlace para aceptar
+            Servicio.nombre_servicio, 
+            Servicio.costo, 
+            Usuario.nombre.label('proveedor_nombre'),
+            Evento.estado.label('estado_evento') # Obtener el estado actual del evento
+        ).join(
+            Servicio, Servicio.servicio_id == EventoServicio.servicio_id
+        ).join(
+            Usuario, Usuario.id == Servicio.proveedor_id
+        ).join(
+            Evento, Evento.evento_id == EventoServicio.evento_id
+        ).filter(
+            EventoServicio.evento_id == evento_id
+        ).all()
+
+        lista_ofertas = [{
+            "id": o.evento_servicio_id, 
+            "nombre_servicio": o.nombre_servicio, 
+            "costo": str(o.costo),
+            "proveedor_nombre": o.proveedor_nombre,
+            "estado_evento": o.estado_evento
+        } for o in ofertas_q]
+        
+        return jsonify(lista_ofertas), 200
+    except Exception as e:
+        print(f"Error al obtener ofertas: {e}")
+        return jsonify({"error": "Error interno del servidor al obtener ofertas."}), 500
+    
+@routes.route('/api/ofertas_servicio/<int:evento_servicio_id>/aceptar', methods=['PUT'])
+def aceptar_oferta_servicio(evento_servicio_id):
+    evento_servicio = EventoServicio.query.get(evento_servicio_id)
+    if not evento_servicio:
+        return jsonify({"message": "Oferta de servicio no encontrada"}), 404
+
+    try:
+        # 1. Obtener el evento principal
+        evento = Evento.query.get(evento_servicio.evento_id)
+        
+        if evento:
+            # 2. Actualizar el estado del EVENTO a 'aprobado'
+            evento.estado = 'aprobado' 
+            db.session.commit()
+            
+            # NOTA: Para un sistema más avanzado, aquí se podría notificar al proveedor 
+            # y tal vez eliminar las otras ofertas de EventoServicio para este Evento.
+
+            return jsonify({
+                "message": f"Servicio aceptado y Evento '{evento.nombre_evento}' marcado como 'aprobado'.",
+                "evento_id": evento.evento_id
+            }), 200
+        else:
+            return jsonify({"message": "Evento asociado no encontrado"}), 404
+    except Exception as e:
+        db.session.rollback()
+        print(f"Error al aceptar oferta: {e}")
+        return jsonify({"message": f"Error interno del servidor al aceptar el servicio: {e}"}), 500

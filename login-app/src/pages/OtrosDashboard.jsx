@@ -10,7 +10,7 @@ const OtrosDashboard = ({ onLogout }) => {
   const [isLoading, setIsLoading] = useState(true);
 
   const proveedorId = localStorage.getItem("userId");
-  const BASE_URL = "http://127.0.0.1:5000/";
+  const BASE_URL = "http://127.0.0.1:5000"; // Se corrige la barra final aquí.
 
 const fetchServicios = useCallback(async () => {
   try {
@@ -59,6 +59,38 @@ useEffect(() => {
   loadData();
 }, [proveedorId, onLogout, fetchServicios, fetchSolicitudes, fetchMensajes]);
 
+// FUNCIÓN CLAVE PARA LA INTERACCIÓN 1 (PROVEEDOR -> EVENTO)
+  const handleOfrecerServicio = async (eventoId) => {
+    const select = document.getElementById(`select-servicio-${eventoId}`);
+    const servicioId = select.value;
+
+    if (!servicioId) {
+        alert("Debe seleccionar un servicio para ofrecer.");
+        return;
+    }
+
+    try {
+        // Llama al endpoint de rutas.py para vincular Servicio y Evento
+        const response = await fetch(`${BASE_URL}/eventos/${eventoId}/servicios`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ servicio_id: servicioId })
+        });
+
+        if (response.status === 409) {
+             alert("Este servicio ya fue ofrecido/asignado a este evento.");
+             return;
+        }
+        
+        if (!response.ok) throw new Error("Error al ofrecer servicio");
+
+        alert("✅ Servicio ofrecido al evento correctamente! (DB: eventos_servicios afectada)");
+    } catch (error) {
+        console.error("Error al ofrecer servicio:", error);
+        alert("❌ Hubo un error al ofrecer el servicio. Verifique si ya fue ofrecido.");
+    }
+};
+
 
   const renderContenido = () => {
     if (isLoading) return <p style={{ textAlign: "center" }}>Cargando datos...</p>;
@@ -91,65 +123,115 @@ useEffect(() => {
           </motion.div>
         );
 
-      case "solicitudes":
-        return (
-          <motion.div key="solicitudes" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
-            <h2>🔔 Solicitudes de Eventos ({solicitudes.length})</h2>
-            <p>Consultá eventos futuros que buscan personal o proveedores.</p>
-            <div style={styles.cardsGrid}>
-              {solicitudes.length > 0 ? (
-                solicitudes.map((sol) => (
-                  <div key={sol.id} style={styles.card}>
-                    <h4>🎉 {sol.nombre_evento}</h4>
-                    <p>Fecha: {sol.fecha_evento}</p>
-                    <p>
-                      <small>
-                        Salón ID: {sol.salon_id} | Cliente ID: {sol.usuario_id}
-                      </small>
-                    </p>
-                    <button style={styles.actionButton}>Ver Detalles/Postularse</button>
-                  </div>
-                ))
-              ) : (
-                <p>No hay solicitudes de eventos futuras por el momento.</p>
-              )}
+case "solicitudes":
+  return (
+    <motion.div
+      key="solicitudes"
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+    >
+      <h2>🔔 Solicitudes de Eventos ({solicitudes.length})</h2>
+      <p>Consultá eventos futuros que buscan personal o proveedores.</p>
+      <div style={styles.cardsGrid}>
+        {solicitudes.length > 0 ? (
+          solicitudes.map((sol) => (
+            <div key={sol.id} style={styles.card}>
+              <h4>🎉 {sol.nombre_evento}</h4>
+              <p>Fecha: {sol.fecha_evento}</p>
+              <p>
+                <small>
+                  Salón ID: {sol.salon_id} | Cliente ID: {sol.usuario_id}
+                </small>
+              </p>
+
+              {/* Selector de servicio y Botón de Oferta */}
+              <select
+                id={`select-servicio-${sol.id}`}
+                style={{
+                  padding: "5px",
+                  borderRadius: "5px",
+                  marginRight: "10px",
+                }}
+              >
+                <option value="">Seleccione su servicio</option>
+                {servicios.map((s) => (
+                  <option key={s.id} value={s.id}>
+                    {s.nombre_servicio} (${s.costo})
+                  </option>
+                ))}
+              </select>
+
+              <button
+                style={{
+                  ...styles.actionButton,
+                  backgroundColor: "#f39c12",
+                }}
+                onClick={() => handleOfrecerServicio(sol.id)}
+              >
+                Ofrecer Servicio
+              </button>
+              {/* Fin Modificación */}
+
+              <button style={styles.actionButton}>
+                Ver Detalles/Postularse
+              </button>
             </div>
-          </motion.div>
-        );
+          ))
+        ) : (
+          <p>No hay solicitudes de eventos futuras por el momento.</p>
+        )}
+      </div>
+    </motion.div>
+  );
 
-      case "mensajes":
-        return (
-          <motion.div key="mensajes" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
-            <h2>📧 Mensajes Recibidos ({mensajes.length})</h2>
-            <p>Comunícate con clientes interesados en tus servicios.</p>
-            <div style={styles.cardsGrid}>
-              {mensajes.length > 0 ? (
-                mensajes.map((msg) => (
-                  <div key={msg.id} style={styles.card}>
-                    <h4>De: {msg.cliente_nombre}</h4>
-                    <p style={{ fontStyle: "italic" }}>"{msg.mensaje}"</p>
-                    <small>Fecha: {new Date(msg.fecha).toLocaleString()}</small>
-                  </div>
-                ))
-              ) : (
-                <p>No tienes mensajes nuevos.</p>
-              )}
+case "mensajes":
+  return (
+    <motion.div
+      key="mensajes"
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+    >
+      <h2>📧 Mensajes Recibidos ({mensajes.length})</h2>
+      <p>Comunícate con clientes interesados en tus servicios.</p>
+      <div style={styles.cardsGrid}>
+        {mensajes.length > 0 ? (
+          mensajes.map((msg) => (
+            <div key={msg.id} style={styles.card}>
+              <h4>De: {msg.cliente_nombre}</h4>
+              <p style={{ fontStyle: "italic" }}>"{msg.mensaje}"</p>
+              <small>Fecha: {new Date(msg.fecha).toLocaleString()}</small>
+              {/* Aquí se podría añadir un botón para Responder/Ver Chat */}
             </div>
-          </motion.div>
-        );
+          ))
+        ) : (
+          <p>No tienes mensajes nuevos.</p>
+        )}
+      </div>
+    </motion.div>
+  );
 
-      case "configuracion":
-        return (
-          <motion.div key="configuracion" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
-            <h2>⚙️ Configuración de Perfil</h2>
-            <p>Configura tu información de contacto, especialidades y servicios predeterminados.</p>
-          </motion.div>
-        );
+case "configuracion":
+  return (
+    <motion.div
+      key="configuracion"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+    >
+      <h2>⚙️ Configuración de Perfil</h2>
+      <p>
+        Configura tu información de contacto, especialidades y servicios
+        predeterminados.
+      </p>
+    </motion.div>
+  );
 
-      default:
-        return null;
+default:
+  return null;
+
     }
   };
+
+  // La función handleOfrecerServicio se movió arriba para mejor organización.
 
   const handleLogout = () => onLogout();
 

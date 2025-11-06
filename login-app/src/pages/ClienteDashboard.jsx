@@ -1,18 +1,18 @@
 import React, { useState, useEffect, useCallback } from "react";
-import { FaCalendarAlt, FaConciergeBell, FaEnvelope, FaSignOutAlt } from 'react-icons/fa';
-
+import { FaCalendarAlt, FaConciergeBell, FaEnvelope, FaSignOutAlt, FaCheckCircle, FaClipboardList } from 'react-icons/fa';
 
 const ClienteDashboard = ({ onLogout }) => {
   const [seccion, setSeccion] = useState("eventos");
   const [eventos, setEventos] = useState([]);
   const [servicios, setServicios] = useState([]);
+  const [ofertas, setOfertas] = useState([]);
+  const [eventoSeleccionadoId, setEventoSeleccionadoId] = useState(null);
+  const [eventoSeleccionadoNombre, setEventoSeleccionadoNombre] = useState('');
   const [isLoading, setIsLoading] = useState(true);
 
-  // El ID del usuario se obtiene del localStorage después del login
   const userId = localStorage.getItem("userId");
   const BASE_URL = "http://127.0.0.1:5000";
 
-  // Función para obtener los eventos del cliente
   const fetchEventos = useCallback(async () => {
     if (!userId) return;
     try {
@@ -42,14 +42,87 @@ const ClienteDashboard = ({ onLogout }) => {
     }
   }, []);
 
+  const fetchOfertasPorEvento = useCallback(async (eventoId) => {
+    if (!eventoId) return;
+    try {
+      setIsLoading(true);
+      const response = await fetch(`${BASE_URL}/api/eventos/${eventoId}/ofertas`);
+      if (!response.ok) throw new Error("Error al obtener ofertas");
+      const data = await response.json();
+      setOfertas(data);
+    } catch (error) {
+      console.error("Error al obtener ofertas:", error);
+      setOfertas([]);
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
+
+  const handleVerOfertas = (eventoId, eventoNombre) => {
+    setEventoSeleccionadoId(eventoId);
+    setEventoSeleccionadoNombre(eventoNombre);
+    setSeccion("ofertas");
+  };
+
+  const handleAceptarOferta = async (ofertaId, eventoNombre) => {
+    if (!window.confirm(`¿Estás seguro de aceptar este servicio para el evento "${eventoNombre}"? Esto marcará el evento como 'APROBADO'.`)) {
+      return;
+    }
+    try {
+      const response = await fetch(`${BASE_URL}/api/ofertas_servicio/${ofertaId}/aceptar`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+      });
+      if (!response.ok) throw new Error("Error al aceptar la oferta");
+      const data = await response.json();
+      alert(`✅ ${data.message}`);
+      fetchEventos();
+      if (eventoSeleccionadoId) {
+        fetchOfertasPorEvento(eventoSeleccionadoId);
+      }
+    } catch (error) {
+      console.error("Error al aceptar oferta:", error);
+      alert("❌ Error al aceptar la oferta.");
+    }
+  };
+
+  const handleEnviarMensaje = async (receptorId, receptorNombre) => {
+    const mensaje = prompt(`Escribe tu mensaje para ${receptorNombre}:`);
+    if (!mensaje || mensaje.trim() === "") return;
+    if (!userId) {
+      alert("Tu ID de cliente no está disponible.");
+      return;
+    }
+    try {
+      const response = await fetch(`${BASE_URL}/api/mensajes`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          remitente_id: userId,
+          receptor_id: receptorId,
+          contenido: mensaje
+        })
+      });
+      if (!response.ok) throw new Error("Error al enviar el mensaje");
+      alert("✅ Mensaje enviado al proveedor correctamente! (DB: mensajes afectada)");
+    } catch (error) {
+      console.error("Error al enviar mensaje:", error);
+      alert("❌ Error al enviar el mensaje.");
+    }
+  };
+
   useEffect(() => {
     if (seccion === "eventos") {
       fetchEventos();
+      setOfertas([]);
     } else if (seccion === "servicios") {
       fetchServicios();
+      setOfertas([]);
+    } else if (seccion === "ofertas" && eventoSeleccionadoId) {
+      fetchOfertasPorEvento(eventoSeleccionadoId);
     }
-  }, [seccion, fetchEventos, fetchServicios]);
-  
+  }, [seccion, fetchEventos, fetchServicios, eventoSeleccionadoId, fetchOfertasPorEvento]);
+
   const renderEventos = () => (
     <div>
       <h3>Mis Eventos Solicitados ({eventos.length})</h3>
@@ -64,6 +137,48 @@ const ClienteDashboard = ({ onLogout }) => {
               <h4>{evento.nombre_evento}</h4>
               <p>Fecha: {evento.fecha}</p>
               <p>Estado: <strong>{evento.estado.toUpperCase()}</strong></p>
+              <button
+                style={{ ...styles.actionButton, backgroundColor: '#3498db', width: 'auto' }}
+                onClick={() => handleVerOfertas(evento.id, evento.nombre_evento)}
+              >
+                <FaClipboardList style={styles.navIcon} />
+                Ver Ofertas de Servicio
+              </button>
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
+  );
+
+  const renderOfertas = () => (
+    <div>
+      <button
+        style={{ ...styles.actionButton, backgroundColor: '#95a5a6', marginBottom: '20px', width: 'auto' }}
+        onClick={() => setSeccion("eventos")}
+      >
+        &lt; Volver a Mis Eventos
+      </button>
+      <h3>Ofertas para el Evento: "{eventoSeleccionadoNombre}"</h3>
+      {isLoading ? (
+        <p>Cargando ofertas...</p>
+      ) : ofertas.length === 0 ? (
+        <p>Aún no hay ofertas de servicios para este evento.</p>
+      ) : (
+        <ul style={styles.list}>
+          {ofertas.map((oferta) => (
+            <li key={oferta.id} style={styles.serviceItem}>
+              <h4>{oferta.nombre_servicio} (${oferta.costo})</h4>
+              <p>Proveedor: <strong>{oferta.proveedor_nombre}</strong></p>
+              <p>Estado del Evento: <strong>{oferta.estado_evento.toUpperCase()}</strong></p>
+              <button
+                style={{ ...styles.actionButton, backgroundColor: oferta.estado_evento === 'aprobado' ? '#27ae60' : '#2ecc71', width: 'auto' }}
+                onClick={() => handleAceptarOferta(oferta.id, eventoSeleccionadoNombre)}
+                disabled={oferta.estado_evento === 'aprobado'}
+              >
+                <FaCheckCircle style={styles.navIcon} />
+                {oferta.estado_evento === 'aprobado' ? 'Servicio Aceptado' : 'Aceptar Oferta y Aprobar Evento'}
+              </button>
             </li>
           ))}
         </ul>
@@ -84,7 +199,15 @@ const ClienteDashboard = ({ onLogout }) => {
             <li key={servicio.id} style={styles.serviceItem}>
               <h4>{servicio.nombre} (${servicio.costo.toFixed(2)})</h4>
               <p>{servicio.descripcion}</p>
-              {/* Aquí se podría añadir un botón para 'Solicitar' o 'Contactar' */}
+              <p>Proveedor: <strong>{servicio.proveedor_nombre || 'N/A'}</strong></p>
+              <button
+                style={{ ...styles.actionButton, backgroundColor: '#2ecc71', width: 'auto' }}
+                onClick={() => handleEnviarMensaje(servicio.proveedor_id, servicio.proveedor_nombre)}
+                disabled={!servicio.proveedor_id}
+              >
+                <FaEnvelope style={styles.navIcon} />
+                Contactar Proveedor
+              </button>
             </li>
           ))}
         </ul>
@@ -95,8 +218,7 @@ const ClienteDashboard = ({ onLogout }) => {
   const renderMensajes = () => (
     <div>
       <h3>Mensajes</h3>
-      <p>Funcionalidad para ver mensajes con proveedores (rol 'Otros') en desarrollo.</p>
-      {/**/}
+      <p>Funcionalidad para ver mensajes enviados y recibidos.</p>
     </div>
   );
 
@@ -108,11 +230,12 @@ const ClienteDashboard = ({ onLogout }) => {
         return renderServicios();
       case "mensajes":
         return renderMensajes();
+      case "ofertas":
+        return renderOfertas();
       default:
         return <h2>Selecciona una sección</h2>;
     }
   };
-
 
   const styles = {
     layout: {
@@ -174,29 +297,39 @@ const ClienteDashboard = ({ onLogout }) => {
       boxShadow: "0 4px 8px rgba(0,0,0,0.05)",
     },
     list: {
-        listStyle: 'none',
-        padding: 0
+      listStyle: 'none',
+      padding: 0
     },
     listItem: (estado) => ({
-        padding: '15px',
-        marginBottom: '10px',
-        borderRadius: '5px',
-        borderLeft: `5px solid ${estado === 'aprobado' ? '#2ecc71' : estado === 'rechazado' ? '#e74c3c' : '#f39c12'}`,
-        backgroundColor: '#ecf0f1',
+      padding: '15px',
+      marginBottom: '10px',
+      borderRadius: '5px',
+      borderLeft: `5px solid ${estado === 'aprobado' ? '#2ecc71' : estado === 'rechazado' ? '#e74c3c' : '#f39c12'}`,
+      backgroundColor: '#ecf0f1',
     }),
     serviceItem: {
-        padding: '15px',
-        marginBottom: '10px',
-        borderRadius: '5px',
-        borderLeft: '5px solid #9b59b6',
-        backgroundColor: '#ecf0f1',
+      padding: '15px',
+      marginBottom: '10px',
+      borderRadius: '5px',
+      borderLeft: '5px solid #9b59b6',
+      backgroundColor: '#ecf0f1',
+    },
+    actionButton: {
+      padding: "8px 12px",
+      border: "none",
+      borderRadius: "5px",
+      color: "white",
+      cursor: "pointer",
+      marginTop: "10px",
+      transition: "background-color 0.3s",
+      display: "flex",
+      alignItems: "center",
+      justifyContent: 'center'
     }
   };
 
-
   return (
     <div style={styles.layout}>
-      {/* Sidebar */}
       <div style={styles.sidebar}>
         <div>
           <h2>👤 Panel Cliente</h2>
@@ -204,37 +337,34 @@ const ClienteDashboard = ({ onLogout }) => {
             ID Cliente: <strong>{userId || 'N/A'}</strong>
           </p>
           <div style={styles.navSection}>
-            <button 
-                style={styles.navButton(seccion === "eventos")} 
-                onClick={() => setSeccion("eventos")}
+            <button
+              style={styles.navButton(seccion === "eventos" || seccion === "ofertas")}
+              onClick={() => setSeccion("eventos")}
             >
-                <FaCalendarAlt style={styles.navIcon} />
-                Mis Eventos
+              <FaCalendarAlt style={styles.navIcon} />
+              Mis Eventos
             </button>
-            <button 
-                style={styles.navButton(seccion === "servicios")} 
-                onClick={() => setSeccion("servicios")}
+            <button
+              style={styles.navButton(seccion === "servicios")}
+              onClick={() => setSeccion("servicios")}
             >
-                <FaConciergeBell style={styles.navIcon} />
-                Servicios (Proveedores)
+              <FaConciergeBell style={styles.navIcon} />
+              Servicios (Proveedores)
             </button>
-            <button 
-                style={styles.navButton(seccion === "mensajes")} 
-                onClick={() => setSeccion("mensajes")}
+            <button
+              style={styles.navButton(seccion === "mensajes")}
+              onClick={() => setSeccion("mensajes")}
             >
-                <FaEnvelope style={styles.navIcon} />
-                Mensajes
+              <FaEnvelope style={styles.navIcon} />
+              Mensajes
             </button>
           </div>
         </div>
-
         <button onClick={onLogout} style={styles.logoutButton}>
           <FaSignOutAlt style={styles.navIcon} />
           Cerrar sesión
         </button>
       </div>
-
-      {/* Main content */}
       <div style={styles.mainContent}>
         <h1 style={styles.title}>Área Personal del Cliente</h1>
         <div style={styles.contentBox}>{renderContenido()}</div>
