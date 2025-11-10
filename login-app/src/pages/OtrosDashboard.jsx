@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useCallback } from "react";
-// eslint-disable-next-line no-unused-vars
-import { motion } from "framer-motion";
+import { FaPlus, FaEdit, FaTrash, FaClipboardList, FaEnvelope, FaCogs, FaSignOutAlt, FaRocket } from 'react-icons/fa';
 
 const OtrosDashboard = ({ onLogout }) => {
   const [seccion, setSeccion] = useState("servicios");
@@ -8,344 +7,560 @@ const OtrosDashboard = ({ onLogout }) => {
   const [solicitudes, setSolicitudes] = useState([]);
   const [mensajes, setMensajes] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [editandoServicio, setEditandoServicio] = useState(null);
+  const [showCrearServicioForm, setShowCrearServicioForm] = useState(false);
+  const [nuevoServicio, setNuevoServicio] = useState({ nombre_servicio: '', descripcion: '', costo: '' });
 
   const proveedorId = localStorage.getItem("userId");
-  const BASE_URL = "http://127.0.0.1:5000"; // Se corrige la barra final aquí.
+  const BASE_URL = "http://127.0.0.1:5000";
 
-const fetchServicios = useCallback(async () => {
-  try {
-    const response = await fetch(`${BASE_URL}/api/servicios?proveedor_id=${proveedorId}`);
-    if (!response.ok) throw new Error("Error al obtener servicios");
-    const data = await response.json();
-    setServicios(data);
-  } catch (error) {
-    console.error("Error al obtener servicios:", error);
-  }
-}, [proveedorId]);
-
-const fetchSolicitudes = useCallback(async () => {
-  try {
-    const response = await fetch(`${BASE_URL}/api/solicitudes`);
-    if (!response.ok) throw new Error("Error al obtener solicitudes");
-    const data = await response.json();
-    setSolicitudes(data);
-  } catch (error) {
-    console.error("Error al obtener solicitudes:", error);
-  }
-}, []); // No depende de nada externo
-
-const fetchMensajes = useCallback(async () => {
-  try {
-    const response = await fetch(`${BASE_URL}/api/mensajes?proveedor_id=${proveedorId}`);
-    if (!response.ok) throw new Error("Error al obtener mensajes");
-    const data = await response.json();
-    setMensajes(data);
-  } catch (error) {
-    console.error("Error al obtener mensajes:", error);
-  }
-}, [proveedorId]);
-
-useEffect(() => {
-  const loadData = async () => {
-    setIsLoading(true);
-    if (proveedorId) {
-      await Promise.all([fetchServicios(), fetchSolicitudes(), fetchMensajes()]);
-    } else {
-      onLogout();
-    }
-    setIsLoading(false);
+  const resetCrearServicio = () => {
+    setNuevoServicio({ nombre_servicio: '', descripcion: '', costo: '' });
+    setShowCrearServicioForm(false);
   };
+  
+  // ========================================================================
+  // 1. FUNCIONES CRUD: Obtener, Crear, Editar, Eliminar
+  // ========================================================================
 
-  loadData();
-}, [proveedorId, onLogout, fetchServicios, fetchSolicitudes, fetchMensajes]);
-
-// FUNCIÓN CLAVE PARA LA INTERACCIÓN 1 (PROVEEDOR -> EVENTO)
-  const handleOfrecerServicio = async (eventoId) => {
-    const select = document.getElementById(`select-servicio-${eventoId}`);
-    const servicioId = select.value;
-
-    if (!servicioId) {
-        alert("Debe seleccionar un servicio para ofrecer.");
+  const fetchServicios = useCallback(async () => {
+    if (!proveedorId) {
+      setIsLoading(false);
+      return;
+    }
+    try {
+      setIsLoading(true);
+      const response = await fetch(`${BASE_URL}/api/servicios?proveedor_id=${proveedorId}`);
+      if (!response.ok) throw new Error("Error al obtener servicios");
+      const data = await response.json();
+      setServicios(data);
+    } catch (error) {
+      console.error("Error al obtener servicios:", error);
+      setServicios([]);
+    } finally {
+      setIsLoading(false);
+    }
+  }, [proveedorId]);
+  
+  const handleCrearServicio = async (e) => {
+    e.preventDefault();
+    if (!nuevoServicio.nombre_servicio || !nuevoServicio.descripcion || !nuevoServicio.costo) {
+        alert("Todos los campos son obligatorios.");
+        return;
+    }
+    
+    const costoNumerico = parseFloat(nuevoServicio.costo);
+    if (isNaN(costoNumerico) || costoNumerico <= 0) {
+        alert("El costo debe ser un número positivo.");
         return;
     }
 
     try {
-        // Llama al endpoint de rutas.py para vincular Servicio y Evento
-        const response = await fetch(`${BASE_URL}/eventos/${eventoId}/servicios`, {
+        const response = await fetch(`${BASE_URL}/api/servicios`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ servicio_id: servicioId })
+            body: JSON.stringify({
+                ...nuevoServicio,
+                costo: costoNumerico,
+                proveedor_id: proveedorId,
+            }),
         });
 
-        if (response.status === 409) {
-             alert("Este servicio ya fue ofrecido/asignado a este evento.");
-             return;
+        if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.message || "Error desconocido al crear el servicio");
         }
-        
-        if (!response.ok) throw new Error("Error al ofrecer servicio");
 
-        alert("✅ Servicio ofrecido al evento correctamente! (DB: eventos_servicios afectada)");
+        alert("Servicio creado con éxito!");
+        resetCrearServicio();
+        fetchServicios();
     } catch (error) {
-        console.error("Error al ofrecer servicio:", error);
-        alert("❌ Hubo un error al ofrecer el servicio. Verifique si ya fue ofrecido.");
+        console.error("Error al crear servicio:", error);
+        alert(`Error al crear servicio: ${error.message}`);
     }
-};
+  };
+  
+  const handleEditChange = (e) => {
+    const { name, value } = e.target;
+    setEditandoServicio({ ...editandoServicio, [name]: value });
+  };
+  
+  const handleEditSubmit = async (e) => {
+    e.preventDefault();
+    if (!editandoServicio) return;
 
+    try {
+        const response = await fetch(`${BASE_URL}/api/servicios/${editandoServicio.servicio_id}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(editandoServicio),
+        });
 
-  const renderContenido = () => {
-    if (isLoading) return <p style={{ textAlign: "center" }}>Cargando datos...</p>;
+        if (!response.ok) throw new Error("Error al editar el servicio");
 
-    switch (seccion) {
-      case "servicios":
-        return (
-          <motion.div key="servicios" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
-            <h2>🎧 Mis Servicios ({servicios.length})</h2>
-            <p>Publicá, editá o eliminá los servicios que ofrecés en eventos.</p>
-            <button
-              style={styles.actionButton}
-              onClick={() => (window.location.href = "/crear-servicio")}
-            >
-              Agregar nuevo servicio
-            </button>
-            <div style={styles.cardsGrid}>
-              {servicios.length > 0 ? (
-                servicios.map((s) => (
-                  <div key={s.id} style={styles.card}>
-                    <h4>{s.nombre_servicio}</h4>
-                    <p>{s.descripcion || "Sin descripción"}</p>
-                    <p style={{ fontWeight: "bold" }}>Costo: ${s.costo}</p>
-                  </div>
-                ))
-              ) : (
-                <p>No tienes servicios publicados.</p>
-              )}
-            </div>
-          </motion.div>
-        );
-
-case "solicitudes":
-  return (
-    <motion.div
-      key="solicitudes"
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-    >
-      <h2>🔔 Solicitudes de Eventos ({solicitudes.length})</h2>
-      <p>Consultá eventos futuros que buscan personal o proveedores.</p>
-      <div style={styles.cardsGrid}>
-        {solicitudes.length > 0 ? (
-          solicitudes.map((sol) => (
-            <div key={sol.id} style={styles.card}>
-              <h4>🎉 {sol.nombre_evento}</h4>
-              <p>Fecha: {sol.fecha_evento}</p>
-              <p>
-                <small>
-                  Salón ID: {sol.salon_id} | Cliente ID: {sol.usuario_id}
-                </small>
-              </p>
-
-              {/* Selector de servicio y Botón de Oferta */}
-              <select
-                id={`select-servicio-${sol.id}`}
-                style={{
-                  padding: "5px",
-                  borderRadius: "5px",
-                  marginRight: "10px",
-                }}
-              >
-                <option value="">Seleccione su servicio</option>
-                {servicios.map((s) => (
-                  <option key={s.id} value={s.id}>
-                    {s.nombre_servicio} (${s.costo})
-                  </option>
-                ))}
-              </select>
-
-              <button
-                style={{
-                  ...styles.actionButton,
-                  backgroundColor: "#f39c12",
-                }}
-                onClick={() => handleOfrecerServicio(sol.id)}
-              >
-                Ofrecer Servicio
-              </button>
-              {/* Fin Modificación */}
-
-              <button style={styles.actionButton}>
-                Ver Detalles/Postularse
-              </button>
-            </div>
-          ))
-        ) : (
-          <p>No hay solicitudes de eventos futuras por el momento.</p>
-        )}
-      </div>
-    </motion.div>
-  );
-
-case "mensajes":
-  return (
-    <motion.div
-      key="mensajes"
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-    >
-      <h2>📧 Mensajes Recibidos ({mensajes.length})</h2>
-      <p>Comunícate con clientes interesados en tus servicios.</p>
-      <div style={styles.cardsGrid}>
-        {mensajes.length > 0 ? (
-          mensajes.map((msg) => (
-            <div key={msg.id} style={styles.card}>
-              <h4>De: {msg.cliente_nombre}</h4>
-              <p style={{ fontStyle: "italic" }}>"{msg.mensaje}"</p>
-              <small>Fecha: {new Date(msg.fecha).toLocaleString()}</small>
-              {/* Aquí se podría añadir un botón para Responder/Ver Chat */}
-            </div>
-          ))
-        ) : (
-          <p>No tienes mensajes nuevos.</p>
-        )}
-      </div>
-    </motion.div>
-  );
-
-case "configuracion":
-  return (
-    <motion.div
-      key="configuracion"
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-    >
-      <h2>⚙️ Configuración de Perfil</h2>
-      <p>
-        Configura tu información de contacto, especialidades y servicios
-        predeterminados.
-      </p>
-    </motion.div>
-  );
-
-default:
-  return null;
-
+        alert("Servicio actualizado con éxito!");
+        setEditandoServicio(null);
+        fetchServicios();
+    } catch (error) {
+        console.error("Error al editar servicio:", error);
+        alert(`Error: ${error.message}`);
     }
   };
 
-  // La función handleOfrecerServicio se movió arriba para mejor organización.
+  const handleDeleteServicio = async (servicioId) => {
+  if (!window.confirm("¿Estás seguro de que quieres eliminar este servicio?")) return;
 
-  const handleLogout = () => onLogout();
+  try {
+      const response = await fetch(`${BASE_URL}/api/servicios/${servicioId}`, {
+          method: 'DELETE',
+      });
+
+      if (!response.ok) {
+          const errorData = await response.json();
+          console.log(errorData); // Para verificar qué datos está devolviendo el backend
+
+          // Mostrar un mensaje de error detallado
+          if (response.status === 404) {
+              alert("Servicio no encontrado. Por favor, actualiza la lista.");
+          } else if (response.status === 409) {
+              alert(errorData.message || "No se puede eliminar el servicio debido a dependencias.");
+          } else {
+              alert(`Error al eliminar el servicio: ${errorData.message || response.statusText}`);
+          }
+
+          throw new Error(errorData.message || `Error ${response.status}`);
+      }
+
+      alert("Servicio eliminado con éxito!");
+      fetchServicios();
+  } catch (error) {
+      console.error("Error al eliminar servicio:", error);
+      alert(`Error: ${error.message}`);
+  }
+};
+
+  const fetchSolicitudes = () => {};
+  const fetchMensajes = () => {};
+
+  useEffect(() => {
+    if (seccion === "servicios") fetchServicios();
+    else if (seccion === "solicitudes") fetchSolicitudes();
+    else if (seccion === "mensajes") fetchMensajes();
+  }, [seccion, fetchServicios]);
+  
+  // ========================================================================
+  // 2. COMPONENTE DE CREACIÓN DE SERVICIO (Renderizado Inline)
+  // ========================================================================
+  const CrearServicioForm = () => (
+    <div style={styles.formContainer}>
+        <h3>Nuevo Servicio</h3>
+        <form onSubmit={handleCrearServicio} style={styles.form}>
+            {/* Nombre */}
+            <label style={styles.formLabel}>Nombre del Servicio:</label>
+            <input 
+                type="text" 
+                name="nombre_servicio"
+                value={nuevoServicio.nombre_servicio} 
+                onChange={(e) => setNuevoServicio({...nuevoServicio, nombre_servicio: e.target.value})} 
+                style={styles.formInput} 
+                required 
+            />
+
+            {/* Costo */}
+            <label style={styles.formLabel}>Costo (USD):</label>
+            <input 
+                type="number" 
+                name="costo"
+                value={nuevoServicio.costo} 
+                onChange={(e) => setNuevoServicio({...nuevoServicio, costo: e.target.value})} 
+                style={styles.formInput} 
+                min="0.01"
+                step="0.01"
+                required 
+            />
+            
+            {/* Descripción */}
+            <label style={styles.formLabel}>Descripción:</label>
+            <textarea 
+                name="descripcion"
+                value={nuevoServicio.descripcion} 
+                onChange={(e) => setNuevoServicio({...nuevoServicio, descripcion: e.target.value})} 
+                style={styles.formTextarea} 
+                rows="4" 
+                required 
+            />
+
+            <div style={styles.formActions}>
+                <button type="submit" style={styles.formButton}>
+                    <FaPlus /> Guardar Servicio
+                </button>
+                <button 
+                    type="button" 
+                    onClick={resetCrearServicio} 
+                    style={{...styles.formButton, backgroundColor: '#f44336'}} // Rojo para cancelar
+                >
+                    Cancelar
+                </button>
+            </div>
+        </form>
+    </div>
+  );
+
+
+  // ========================================================================
+  // 3. RENDERIZADO DE CONTENIDO PRINCIPAL
+  // ========================================================================
+  const renderContenido = () => {
+    switch (seccion) {
+      case "servicios":
+        if (isLoading) return <p>Cargando servicios...</p>;
+
+        // 💡 Muestra el formulario de creación si está activo
+        if (showCrearServicioForm) {
+            return CrearServicioForm();
+        }
+
+        return (
+            <div>
+                <h3>Gestión de Servicios</h3>
+                <button 
+                    onClick={() => setShowCrearServicioForm(true)} 
+                    style={styles.crearButton}
+                >
+                    <FaPlus /> Crear Servicio
+                </button>
+                
+                <div style={styles.serviciosGrid}>
+                    {servicios.length > 0 ? (
+                        servicios.map(servicio => (
+                            <div key={servicio.servicio_id} style={styles.servicioCard}>
+                                <h4>{servicio.nombre_servicio}</h4>
+                                <p>{servicio.descripcion}</p>
+                                <p><strong>Costo:</strong> ${parseFloat(servicio.costo).toFixed(2)}</p>
+                                <div style={styles.servicioActions}>
+                                    <button 
+                                        onClick={() => setEditandoServicio(servicio)} 
+                                        style={styles.editButton}
+                                    >
+                                        <FaEdit /> Editar
+                                    </button>
+                                    <button 
+                                        onClick={() => handleDeleteServicio(servicio.servicio_id)} 
+                                        style={styles.deleteButton}
+                                    >
+                                        <FaTrash /> Eliminar
+                                    </button>
+                                </div>
+                            </div>
+                        ))
+                    ) : (
+                        <p>No tienes servicios registrados.</p>
+                    )}
+                </div>
+
+                {/* Modal/Formulario de Edición */}
+                {editandoServicio && (
+                    <div style={styles.modalOverlay}>
+                        <div style={styles.editModal}>
+                            <h4>Editar Servicio</h4>
+                            <form onSubmit={handleEditSubmit}>
+                                <label style={styles.formLabel}>Nombre:</label>
+                                <input 
+                                    type="text" 
+                                    name="nombre_servicio"
+                                    value={editandoServicio.nombre_servicio} 
+                                    onChange={handleEditChange} 
+                                    style={styles.formInput} 
+                                    required 
+                                />
+                                <label style={styles.formLabel}>Costo:</label>
+                                <input 
+                                    type="number" 
+                                    name="costo"
+                                    value={editandoServicio.costo} 
+                                    onChange={handleEditChange} 
+                                    style={styles.formInput} 
+                                    required 
+                                    min="0.01" 
+                                    step="0.01"
+                                />
+                                <label style={styles.formLabel}>Descripción:</label>
+                                <textarea 
+                                    name="descripcion"
+                                    value={editandoServicio.descripcion} 
+                                    onChange={handleEditChange} 
+                                    style={styles.formTextarea} 
+                                    rows="4"
+                                    required
+                                />
+                                <div style={styles.formActions}>
+                                    <button type="submit" style={styles.formButton}>Guardar Cambios</button>
+                                    <button 
+                                        type="button" 
+                                        onClick={() => setEditandoServicio(null)}
+                                        style={{...styles.formButton, backgroundColor: '#555'}}
+                                    >
+                                        Cancelar
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                )}
+            </div>
+        );
+
+      case "solicitudes":
+        return <h3>Solicitudes de Servicio (a implementar)</h3>;
+      case "mensajes":
+        return <h3>Mensajes (a implementar)</h3>;
+      case "configuracion":
+        return <h3>Configuración de Perfil (a implementar)</h3>;
+      default:
+        return <h3>Seleccione una sección</h3>;
+    }
+  };
 
   const styles = {
     layout: {
-      display: "flex",
-      minHeight: "100vh",
-      backgroundColor: "#1e2a38",
-      color: "white",
-      fontFamily: "Inter, sans-serif",
+      display: 'flex',
+      minHeight: '100vh',
+      backgroundColor: '#1a1a1a',
     },
     sidebar: {
-      width: "250px",
-      backgroundColor: "#273746",
-      display: "flex",
-      flexDirection: "column",
-      justifyContent: "space-between",
-      padding: "25px 20px",
-      boxShadow: "2px 0 8px rgba(0,0,0,0.3)",
-    },
-    navSection: {
-      display: "flex",
-      flexDirection: "column",
-      gap: "10px",
-    },
-    navButton: (active) => ({
-      padding: "12px 15px",
-      border: "none",
-      borderRadius: "8px",
-      color: "white",
-      textAlign: "left",
-      cursor: "pointer",
-      backgroundColor: active ? "#3498db" : "transparent",
-      transition: "all 0.3s ease",
-      fontWeight: active ? "bold" : "normal",
-    }),
-    logoutButton: {
-      backgroundColor: "#e74c3c",
-      border: "none",
-      padding: "12px",
-      borderRadius: "8px",
-      color: "white",
-      cursor: "pointer",
+      width: '250px',
+      backgroundColor: '#2c2c2c',
+      padding: '20px',
+      color: 'white',
+      display: 'flex',
+      flexDirection: 'column',
+      justifyContent: 'space-between',
+      boxShadow: '4px 0 10px rgba(0, 0, 0, 0.5)',
     },
     mainContent: {
-      flex: 1,
-      padding: "40px",
-      overflowY: "auto",
+      flexGrow: 1,
+      padding: '30px',
+      backgroundColor: '#1f1f1f',
+      color: '#ffffff',
     },
-    contentBox: {
-      backgroundColor: "#34495e",
-      borderRadius: "12px",
-      padding: "25px",
-      boxShadow: "0 0 15px rgba(0,0,0,0.3)",
+    navSection: {
+      marginTop: '20px',
+      display: 'flex',
+      flexDirection: 'column',
+      gap: '10px',
     },
-    cardsGrid: {
-      display: "grid",
-      gridTemplateColumns: "repeat(auto-fit, minmax(250px, 1fr))",
-      gap: "15px",
-      marginTop: "20px",
+    navButton: (active) => ({
+      backgroundColor: active ? '#00bcd4' : 'transparent',
+      color: active ? '#1a1a1a' : 'white',
+      padding: '10px',
+      border: 'none',
+      borderRadius: '5px',
+      textAlign: 'left',
+      cursor: 'pointer',
+      fontSize: '16px',
+      fontWeight: active ? 'bold' : 'normal',
+      display: 'flex',
+      alignItems: 'center',
+      gap: '10px',
+      transition: 'background-color 0.3s, color 0.3s',
+      ':hover': {
+        backgroundColor: active ? '#0097a7' : '#3a3a3a',
+        color: active ? '#1a1a1a' : '#ffffff',
+      },
+    }),
+    navIcon: {
+      fontSize: '18px',
     },
-    card: {
-      backgroundColor: "#3d566e",
-      padding: "15px",
-      borderRadius: "10px",
-      borderLeft: "4px solid #3498db",
+    logoutButton: {
+      backgroundColor: '#f44336',
+      color: 'white',
+      padding: '10px',
+      border: 'none',
+      borderRadius: '5px',
+      cursor: 'pointer',
+      fontSize: '16px',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      gap: '10px',
+      marginTop: '20px',
+      transition: 'background-color 0.3s',
+      ':hover': {
+        backgroundColor: '#d32f2f',
+      },
     },
-    actionButton: {
-      backgroundColor: "#27ae60",
-      border: "none",
-      padding: "8px 12px",
-      borderRadius: "6px",
-      color: "white",
-      cursor: "pointer",
-      marginTop: "10px",
+    crearButton: {
+        backgroundColor: '#4CAF50',
+        color: 'white',
+        padding: '10px 20px',
+        border: 'none',
+        borderRadius: '5px',
+        cursor: 'pointer',
+        marginBottom: '20px',
+        fontSize: '16px',
+        display: 'flex',
+        alignItems: 'center',
+        gap: '8px',
+        transition: 'background-color 0.3s',
+        ':hover': {
+          backgroundColor: '#388e3c',
+        }
+    },
+    formContainer: {
+        backgroundColor: '#2c2c2c',
+        padding: '25px',
+        borderRadius: '8px',
+        boxShadow: '0 4px 10px rgba(0, 0, 0, 0.3)',
+        maxWidth: '600px',
+        margin: '20px 0',
+    },
+    formLabel: {
+        display: 'block',
+        margin: '10px 0 5px',
+        fontWeight: 'bold',
+        color: '#ccc',
+        fontSize: '14px',
+    },
+    formInput: {
+        width: '100%',
+        padding: '10px',
+        marginBottom: '10px',
+        borderRadius: '4px',
+        border: '1px solid #555',
+        backgroundColor: '#3a3a3a',
+        color: 'white',
+    },
+    formTextarea: {
+        width: '100%',
+        padding: '10px',
+        marginBottom: '10px',
+        borderRadius: '4px',
+        border: '1px solid #555',
+        backgroundColor: '#3a3a3a',
+        color: 'white',
+        resize: 'vertical',
+    },
+    formActions: {
+        marginTop: '20px',
+        display: 'flex',
+        gap: '10px',
+        justifyContent: 'flex-start',
+    },
+    formButton: {
+        padding: '10px 15px',
+        borderRadius: '5px',
+        border: 'none',
+        cursor: 'pointer',
+        fontWeight: 'bold',
+        backgroundColor: '#00bcd4',
+        color: 'white',
+        display: 'flex',
+        alignItems: 'center',
+        gap: '5px',
+        transition: 'background-color 0.3s',
+    },
+    serviciosGrid: {
+        display: 'grid',
+        gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))',
+        gap: '20px',
+        marginTop: '20px',
+    },
+    servicioCard: {
+        backgroundColor: '#2c2c2c',
+        padding: '15px',
+        borderRadius: '8px',
+        boxShadow: '0 2px 4px rgba(0, 0, 0, 0.3)',
+    },
+    servicioActions: {
+        marginTop: '10px',
+        display: 'flex',
+        gap: '10px',
+    },
+    editButton: {
+        backgroundColor: '#ffc107',
+        color: '#1a1a1a',
+        padding: '8px 12px',
+        border: 'none',
+        borderRadius: '4px',
+        cursor: 'pointer',
+        fontSize: '14px',
+        display: 'flex',
+        alignItems: 'center',
+        gap: '5px',
+    },
+    deleteButton: {
+        backgroundColor: '#f44336',
+        color: 'white',
+        padding: '8px 12px',
+        border: 'none',
+        borderRadius: '4px',
+        cursor: 'pointer',
+        fontSize: '14px',
+        display: 'flex',
+        alignItems: 'center',
+        gap: '5px',
+    },
+    modalOverlay: {
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        backgroundColor: 'rgba(0, 0, 0, 0.7)',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        zIndex: 1000,
+    },
+    editModal: {
+        backgroundColor: '#1f1f1f',
+        padding: '30px',
+        borderRadius: '8px',
+        maxWidth: '500px',
+        width: '90%',
+        boxShadow: '0 5px 15px rgba(0, 0, 0, 0.5)',
     },
   };
 
   return (
     <div style={styles.layout}>
-      {/* Sidebar */}
       <div style={styles.sidebar}>
         <div>
-          <h2>🎵 Panel</h2>
-          <p style={{ fontSize: "0.9rem", color: "#bdc3c7" }}>
-            Proveedor ID: <strong>{proveedorId}</strong>
-          </p>
+          <h2>🎵 Panel Proveedor</h2>
           <div style={styles.navSection}>
-            <button style={styles.navButton(seccion === "servicios")} onClick={() => setSeccion("servicios")}>
-              Mis Servicios
+            <button 
+              style={styles.navButton(seccion === "servicios")} 
+              onClick={() => { setSeccion("servicios"); setShowCrearServicioForm(false); }}>
+              <FaClipboardList style={styles.navIcon} /> Mis Servicios
             </button>
-            <button style={styles.navButton(seccion === "solicitudes")} onClick={() => setSeccion("solicitudes")}>
-              Solicitudes
+            <button 
+              style={styles.navButton(seccion === "solicitudes")} 
+              onClick={() => { setSeccion("solicitudes"); setShowCrearServicioForm(false); }}>
+              <FaRocket style={styles.navIcon} /> Solicitudes
             </button>
-            <button style={styles.navButton(seccion === "mensajes")} onClick={() => setSeccion("mensajes")}>
-              Mensajes
+            <button 
+              style={styles.navButton(seccion === "mensajes")} 
+              onClick={() => { setSeccion("mensajes"); setShowCrearServicioForm(false); }}>
+              <FaEnvelope style={styles.navIcon} /> Mensajes
             </button>
-            <button style={styles.navButton(seccion === "configuracion")} onClick={() => setSeccion("configuracion")}>
-              Configuración
+            <button 
+              style={styles.navButton(seccion === "configuracion")} 
+              onClick={() => { setSeccion("configuracion"); setShowCrearServicioForm(false); }}>
+              <FaCogs style={styles.navIcon} /> Configuración
             </button>
           </div>
         </div>
-
-        <button onClick={handleLogout} style={styles.logoutButton}>
-          Cerrar sesión
+        <button onClick={onLogout} style={styles.logoutButton}>
+          <FaSignOutAlt style={styles.navIcon} /> Cerrar sesión
         </button>
       </div>
 
-      {/* Main content */}
       <div style={styles.mainContent}>
-        <div style={styles.contentBox}>{renderContenido()}</div>
+        {renderContenido()}
       </div>
     </div>
   );
 };
 
 export default OtrosDashboard;
+

@@ -4,6 +4,7 @@ from datetime import datetime, date
 import secrets
 from werkzeug.security import generate_password_hash, check_password_hash
 from sqlalchemy import or_
+from sqlalchemy.exc import IntegrityError
 
 try:
     from google.oauth2 import id_token
@@ -246,21 +247,7 @@ def eliminar_evento(id):
     db.session.commit()
     return jsonify({"mensaje": "Evento eliminado"})
 
-
-@routes.route('/servicios', methods=['POST'])
-def crear_servicio():
-    data = request.json
-    servicio = Servicio(nombre_servicio=data['nombre_servicio'], descripcion=data.get('descripcion'), costo=data.get('costo'))
-    db.session.add(servicio)
-    db.session.commit()
-    return jsonify({"mensaje": "Servicio creado"}), 201
-
-@routes.route('/servicios', methods=['GET'])
-def listar_servicios():
-    servicios = Servicio.query.all()
-    return jsonify([{"id": s.servicio_id, "nombre_servicio": s.nombre_servicio, "descripcion": s.descripcion, "costo": str(s.costo)} for s in servicios])
-
-@routes.route('/servicios/<int:id>', methods=['PUT'])
+@routes.route('/api/servicios/<int:id>', methods=['PUT'])
 def actualizar_servicio(id):
     servicio = Servicio.query.get_or_404(id)
     data = request.json
@@ -269,15 +256,6 @@ def actualizar_servicio(id):
     servicio.costo = data.get("costo", servicio.costo)
     db.session.commit()
     return jsonify({"mensaje": "Servicio actualizado"})
-
-@routes.route('/servicios/<int:id>', methods=['DELETE'])
-
-def eliminar_servicio(id):
-    servicio = Servicio.query.get_or_404(id)
-    db.session.delete(servicio)
-    db.session.commit()
-    return jsonify({"mensaje": "Servicio eliminado"})
-
 
 @routes.route('/eventos/<int:evento_id>/servicios', methods=['POST'])
 def asignar_servicio(evento_id):
@@ -446,26 +424,96 @@ def obtener_postulaciones():
 
     return jsonify(postulaciones), 200
 
+
+
 #
 # RUTAS QUE USAN APIs
 #
 
+
+# SERVICIOS
+
+@routes.route('/api/servicios', methods=['POST'])
+def crear_servicio():
+    data = request.get_json()
+
+    nombre_servicio = data.get('nombre_servicio')
+    descripcion = data.get('descripcion')
+    costo = data.get('costo')
+    proveedor_id = data.get('proveedor_id')
+
+    if not nombre_servicio or not descripcion or not costo or not proveedor_id:
+        return jsonify({"message": "Faltan datos requeridos"}), 400
+
+    nuevo_servicio = Servicio(
+        nombre_servicio=nombre_servicio,
+        descripcion=descripcion,
+        costo=costo,
+        proveedor_id=proveedor_id
+    )
+
+    db.session.add(nuevo_servicio)
+    db.session.commit()
+
+    return jsonify({"message": "Servicio creado exitosamente", "servicio_id": nuevo_servicio.servicio_id}), 201
+
 @routes.route('/api/servicios', methods=['GET'])
-def obtener_servicios_proveedor():
-    proveedor_id = request.args.get("proveedor_id")
+def listar_servicios():
+    proveedor_id = request.args.get('proveedor_id', type=int)
+
     if not proveedor_id:
-        return jsonify({"error": "Falta el parámetro 'proveedor_id'."}), 400
-    
+        return jsonify({"message": "Falta el parámetro proveedor_id"}), 400
+
     try:
-        servicios = Servicio.query.filter_by(proveedor_id=proveedor_id).all()
-        lista_servicios = [{
-            "id": s.servicio_id, "nombre_servicio": s.nombre_servicio, "descripcion": s.descripcion, 
-            "costo": str(s.costo), "proveedor_id": s.proveedor_id
-        } for s in servicios]
+        servicios_q = Servicio.query.filter_by(proveedor_id=proveedor_id).all()
+        
+        lista_servicios = []
+        for servicio in servicios_q:
+            lista_servicios.append({
+                "servicio_id": servicio.servicio_id,
+                "nombre_servicio": servicio.nombre_servicio,
+                "descripcion": servicio.descripcion,
+                "costo": float(servicio.costo), 
+                "proveedor_id": servicio.proveedor_id,
+            })
+
         return jsonify(lista_servicios), 200
+
     except Exception as e:
+        print(f"Error al obtener servicios: {e}")
         return jsonify({"error": "Error interno del servidor al obtener servicios."}), 500
+
+@routes.route('/api/servicios/<int:servicio_id>', methods=['DELETE'])
+def eliminar_servicio(servicio_id):
+    servicio = Servicio.query.get(servicio_id)
     
+    if not servicio:
+        return jsonify({"message": "Servicio no encontrado"}), 404
+
+    try:
+        db.session.delete(servicio)
+        db.session.commit()
+        return jsonify({"message": "Servicio eliminado con éxito"}), 200
+    
+    except IntegrityError:
+        db.session.rollback()
+        return jsonify({
+            "message": "No se puede eliminar el servicio porque está asociado a uno o más eventos. Desasócialo primero.",
+            "error_type": "IntegrityError"
+        }), 409
+    
+    except Exception as e:
+        db.session.rollback()
+        print(f"Error inesperado al eliminar servicio: {e}")
+        return jsonify({"message": "Error interno del servidor al eliminar el servicio.", "details": str(e)}), 500
+
+
+
+
+
+
+
+
 @routes.route('/api/solicitudes', methods=['GET'])
 def obtener_solicitudes():
     try:

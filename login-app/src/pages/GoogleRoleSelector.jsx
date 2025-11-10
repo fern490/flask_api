@@ -11,7 +11,9 @@ const GoogleRoleSelector = ({ onLoginSuccess }) => {
 
   const BASE_URL = "http://127.0.0.1:5000";
 
-  const uniqueDummyPassword = "google_user_temp_pwd_12345"; 
+  const uniqueDummyPassword = "google_user_temp_pwd_12345";
+
+  const username = userData ? userData.email.split('@')[0] : "";
 
   useEffect(() => {
     const storedData = sessionStorage.getItem('googleRegisterData');
@@ -28,7 +30,7 @@ const GoogleRoleSelector = ({ onLoginSuccess }) => {
       setError("Por favor, selecciona un rol para continuar.");
       return;
     }
-    
+
     setLoading(true);
     setError("");
 
@@ -42,28 +44,29 @@ const GoogleRoleSelector = ({ onLoginSuccess }) => {
           apellido: userData.apellido,
           rol: role,
           password: uniqueDummyPassword,
+          usuario: username,
           fecha_nacimiento: '2000-01-01', 
           genero: 'Otro'
         }),
       });
 
-      if (!registerRes.ok && registerRes.status !== 409) {
-          const data = await registerRes.json();
-          setError(data.message || "Error al registrar el usuario.");
-          setLoading(false);
-          return;
+      if (!registerRes.ok) {
+        const data = await registerRes.json();
+        setError(data.message || "Error al registrar el usuario.");
+        setLoading(false);
+        return;
       }
-      
+
       const loginRes = await fetch(`${BASE_URL}/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-            email: userData.email,
-            password: uniqueDummyPassword,
-            rol: role
+          email: userData.email,
+          password: uniqueDummyPassword,
+          rol: role
         }),
       });
-      
+
       const loginData = await loginRes.json();
 
       if (loginRes.ok) {
@@ -84,58 +87,58 @@ const GoogleRoleSelector = ({ onLoginSuccess }) => {
       setLoading(false);
     }
   };
-  
+
   if (!userData) {
-      return null;
+    return null; // <=== Si no hay datos, tampoco renderiza
   }
 
   const styles = {
     modalContainer: {
-        position: 'fixed',
-        top: 0,
-        left: 0,
-        right: 0,
-        bottom: 0,
-        backgroundColor: 'rgba(0, 0, 0, 0.7)',
-        display: 'flex',
-        justifyContent: 'center',
-        alignItems: 'center',
-        zIndex: 1000,
+      position: 'fixed',
+      top: 0,
+      left: 0,
+      right: 0,
+      bottom: 0,
+      backgroundColor: 'rgba(0, 0, 0, 0.7)',
+      display: 'flex',
+      justifyContent: 'center',
+      alignItems: 'center',
+      zIndex: 1000,
     },
     modalContent: {
-        backgroundColor: '#425e62ff',
-        padding: '30px',
-        borderRadius: '10px',
-        maxWidth: '350px',
-        textAlign: 'center',
-        color: 'white',
-        boxShadow: '0 4px 15px rgba(0, 0, 0, 0.3)',
+      backgroundColor: '#425e62ff',
+      padding: '30px',
+      borderRadius: '10px',
+      maxWidth: '350px',
+      textAlign: 'center',
+      color: 'white',
+      boxShadow: '0 4px 15px rgba(0, 0, 0, 0.3)',
     },
     button: {
-        width: '100%',
-        padding: '12px 20px',
-        marginTop: '15px',
-        backgroundColor: '#4CAF50',
-        color: 'white',
-        border: 'none',
-        borderRadius: '6px',
-        cursor: 'pointer',
-        fontWeight: 'bold',
-        opacity: loading ? 0.7 : 1,
+      width: '100%',
+      padding: '12px 20px',
+      marginTop: '15px',
+      backgroundColor: '#4CAF50',
+      color: 'white',
+      border: 'none',
+      borderRadius: '6px',
+      cursor: 'pointer',
+      fontWeight: 'bold',
+      opacity: loading ? 0.7 : 1,
     },
     radioLabel: {
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        padding: '10px',
-        margin: '8px 0',
-        backgroundColor: '#5a787c',
-        borderRadius: '5px',
-        cursor: 'pointer',
-        transition: 'background-color 0.2s',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      padding: '10px',
+      margin: '8px 0',
+      backgroundColor: '#5a787c',
+      borderRadius: '5px',
+      cursor: 'pointer',
+      transition: 'background-color 0.2s',
     },
     radioChecked: {
-        backgroundColor: '#00bcd4',
+      backgroundColor: '#00bcd4',
     }
   };
 
@@ -151,8 +154,7 @@ const GoogleRoleSelector = ({ onLoginSuccess }) => {
             {['admin', 'cliente', 'otros'].map(r => (
                 <label 
                     key={r} 
-                    style={{...styles.radioLabel, ...(role === r ? styles.radioChecked : {})}}
-                >
+                    style={{...styles.radioLabel, ...(role === r ? styles.radioChecked : {})}}>
                     <input
                         type="radio"
                         name="role"
@@ -177,7 +179,7 @@ const GoogleRoleSelector = ({ onLoginSuccess }) => {
             style={styles.button}
             disabled={loading || !role}
           >
-            {loading ? <span className="spinner-border spinner-border-sm" role="status" aria-hidden="true"><FaSpinner className="spin" /></span> : 'Finalizar y Acceder'}
+            {loading ? <FaSpinner className="spin" /> : 'Finalizar y Acceder'}
           </button>
         </form>
       </div>
