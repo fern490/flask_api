@@ -5,7 +5,7 @@ from pequeña_DB.templates.routes import routes
 
 app = Flask(__name__)
 app.config.from_object(Config)
-CORS(app, supports_credentials=True)
+CORS(routes)
 db.init_app(app)
 
 app.register_blueprint(routes)

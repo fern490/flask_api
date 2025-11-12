@@ -4,14 +4,14 @@ import { FaPlus, FaEdit, FaTrash, FaClipboardList, FaEnvelope, FaCogs, FaSignOut
 const OtrosDashboard = ({ onLogout }) => {
   const [seccion, setSeccion] = useState("servicios");
   const [servicios, setServicios] = useState([]);
-  const [solicitudes, setSolicitudes] = useState([]);
-  const [mensajes, setMensajes] = useState([]);
+  //const [solicitudes, setSolicitudes] = useState([]);
+  //const [mensajes, setMensajes] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [editandoServicio, setEditandoServicio] = useState(null);
   const [showCrearServicioForm, setShowCrearServicioForm] = useState(false);
   const [nuevoServicio, setNuevoServicio] = useState({ nombre_servicio: '', descripcion: '', costo: '' });
 
-  const proveedorId = localStorage.getItem("userId");
+  const proveedorId = parseInt(localStorage.getItem("userId"));
   const BASE_URL = "http://127.0.0.1:5000";
 
   const resetCrearServicio = () => {
@@ -24,23 +24,30 @@ const OtrosDashboard = ({ onLogout }) => {
   // ========================================================================
 
   const fetchServicios = useCallback(async () => {
-    if (!proveedorId) {
-      setIsLoading(false);
-      return;
-    }
-    try {
-      setIsLoading(true);
-      const response = await fetch(`${BASE_URL}/api/servicios?proveedor_id=${proveedorId}`);
-      if (!response.ok) throw new Error("Error al obtener servicios");
-      const data = await response.json();
-      setServicios(data);
-    } catch (error) {
-      console.error("Error al obtener servicios:", error);
-      setServicios([]);
-    } finally {
-      setIsLoading(false);
-    }
-  }, [proveedorId]);
+  // Obtener el proveedorId desde localStorage
+  const proveedorId = parseInt(localStorage.getItem("userId"));
+
+  if (!proveedorId) {
+    setIsLoading(false); // No hay proveedor, terminar loading
+    return;
+  }
+
+  try {
+    setIsLoading(true); // Empezar loading
+    const response = await fetch(`${BASE_URL}/api/servicios?proveedor_id=${proveedorId}`);
+
+    if (!response.ok) throw new Error("Error al obtener servicios");
+
+    const data = await response.json();
+    setServicios(data);
+  } catch (error) {
+    console.error("Error al obtener servicios:", error);
+    setServicios([]); // Limpiar servicios en caso de error
+  } finally {
+    setIsLoading(false); // Terminar loading
+  }
+  }, []);
+
   
   const handleCrearServicio = async (e) => {
     e.preventDefault();
@@ -108,45 +115,36 @@ const OtrosDashboard = ({ onLogout }) => {
   };
 
   const handleDeleteServicio = async (servicioId) => {
-  if (!window.confirm("¿Estás seguro de que quieres eliminar este servicio?")) return;
+    console.log(`${BASE_URL}/api/servicios/${servicioId}?proveedor_id=${proveedorId}`);
 
-  try {
-      const response = await fetch(`${BASE_URL}/api/servicios/${servicioId}`, {
-          method: 'DELETE',
-      });
+    if (!window.confirm("¿Estás seguro de que quieres eliminar este servicio?")) return;
 
-      if (!response.ok) {
-          const errorData = await response.json();
-          console.log(errorData); // Para verificar qué datos está devolviendo el backend
+    try {
+        const response = await fetch(`${BASE_URL}/api/servicios/${servicioId}?proveedor_id=${proveedorId}`, {
+            method: 'DELETE',
+        });
 
-          // Mostrar un mensaje de error detallado
-          if (response.status === 404) {
-              alert("Servicio no encontrado. Por favor, actualiza la lista.");
-          } else if (response.status === 409) {
-              alert(errorData.message || "No se puede eliminar el servicio debido a dependencias.");
-          } else {
-              alert(`Error al eliminar el servicio: ${errorData.message || response.statusText}`);
-          }
-
-          throw new Error(errorData.message || `Error ${response.status}`);
-      }
-
-      alert("Servicio eliminado con éxito!");
-      fetchServicios();
-  } catch (error) {
-      console.error("Error al eliminar servicio:", error);
-      alert(`Error: ${error.message}`);
-  }
-};
+        if (response.ok) {
+            alert("Servicio eliminado con éxito.");
+            await fetchServicios();
+        } else {
+            const errorData = await response.json();
+            alert(`Error al eliminar el servicio: ${errorData.message}`);
+        }
+    } catch (error) {
+        console.error("Error al eliminar servicio:", error);
+        alert(`Error: ${error.message}`);
+    }
+  };
 
   const fetchSolicitudes = () => {};
   const fetchMensajes = () => {};
 
   useEffect(() => {
-    if (seccion === "servicios") fetchServicios();
-    else if (seccion === "solicitudes") fetchSolicitudes();
-    else if (seccion === "mensajes") fetchMensajes();
-  }, [seccion, fetchServicios]);
+  if (seccion === "servicios") fetchServicios();
+  else if (seccion === "solicitudes") fetchSolicitudes();
+  else if (seccion === "mensajes") fetchMensajes();
+}, [seccion, fetchServicios]);
   
   // ========================================================================
   // 2. COMPONENTE DE CREACIÓN DE SERVICIO (Renderizado Inline)

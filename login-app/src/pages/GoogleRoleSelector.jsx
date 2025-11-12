@@ -81,7 +81,7 @@ const GoogleRoleSelector = ({ onLoginSuccess }) => {
         setError("Error al iniciar sesión después del registro. Intenta el login tradicional.");
       }
 
-    } catch (err) {
+    } catch {
       setError("Error de conexión al registrar/loguear.");
     } finally {
       setLoading(false);

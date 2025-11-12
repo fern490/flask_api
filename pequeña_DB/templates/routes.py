@@ -38,10 +38,10 @@ def crear_usuario():
     rol = data.get('rol')
 
     if not all([nombre, email, password, rol, usuario]):
-        return jsonify({"message": "Faltan datos obligatorios (nombre, email, password, rol)"}), 400
+        return jsonify({"mensaje": "Faltan datos obligatorios (nombre, email, password, rol)"}), 400
 
     if Usuario.query.filter(or_(Usuario.email == email, Usuario.usuario == usuario)).first():
-        return jsonify({"message": "El email o el nombre de usuario ya está registrado"}), 409
+        return jsonify({"mensaje": "El email o el nombre de usuario ya está registrado"}), 409
 
     hashed_password = generate_password_hash(password, method='pbkdf2:sha256')
 
@@ -50,7 +50,7 @@ def crear_usuario():
         try:
             fecha_nacimiento_dt = datetime.strptime(fecha_nacimiento, '%Y-%m-%d').date()
         except ValueError:
-            return jsonify({"message": "Formato de fecha incorrecto (usar YYYY-MM-DD)"}), 400
+            return jsonify({"mensaje": "Formato de fecha incorrecto (usar YYYY-MM-DD)"}), 400
 
     usuario_nuevo = Usuario(
         nombre=nombre,
@@ -64,7 +64,7 @@ def crear_usuario():
     )
     db.session.add(usuario_nuevo)
     db.session.commit()
-    return jsonify({"message": "Usuario creado correctamente"}), 201
+    return jsonify({"mensaje": "Usuario creado correctamente"}), 201
 
 @routes.route('/usuarios', methods=['GET'])
 def listar_usuarios():
@@ -167,6 +167,10 @@ def login_google():
         return jsonify({"message": "Error interno del servidor en la verificación de Google."}), 500
 
 
+# ==================================================
+# 🧩 Ruta 'SALONES'
+# ==================================================
+
 @routes.route('/salones', methods=['POST'])
 def crear_salon():
     data = request.json
@@ -197,6 +201,10 @@ def eliminar_salon(id):
     db.session.commit()
     return jsonify({"mensaje": "Salón eliminado"})
 
+
+# ==================================================
+# 🧩 Ruta 'EVENTOS'
+# ==================================================
 
 @routes.route('/eventos', methods=['POST'])
 def crear_evento():
@@ -247,16 +255,6 @@ def eliminar_evento(id):
     db.session.commit()
     return jsonify({"mensaje": "Evento eliminado"})
 
-@routes.route('/api/servicios/<int:id>', methods=['PUT'])
-def actualizar_servicio(id):
-    servicio = Servicio.query.get_or_404(id)
-    data = request.json
-    servicio.nombre_servicio = data.get("nombre_servicio", servicio.nombre_servicio)
-    servicio.descripcion = data.get("descripcion", servicio.descripcion)
-    servicio.costo = data.get("costo", servicio.costo)
-    db.session.commit()
-    return jsonify({"mensaje": "Servicio actualizado"})
-
 @routes.route('/eventos/<int:evento_id>/servicios', methods=['POST'])
 def asignar_servicio(evento_id):
     data = request.json
@@ -273,6 +271,67 @@ def listar_servicios_evento(evento_id):
         for s in servicios
     ])
 
+
+# ==================================================
+# 🧩 Ruta 'EVENTOS_SERVICIOS'
+# ==================================================
+
+@routes.route('/eventos_servicios', methods=['POST'])
+def crear_evento_servicio():
+    data = request.get_json()
+    evento_id = data.get('evento_id')
+    servicio_id = data.get('servicio_id')
+
+    # Verificar si ya existe la relación
+    existente = EventoServicio.query.filter_by(evento_id=evento_id, servicio_id=servicio_id).first()
+    if existente:
+        return jsonify({'mensaje': 'Esta relación evento-servicio ya existe'}), 400
+
+    nuevo = EventoServicio(evento_id=evento_id, servicio_id=servicio_id)
+    db.session.add(nuevo)
+    db.session.commit()
+    return jsonify({'mensaje': 'Relación creada', 'id': nuevo.id}), 201
+
+@routes.route('/eventos_servicios', methods=['GET'])
+def listar_eventos_servicios():
+    relaciones = EventoServicio.query.all()
+    resultado = []
+    for r in relaciones:
+        resultado.append({
+            'id': r.id,
+            'evento_id': r.evento_id,
+            'servicio_id': r.servicio_id
+        })
+    return jsonify(resultado), 200
+
+@routes.route('/eventos_servicios/<int:id>', methods=['GET'])
+def obtener_evento_servicio(id):
+    relacion = EventoServicio.query.get_or_404(id)
+    return jsonify({
+        'id': relacion.id,
+        'evento_id': relacion.evento_id,
+        'servicio_id': relacion.servicio_id
+    }), 200
+
+@routes.route('/eventos_servicios/<int:id>', methods=['PUT'])
+def actualizar_evento_servicio(id):
+    relacion = EventoServicio.query.get_or_404(id)
+    data = request.get_json()
+    evento_id = data.get('evento_id', relacion.evento_id)
+    servicio_id = data.get('servicio_id', relacion.servicio_id)
+
+    existente = EventoServicio.query.filter_by(evento_id=evento_id, servicio_id=servicio_id).first()
+    if existente and existente.id != id:
+        return jsonify({'mensaje': 'Esta relación evento-servicio ya existe'}), 400
+
+    relacion.evento_id = evento_id
+    relacion.servicio_id = servicio_id
+    db.session.commit()
+    return jsonify({'mensaje': 'Relación actualizada'}), 200
+
+if __name__ == '__main__':
+    routes.run(debug=True)
+
 @routes.route('/eventos_servicios/<int:id>', methods=['DELETE'])
 def eliminar_evento_servicio(id):
     es = EventoServicio.query.get_or_404(id)
@@ -280,6 +339,10 @@ def eliminar_evento_servicio(id):
     db.session.commit()
     return jsonify({"mensaje": "Servicio eliminado del evento"})
 
+
+# ==================================================
+# 🧩 Ruta 'PAGOS'
+# ==================================================
 
 @routes.route('/pagos', methods=['POST'])
 def registrar_pago():
@@ -320,6 +383,10 @@ def eliminar_pago(id):
     db.session.commit()
     return jsonify({"mensaje": "Pago eliminado"})
 
+
+# ==================================================
+# 🧩 Ruta 'CONTACTO'
+# ==================================================
 
 @routes.route('/contacto', methods=['POST'])
 def handle_contacto():
@@ -367,7 +434,11 @@ def get_contactos():
     except Exception as e:
         print(f"Error al obtener mensajes: {e}")
         return jsonify({"mensaje": "Error al obtener los mensajes."}), 500
-    
+
+
+# ==================================================
+# 🧩 Ruta 'POSTULACIONES'
+# ==================================================
 
 @routes.route('/postulaciones', methods=['POST'])
 def crear_postulacion():
@@ -426,10 +497,11 @@ def obtener_postulaciones():
 
 
 
+
+
 #
 # RUTAS QUE USAN APIs
 #
-
 
 # SERVICIOS
 
@@ -483,32 +555,44 @@ def listar_servicios():
         print(f"Error al obtener servicios: {e}")
         return jsonify({"error": "Error interno del servidor al obtener servicios."}), 500
 
+@routes.route('/api/servicios/<int:id>', methods=['PUT'])
+def actualizar_servicio(id):
+    servicio = Servicio.query.get_or_404(id)
+    data = request.json
+    servicio.nombre_servicio = data.get("nombre_servicio", servicio.nombre_servicio)
+    servicio.descripcion = data.get("descripcion", servicio.descripcion)
+    servicio.costo = data.get("costo", servicio.costo)
+    db.session.commit()
+    return jsonify({"mensaje": "Servicio actualizado"})
+
 @routes.route('/api/servicios/<int:servicio_id>', methods=['DELETE'])
 def eliminar_servicio(servicio_id):
-    servicio = Servicio.query.get(servicio_id)
+    print(f"🔴 El método DELETE fue llamado con servicio_id={servicio_id}")
     
+    proveedor_id = request.args.get("proveedor_id", type=int)
+    print(f"🔴 proveedor_id recibido: {proveedor_id}")
+    
+    servicio = Servicio.query.get(servicio_id)
     if not servicio:
         return jsonify({"message": "Servicio no encontrado"}), 404
 
+    if proveedor_id and servicio.proveedor_id != proveedor_id:
+        return jsonify({"message": "No tienes permiso para eliminar este servicio"}), 403
+
     try:
+        asociaciones = EventoServicio.query.filter_by(servicio_id=servicio_id).all()
+        for asociacion in asociaciones:
+            db.session.delete(asociacion)
+
         db.session.delete(servicio)
         db.session.commit()
+
         return jsonify({"message": "Servicio eliminado con éxito"}), 200
-    
-    except IntegrityError:
-        db.session.rollback()
-        return jsonify({
-            "message": "No se puede eliminar el servicio porque está asociado a uno o más eventos. Desasócialo primero.",
-            "error_type": "IntegrityError"
-        }), 409
-    
+
     except Exception as e:
         db.session.rollback()
-        print(f"Error inesperado al eliminar servicio: {e}")
-        return jsonify({"message": "Error interno del servidor al eliminar el servicio.", "details": str(e)}), 500
-
-
-
+        print(f"❌ Error al eliminar servicio: {e}")
+        return jsonify({"message": "Error al eliminar el servicio", "error": str(e)}), 500
 
 
 
