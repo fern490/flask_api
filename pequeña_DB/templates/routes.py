@@ -598,6 +598,18 @@ def eliminar_servicio(servicio_id):
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
 @routes.route('/api/solicitudes', methods=['GET'])
 def obtener_solicitudes():
     try:

@@ -31,16 +31,25 @@ const ClienteDashboard = ({ onLogout }) => {
   const fetchServicios = useCallback(async () => {
     try {
       setIsLoading(true);
-      const response = await fetch(`${BASE_URL}/api/servicios/todos`);
-      if (!response.ok) throw new Error("Error al obtener servicios");
+      // ✅ URL CRÍTICA: Llamar a la ruta general sin un ID de usuario
+      const response = await fetch(`${BASE_URL}/api/servicios`); 
+      
+      if (!response.ok) {
+          const errorText = await response.text();
+          console.error(`Error HTTP ${response.status}:`, errorText);
+          throw new Error("Error al obtener servicios del servidor");
+      }
+      
       const data = await response.json();
-      setServicios(data);
+      setServicios(data); // Almacena la lista de servicios
+      console.log("Servicios cargados:", data.length); // DEBUG: Verifica si carga datos
     } catch (error) {
       console.error("Error al obtener servicios:", error);
+      setServicios([]); 
     } finally {
       setIsLoading(false);
     }
-  }, []);
+  }, [BASE_URL]);
 
   const fetchOfertasPorEvento = useCallback(async (eventoId) => {
     if (!eventoId) return;
@@ -117,7 +126,6 @@ const ClienteDashboard = ({ onLogout }) => {
       setOfertas([]);
     } else if (seccion === "servicios") {
       fetchServicios();
-      setOfertas([]);
     } else if (seccion === "ofertas" && eventoSeleccionadoId) {
       fetchOfertasPorEvento(eventoSeleccionadoId);
     }
@@ -186,34 +194,27 @@ const ClienteDashboard = ({ onLogout }) => {
     </div>
   );
 
-  const renderServicios = () => (
-    <div>
-      <h3>Servicios Disponibles ({servicios.length})</h3>
-      {isLoading ? (
-        <p>Cargando servicios...</p>
-      ) : servicios.length === 0 ? (
-        <p>No hay servicios de proveedores disponibles.</p>
-      ) : (
-        <ul style={styles.list}>
-          {servicios.map((servicio) => (
-            <li key={servicio.id} style={styles.serviceItem}>
-              <h4>{servicio.nombre} (${servicio.costo.toFixed(2)})</h4>
-              <p>{servicio.descripcion}</p>
-              <p>Proveedor: <strong>{servicio.proveedor_nombre || 'N/A'}</strong></p>
-              <button
-                style={{ ...styles.actionButton, backgroundColor: '#2ecc71', width: 'auto' }}
-                onClick={() => handleEnviarMensaje(servicio.proveedor_id, servicio.proveedor_nombre)}
-                disabled={!servicio.proveedor_id}
-              >
-                <FaEnvelope style={styles.navIcon} />
-                Contactar Proveedor
-              </button>
-            </li>
-          ))}
-        </ul>
-      )}
-    </div>
-  );
+  const renderServicios = () => {
+    if (isLoading) return <p style={styles.loadingMessage}>Cargando servicios disponibles...</p>;
+    if (servicios.length === 0) return <p style={styles.loadingMessage}>No hay servicios de proveedores disponibles en este momento.</p>;
+
+    return (
+        <div style={styles.serviciosGrid}>
+            {servicios.map(servicio => (
+                <div key={servicio.servicio_id} style={styles.servicioCard}>
+                    <h3 style={styles.cardTitle}>{servicio.nombre_servicio}</h3>
+                    <p style={styles.cardDescription}>{servicio.descripcion}</p>
+                    <p style={styles.cardCost}>Costo: **${servicio.costo}**</p>
+                    <p style={styles.cardProvider}>ID Proveedor: {servicio.proveedor_id}</p>
+                    {/* Botón de ejemplo para solicitar */}
+                    <button style={styles.requestButton} onClick={() => alert(`Solicitar servicio: ${servicio.nombre_servicio}`)}>
+                        Solicitar
+                    </button>
+                </div>
+            ))}
+        </div>
+    );
+  };
 
   const renderMensajes = () => (
     <div>
@@ -228,12 +229,14 @@ const ClienteDashboard = ({ onLogout }) => {
         return renderEventos();
       case "servicios":
         return renderServicios();
+      default:
+            return <h2>Selecciona una sección</h2>;
       case "mensajes":
         return renderMensajes();
       case "ofertas":
         return renderOfertas();
-      default:
-        return <h2>Selecciona una sección</h2>;
+      /*default:
+        return <h2>Selecciona una sección</h2>;*/
     }
   };
 
