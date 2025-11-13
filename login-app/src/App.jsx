@@ -25,6 +25,13 @@ function App() {
 
   const showButtons = !contactButtonHiddenRoutes.includes(location.pathname);
 
+  const getDashboardPath = (role) => {
+    if (role === 'admin') return '/admin-dashboard';
+    if (role === 'cliente') return '/cliente-dashboard';
+    if (role === 'otros') return '/OtrosDashboard';
+    return '/login'; // Si no hay rol, va a login
+  };
+
   const handleLoginSuccess = (role) => {
     localStorage.setItem("userRole", role);
     setUserRole(role);
@@ -36,6 +43,7 @@ function App() {
 
   const handleLogout = () => {
     localStorage.removeItem("token");
+    localStorage.removeItem("userId");
     localStorage.removeItem("userRole");
     setUserRole(null);
     navigate("/login");
@@ -173,15 +181,14 @@ function App() {
         />
         <Route
           path="/admin-dashboard"
-          element={userRole === "admin" ? <AdminDashboard onLogout={handleLogout} /> : <Navigate to="/login" replace />}
-        />
+          element={userRole === "admin" ? <AdminDashboard onLogout={handleLogout} /> : <Navigate to={getDashboardPath(userRole)} replace />}/>
         <Route
           path="/cliente-dashboard"
-          element={userRole === "cliente" ? <ClienteDashboard onLogout={handleLogout} /> : <Navigate to="/login" replace />}
+          element={userRole === "cliente" ? <ClienteDashboard onLogout={handleLogout} /> : <Navigate to={getDashboardPath(userRole)} replace />}
         />
         <Route
           path="/OtrosDashboard"
-          element={userRole === "otros" ? <OtrosDashboard onLogout={handleLogout} /> : <Navigate to="/login" replace />}
+          element={userRole === "otros" ? <OtrosDashboard onLogout={handleLogout} /> : <Navigate to={getDashboardPath(userRole)} replace />}
         />
         <Route
           path="/crear-evento"
@@ -191,6 +198,7 @@ function App() {
         <Route path="/register" element={<Register />} />
         <Route path="/trabaja-con-nosotros" element={<TrabajaConNosotros />} />
         <Route path="/seleccionar-rol-google" element={<GoogleRoleSelector onLoginSuccess={handleLoginSuccess} />} />
+        <Route path="/" element={<Navigate to={getDashboardPath(userRole)} replace />} />
       </Routes>
     </div>
   );

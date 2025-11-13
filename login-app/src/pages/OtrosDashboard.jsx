@@ -468,4 +468,3 @@ const OtrosDashboard = ({ onLogout }) => {
 };
 
 export default OtrosDashboard;
-
