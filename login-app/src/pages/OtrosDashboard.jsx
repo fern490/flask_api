@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from "react";
-import {FaPlus, FaEdit, FaTrash, FaClipboardList, FaEnvelope, FaCogs, FaSignOutAlt, FaRocket} from "react-icons/fa";
+import { FaPlus, FaEdit, FaTrash, FaClipboardList, FaEnvelope, FaCogs, FaSignOutAlt, FaRocket } from "react-icons/fa";
 
 const OtrosDashboard = ({ onLogout }) => {
   const [seccion, setSeccion] = useState("servicios");
@@ -16,24 +16,18 @@ const OtrosDashboard = ({ onLogout }) => {
   const [showConfirmModal, setShowConfirmModal] = useState(false);
   const [servicioAEliminar, setServicioAEliminar] = useState(null);
 
-  const userIdFromStorage = localStorage.getItem("userId");
-  const proveedorId = userIdFromStorage ? parseInt(userIdFromStorage) : null; 
+  const userIdFromStorage = sessionStorage.getItem("userId");
+  const proveedorId = userIdFromStorage ? parseInt(userIdFromStorage) : null;
   const BASE_URL = "http://127.0.0.1:5000";
+
+  /*========================================================
+    FUNCIONES Y HOOKS (deben ir SIEMPRE antes del 'return')
+    ========================================================*/
 
   const resetCrearServicio = () => {
     setNuevoServicio({ nombre_servicio: "", descripcion: "", costo: "" });
     setShowCrearServicioForm(false);
   };
-
-  // ========================================================================
-  // CRUD DE SERVICIOS
-  // ========================================================================
-
-  if (!proveedorId) {
-    alert("Error: no se encontró el ID del proveedor. Inicia sesión nuevamente.");
-    onLogout();
-    return;
-  }
 
   const fetchServicios = useCallback(async () => {
     try {
@@ -125,7 +119,10 @@ const OtrosDashboard = ({ onLogout }) => {
     if (!servicioAEliminar) return;
 
     try {
-      const response = await fetch(`${BASE_URL}/api/servicios/${servicioAEliminar.servicio_id}?proveedor_id=${proveedorId}`, {method: "DELETE"});
+      const response = await fetch(
+        `${BASE_URL}/api/servicios/${servicioAEliminar.servicio_id}?proveedor_id=${proveedorId}`,
+        { method: "DELETE" }
+      );
 
       if (!response.ok) throw new Error("Error al eliminar servicio");
       alert("Servicio eliminado con éxito.");
@@ -142,9 +139,20 @@ const OtrosDashboard = ({ onLogout }) => {
     if (seccion === "servicios") fetchServicios();
   }, [seccion, fetchServicios]);
 
-  // ========================================================================
-  // FORMULARIO DE CREACIÓN
-  // ========================================================================
+  // ============================================================
+  // ✔️ AHORA SÍ VA EL RETURN CONDICIONAL (después de todos los hooks)
+  // ============================================================
+
+  if (!proveedorId) {
+    alert("Error: no se encontró el ID del proveedor. Inicia sesión nuevamente.");
+    onLogout();
+    return null;
+  }
+
+  // ============================================================
+  // FORMULARIO
+  // ============================================================
+
   const CrearServicioForm = () => (
     <div style={styles.formContainer}>
       <h3>Nuevo Servicio</h3>
@@ -203,11 +211,15 @@ const OtrosDashboard = ({ onLogout }) => {
     </div>
   );
 
+  // ============================================================
+  // CONTENIDOS
+  // ============================================================
+
   const renderContenido = () => {
     switch (seccion) {
       case "servicios":
         if (isLoading) return <p>Cargando servicios...</p>;
-        if (showCrearServicioForm) return CrearServicioForm();
+        if (showCrearServicioForm) return <CrearServicioForm />;
 
         return (
           <div>
@@ -269,6 +281,7 @@ const OtrosDashboard = ({ onLogout }) => {
                       style={styles.formInput}
                       required
                     />
+
                     <label style={styles.formLabel}>Costo:</label>
                     <input
                       type="number"
@@ -282,6 +295,7 @@ const OtrosDashboard = ({ onLogout }) => {
                       style={styles.formInput}
                       required
                     />
+
                     <label style={styles.formLabel}>Descripción:</label>
                     <textarea
                       value={editandoServicio.descripcion}
@@ -295,6 +309,7 @@ const OtrosDashboard = ({ onLogout }) => {
                       rows="4"
                       required
                     />
+
                     <div style={styles.formActions}>
                       <button type="submit" style={styles.formButton}>
                         Guardar
@@ -315,7 +330,7 @@ const OtrosDashboard = ({ onLogout }) => {
               </div>
             )}
 
-            {}
+            {/* MODAL CONFIRMACIÓN */}
             {showConfirmModal && (
               <div style={styles.modalOverlay}>
                 <div style={styles.confirmModal}>
@@ -353,7 +368,7 @@ const OtrosDashboard = ({ onLogout }) => {
         return <h3>🚀 Solicitudes de Servicio (en desarrollo)</h3>;
 
       case "mensajes":
-        return <h3>💬 Bandeja de Mensajes (en desarrollo)</h3>;
+        return <h3>💬 Bandeja de Mensajes</h3>;
 
       case "configuracion":
         return <h3>⚙️ Configuración del Perfil (en desarrollo)</h3>;
@@ -363,9 +378,10 @@ const OtrosDashboard = ({ onLogout }) => {
     }
   };
 
-  // ========================================================================
+  // ============================================================
   // ESTILOS
-  // ========================================================================
+  // ============================================================
+
   const styles = {
     layout: { display: "flex", minHeight: "100vh", backgroundColor: "#1a1a1a" },
     sidebar: {
@@ -438,6 +454,10 @@ const OtrosDashboard = ({ onLogout }) => {
     confirmModal: { backgroundColor: "#2c2c2c", padding: "25px", borderRadius: "8px", width: "90%", maxWidth: "400px", textAlign: "center" }
   };
 
+  // ============================================================
+  // LAYOUT PRINCIPAL
+  // ============================================================
+
   return (
     <div style={styles.layout}>
       <div style={styles.sidebar}>
@@ -462,6 +482,7 @@ const OtrosDashboard = ({ onLogout }) => {
           <FaSignOutAlt /> Cerrar sesión
         </button>
       </div>
+
       <div style={styles.mainContent}>{renderContenido()}</div>
     </div>
   );

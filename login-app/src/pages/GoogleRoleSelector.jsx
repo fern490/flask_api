@@ -74,7 +74,7 @@ const GoogleRoleSelector = ({ onLoginSuccess }) => {
         
         localStorage.setItem("token", loginData.token); 
         localStorage.setItem("userRole", loginData.role);
-        localStorage.setItem("userId", loginData.user_id);
+        sessionStorage.setItem("userId", loginData.user_id);
 
         onLoginSuccess(loginData.role); 
       } else {

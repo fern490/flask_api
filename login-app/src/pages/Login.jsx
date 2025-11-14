@@ -31,9 +31,9 @@ const Login = ({ onLoginSuccess, onRegisterClick }) => {
         const data = await res.json();
 
         if (res.ok) {
-          localStorage.setItem("token", data.token);
-          localStorage.setItem("userRole", data.role);
-          localStorage.setItem("userId", data.user_id);
+          sessionStorage.setItem("token", data.token);
+          sessionStorage.setItem("userId", data.userId);
+          sessionStorage.setItem("userRole", data.rol);
           onLoginSuccess(data.role);
         } else if (res.status === 409) {
           onRegisterClick("google-select-role", data);
@@ -91,9 +91,9 @@ const Login = ({ onLoginSuccess, onRegisterClick }) => {
       });
       const data = await response.json();
       if (response.ok) {
-        localStorage.setItem("token", data.token);
-        localStorage.setItem("userRole", data.role);
-        localStorage.setItem("userId", data.user_id);
+        sessionStorage.setItem("token", data.token);
+        sessionStorage.setItem("userId", data.userId);
+        sessionStorage.setItem("userRole", role); // CRÍTICO: Este es el rol
         onLoginSuccess(data.role);
       } else {
         setError(data.message || "Credenciales inválidas");

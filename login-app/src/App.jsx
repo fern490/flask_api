@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Routes, Route, Link, useNavigate, Navigate, useLocation } from "react-router-dom";
 import Login from "./pages/Login";
 import AdminDashboard from "./pages/AdminDashboard";
@@ -12,9 +12,15 @@ import Inicio from "./pages/Inicio";
 import GoogleRoleSelector from "./pages/GoogleRoleSelector";
 
 function App() {
-  const [userRole, setUserRole] = useState(localStorage.getItem("userRole") || null);
+  const [userRole, setUserRole] = useState(sessionStorage.getItem("userRole") || null);
   const navigate = useNavigate();
   const location = useLocation();
+
+  useEffect(() => {
+    // Sincronizar el estado con sessionStorage por si se recarga la página
+    const storedRole = sessionStorage.getItem("userRole");
+    if (storedRole) setUserRole(storedRole);
+  }, []);
 
   const contactButtonHiddenRoutes = [
     "/admin-dashboard",
@@ -29,11 +35,11 @@ function App() {
     if (role === 'admin') return '/admin-dashboard';
     if (role === 'cliente') return '/cliente-dashboard';
     if (role === 'otros') return '/OtrosDashboard';
-    return '/login'; // Si no hay rol, va a login
+    return '/login';
   };
 
   const handleLoginSuccess = (role) => {
-    localStorage.setItem("userRole", role);
+    sessionStorage.setItem("userRole", role); // Cambio a sessionStorage
     setUserRole(role);
 
     if (role === "admin") navigate("/admin-dashboard");
@@ -42,9 +48,9 @@ function App() {
   };
 
   const handleLogout = () => {
-    localStorage.removeItem("token");
-    localStorage.removeItem("userId");
-    localStorage.removeItem("userRole");
+    sessionStorage.removeItem("token"); // Cambio a sessionStorage
+    sessionStorage.removeItem("userId");
+    sessionStorage.removeItem("userRole");
     setUserRole(null);
     navigate("/login");
   };
@@ -155,7 +161,7 @@ function App() {
       </Link>
     );
   };
-  
+
   return (
     <div style={styles.appContainer}>
       {showButtons && (
@@ -181,7 +187,8 @@ function App() {
         />
         <Route
           path="/admin-dashboard"
-          element={userRole === "admin" ? <AdminDashboard onLogout={handleLogout} /> : <Navigate to={getDashboardPath(userRole)} replace />}/>
+          element={userRole === "admin" ? <AdminDashboard onLogout={handleLogout} /> : <Navigate to={getDashboardPath(userRole)} replace />}
+        />
         <Route
           path="/cliente-dashboard"
           element={userRole === "cliente" ? <ClienteDashboard onLogout={handleLogout} /> : <Navigate to={getDashboardPath(userRole)} replace />}

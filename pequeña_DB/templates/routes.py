@@ -530,30 +530,40 @@ def crear_servicio():
     return jsonify({"message": "Servicio creado exitosamente", "servicio_id": nuevo_servicio.servicio_id}), 201
 
 @routes.route('/api/servicios', methods=['GET'])
-def listar_servicios():
-    proveedor_id = request.args.get('proveedor_id', type=int)
-
-    if not proveedor_id:
-        return jsonify({"message": "Falta el parámetro proveedor_id"}), 400
+def obtener_servicios():
+    proveedor_id_str = request.args.get('proveedor_id', type=int)
 
     try:
-        servicios_q = Servicio.query.filter_by(proveedor_id=proveedor_id).all()
-        
+        servicios_query = Servicio.query
+
+        # Si se proporciona proveedor_id, filtra
+        if proveedor_id_str:
+            proveedor_id = int(proveedor_id_str)
+            servicios_query = servicios_query.filter_by(proveedor_id=proveedor_id)
+
+        servicios = servicios_query.all()
+
         lista_servicios = []
-        for servicio in servicios_q:
+        for s in servicios:
             lista_servicios.append({
-                "servicio_id": servicio.servicio_id,
-                "nombre_servicio": servicio.nombre_servicio,
-                "descripcion": servicio.descripcion,
-                "costo": float(servicio.costo), 
-                "proveedor_id": servicio.proveedor_id,
+                "servicio_id": s.servicio_id,  # Consistente con tu modelo original
+                "nombre_servicio": s.nombre_servicio,
+                "descripcion": s.descripcion,
+                "costo": float(s.costo),  # Se envía como float
+                "proveedor_id": s.proveedor_id,
+                # Este campo es opcional, solo si existe el backref "proveedor"
+                "proveedor_nombre": getattr(s.proveedor, "nombre", "N/A") if hasattr(s, "proveedor") else "N/A"
             })
 
         return jsonify(lista_servicios), 200
 
+    except ValueError:
+        return jsonify({"message": "El proveedor_id debe ser un entero válido."}), 400
+
     except Exception as e:
         print(f"Error al obtener servicios: {e}")
-        return jsonify({"error": "Error interno del servidor al obtener servicios."}), 500
+        return jsonify({"message": "Error interno del servidor al obtener servicios."}), 500
+
 
 @routes.route('/api/servicios/<int:id>', methods=['PUT'])
 def actualizar_servicio(id):
