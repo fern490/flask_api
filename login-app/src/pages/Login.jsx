@@ -34,7 +34,7 @@ const Login = ({ onLoginSuccess, onRegisterClick }) => {
           sessionStorage.setItem("token", data.token);
           sessionStorage.setItem("userId", data.userId);
           sessionStorage.setItem("userRole", data.rol);
-          onLoginSuccess(data.role);
+          onLoginSuccess(data.rol);
         } else if (res.status === 409) {
           onRegisterClick("google-select-role", data);
         } else {

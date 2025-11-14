@@ -16,16 +16,24 @@ function App() {
   const navigate = useNavigate();
   const location = useLocation();
 
+  // 1️⃣ Sincronizar estado con sessionStorage en carga
   useEffect(() => {
-    // Sincronizar el estado con sessionStorage por si se recarga la página
     const storedRole = sessionStorage.getItem("userRole");
     if (storedRole) setUserRole(storedRole);
   }, []);
 
+  // 2️⃣ Redirección automática después de login
+  useEffect(() => {
+    if (userRole && location.pathname === '/login') {
+      const path = getDashboardPath(userRole);
+      if (path !== '/login') navigate(path, { replace: true });
+    }
+  }, [userRole, location.pathname, navigate]);
+
   const contactButtonHiddenRoutes = [
     "/admin-dashboard",
     "/cliente-dashboard",
-    "/OtrosDashboard",
+    "/Otros-dashboard",
     "/seleccionar-rol-google",
   ];
 
@@ -34,23 +42,19 @@ function App() {
   const getDashboardPath = (role) => {
     if (role === 'admin') return '/admin-dashboard';
     if (role === 'cliente') return '/cliente-dashboard';
-    if (role === 'otros') return '/OtrosDashboard';
+    if (role === 'otros') return '/Otros-dashboard';
     return '/login';
   };
 
   const handleLoginSuccess = (role) => {
-    sessionStorage.setItem("userRole", role); // Cambio a sessionStorage
-    setUserRole(role);
-
-    if (role === "admin") navigate("/admin-dashboard");
-    else if (role === "cliente") navigate("/cliente-dashboard");
-    else if (role === "otros") navigate("/OtrosDashboard");
+    sessionStorage.setItem("userRole", role);
+    setUserRole(role); // useEffect se encargará de redirigir
   };
 
   const handleLogout = () => {
-    sessionStorage.removeItem("token"); // Cambio a sessionStorage
-    sessionStorage.removeItem("userId");
     sessionStorage.removeItem("userRole");
+    sessionStorage.removeItem("userId");
+    sessionStorage.removeItem("token");
     setUserRole(null);
     navigate("/login");
   };
@@ -194,7 +198,7 @@ function App() {
           element={userRole === "cliente" ? <ClienteDashboard onLogout={handleLogout} /> : <Navigate to={getDashboardPath(userRole)} replace />}
         />
         <Route
-          path="/OtrosDashboard"
+          path="/Otros-dashboard"
           element={userRole === "otros" ? <OtrosDashboard onLogout={handleLogout} /> : <Navigate to={getDashboardPath(userRole)} replace />}
         />
         <Route
@@ -205,7 +209,7 @@ function App() {
         <Route path="/register" element={<Register />} />
         <Route path="/trabaja-con-nosotros" element={<TrabajaConNosotros />} />
         <Route path="/seleccionar-rol-google" element={<GoogleRoleSelector onLoginSuccess={handleLoginSuccess} />} />
-        <Route path="/" element={<Navigate to={getDashboardPath(userRole)} replace />} />
+        <Route path="*" element={<Navigate to={getDashboardPath(userRole)} replace />} />
       </Routes>
     </div>
   );
