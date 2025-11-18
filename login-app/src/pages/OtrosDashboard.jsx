@@ -17,8 +17,14 @@ const OtrosDashboard = ({ onLogout }) => {
   const [servicioAEliminar, setServicioAEliminar] = useState(null);
 
   const userIdFromStorage = sessionStorage.getItem("userId");
-  const proveedorId = userIdFromStorage ? parseInt(userIdFromStorage) : null;
+  const proveedorId = userIdFromStorage ? userIdFromStorage : null;
   const BASE_URL = "http://127.0.0.1:5000";
+
+  if (!proveedorId) {
+    alert("Error: no se encontró el ID del proveedor. Inicia sesión nuevamente.");
+    onLogout();
+    return null;
+  }
 
   /*========================================================
     FUNCIONES Y HOOKS (deben ir SIEMPRE antes del 'return')
@@ -143,11 +149,7 @@ const OtrosDashboard = ({ onLogout }) => {
   // ✔️ AHORA SÍ VA EL RETURN CONDICIONAL (después de todos los hooks)
   // ============================================================
 
-  if (!proveedorId) {
-    alert("Error: no se encontró el ID del proveedor. Inicia sesión nuevamente.");
-    onLogout();
-    return null;
-  }
+
 
   // ============================================================
   // FORMULARIO

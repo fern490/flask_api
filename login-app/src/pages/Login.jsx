@@ -93,8 +93,9 @@ const Login = ({ onLoginSuccess, onRegisterClick }) => {
       if (response.ok) {
         sessionStorage.setItem("token", data.token);
         sessionStorage.setItem("userId", data.userId);
-        sessionStorage.setItem("userRole", role); // CRÍTICO: Este es el rol
-        onLoginSuccess(data.role);
+        const serverRole = data.role;
+        sessionStorage.setItem("userRole", serverRole);
+        onLoginSuccess(serverRole);
       } else {
         setError(data.message || "Credenciales inválidas");
       }
