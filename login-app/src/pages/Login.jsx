@@ -1,5 +1,16 @@
 import React, { useState, useEffect, useCallback } from "react";
-import { FaUserShield, FaUser, FaBriefcase, FaEnvelope, FaLock, FaSignInAlt, FaUserPlus, FaGlobeAmericas, FaRocket, FaRegLightbulb,} from "react-icons/fa";
+import {
+  FaUserShield,
+  FaUser,
+  FaBriefcase,
+  FaEnvelope,
+  FaLock,
+  FaSignInAlt,
+  FaUserPlus,
+  FaGlobeAmericas,
+  FaRocket,
+  FaRegLightbulb,
+} from "react-icons/fa";
 
 const Login = ({ onLoginSuccess, onRegisterClick }) => {
   const [email, setEmail] = useState("");
@@ -8,7 +19,8 @@ const Login = ({ onLoginSuccess, onRegisterClick }) => {
   const [error, setError] = useState("");
 
   const BASE_URL = "http://127.0.0.1:5000";
-  const GOOGLE_CLIENT_ID = "110218343931-a1uctqsv8ir4a9vpl9tsrbctbit87k9g.apps.googleusercontent.com";
+  const GOOGLE_CLIENT_ID =
+    "110218343931-a1uctqsv8ir4a9vpl9tsrbctbit87k9g.apps.googleusercontent.com";
 
   useEffect(() => {
     const originalStyle = window.getComputedStyle(document.body).overflowY;
@@ -18,36 +30,49 @@ const Login = ({ onLoginSuccess, onRegisterClick }) => {
     };
   }, []);
 
-  const handleGoogleLoginSuccess = useCallback(
-    async (response) => {
-      const googleToken = response.credential;
-      try {
-        setError("");
-        const res = await fetch(`${BASE_URL}/login/google`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ token: googleToken }),
-        });
-        const data = await res.json();
+  const handleGoogleLoginSuccess = useCallback(async (response) => {
+    const googleToken = response.credential;
 
-        if (res.ok) {
-          sessionStorage.setItem("token", data.token);
-          sessionStorage.setItem("userId", data.userId);
-          sessionStorage.setItem("userRole", data.rol);
-          onLoginSuccess(data.rol);
-        } else if (res.status === 409) {
-          onRegisterClick("google-select-role", data);
-        } else {
-          setError(data.message || "Error al iniciar sesión con Google.");
+    try {
+      setError("");
+
+      const res = await fetch(`${BASE_URL}/login/google`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ token: googleToken }),
+      });
+
+      const data = await res.json();
+
+      if (res.ok) {
+        const tokenVal = data.token;
+        const roleVal = data.role || data.rol;
+        const userIdVal = data.user_id || data.userId;
+
+        if (tokenVal) sessionStorage.setItem("token", tokenVal);
+        if (roleVal) sessionStorage.setItem("userRole", roleVal);
+        if (userIdVal) sessionStorage.setItem("userId", userIdVal);
+
+        onLoginSuccess(roleVal);
+      } else if (res.status === 409) {
+        try {
+          window.google?.accounts?.id?.disableAutoSelect();
+        } catch (error) {
+          console.warn("No se pudo deshabilitar Google auto-select", error);
         }
-      } catch {
-        setError(
-          "No se pudo completar el inicio de sesión con Google. Revisa tu conexión."
-        );
+
+        sessionStorage.setItem("googleRegisterData", JSON.stringify(data));
+
+        // Navegación inmediata, desmonta Login.jsx
+        window.location.replace("/seleccionar-rol-google");
       }
-    },
-    [onLoginSuccess, onRegisterClick]
-  );
+    } catch (err) {
+      console.error("Error en handleGoogleLoginSuccess:", err);
+      setError(
+        "No se pudo completar el inicio de sesión con Google. Revisa tu conexión."
+      );
+    }
+  }, [onLoginSuccess]);
 
   useEffect(() => {
     const initializeGoogle = () => {
@@ -57,6 +82,7 @@ const Login = ({ onLoginSuccess, onRegisterClick }) => {
           callback: handleGoogleLoginSuccess,
           auto_select: false,
         });
+
         window.google.accounts.id.renderButton(
           document.getElementById("google-sign-in-button"),
           {
@@ -71,40 +97,51 @@ const Login = ({ onLoginSuccess, onRegisterClick }) => {
         );
       }
     };
+
     if (window.google) initializeGoogle();
     else window.addEventListener("load", initializeGoogle);
+
     return () => window.removeEventListener("load", initializeGoogle);
   }, [handleGoogleLoginSuccess]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
     if (!email || !password || !role) {
       setError("Por favor, completa todos los campos y selecciona un rol");
       return;
     }
+
     try {
       setError("");
-      const response = await fetch(`${BASE_URL}/login`, {
+
+      const res = await fetch(`${BASE_URL}/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, password, rol: role }),
       });
-      const data = await response.json();
-      if (response.ok) {
-        sessionStorage.setItem("token", data.token);
-        sessionStorage.setItem("userId", data.userId);
-        const serverRole = data.role;
-        sessionStorage.setItem("userRole", serverRole);
-        onLoginSuccess(serverRole);
+
+      const data = await res.json();
+
+      if (res.ok) {
+        const tokenVal = data.token;
+        const roleVal = data.role || data.rol || role;
+        const userIdVal = data.user_id || data.userId;
+
+        if (tokenVal) sessionStorage.setItem("token", tokenVal);
+        if (roleVal) sessionStorage.setItem("userRole", roleVal);
+        if (userIdVal) sessionStorage.setItem("userId", userIdVal);
+
+        onLoginSuccess(roleVal);
       } else {
         setError(data.message || "Credenciales inválidas");
       }
-    } catch {
+    } catch (err) {
+      console.error("Error en handleSubmit:", err);
       setError("Hubo un problema con el servidor al intentar iniciar sesión.");
     }
   };
-
-  const styles = {
+const styles = {
     wrapper: {
       display: "flex",
       flexDirection: "column",

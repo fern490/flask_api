@@ -10,17 +10,30 @@ const GoogleRoleSelector = ({ onLoginSuccess }) => {
   const navigate = useNavigate();
 
   const BASE_URL = "http://127.0.0.1:5000";
-
+  
   const uniqueDummyPassword = "google_user_temp_pwd_12345";
 
-  const username = userData ? userData.email.split('@')[0] : "";
+  const username = userData ? (userData.email ? userData.email.split('@')[0] : "") : "";
+
+  const getDashboardPath = (role) => {
+    if (role === 'admin') return '/admin-dashboard';
+    if (role === 'cliente') return '/cliente-dashboard';
+    if (role === 'otros') return '/otros-dashboard';
+    return '/login';
+  };
+
+  const handleLoginSuccessLocal = (role) => {
+    onLoginSuccess(role);
+    const path = getDashboardPath(role);
+    navigate(path, { replace: true });
+  };
 
   useEffect(() => {
     const storedData = sessionStorage.getItem('googleRegisterData');
     if (storedData) {
       setUserData(JSON.parse(storedData));
     } else {
-      navigate("/login");
+      navigate("/login", { replace: true });
     }
   }, [navigate]);
 
@@ -42,55 +55,54 @@ const GoogleRoleSelector = ({ onLoginSuccess }) => {
           email: userData.email,
           nombre: userData.nombre,
           apellido: userData.apellido,
-          rol: role,
-          password: uniqueDummyPassword,
+          fecha_nacimiento: userData.fecha_nacimiento || "2000-01-01",
+          genero: userData.genero || "N/A",
           usuario: username,
-          fecha_nacimiento: '2000-01-01', 
-          genero: 'Otro'
-        }),
-      });
-
-      if (!registerRes.ok) {
-        const data = await registerRes.json();
-        setError(data.message || "Error al registrar el usuario.");
-        setLoading(false);
-        return;
-      }
-
-      const loginRes = await fetch(`${BASE_URL}/login`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          email: userData.email,
           password: uniqueDummyPassword,
-          rol: role
+          rol: role,
         }),
       });
 
-      const loginData = await loginRes.json();
+      // Si ya existe (409) o se creó (201), proceder a login
+      if (registerRes.ok || registerRes.status === 409) {
+        const finalLoginRes = await fetch(`${BASE_URL}/login`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            email: userData.email,
+            password: uniqueDummyPassword,
+            rol: role
+          }),
+        });
 
-      if (loginRes.ok) {
-        sessionStorage.removeItem('googleRegisterData');
-        
-        localStorage.setItem("token", loginData.token); 
-        localStorage.setItem("userRole", loginData.role);
-        sessionStorage.setItem("userId", loginData.user_id);
+        const loginData = await finalLoginRes.json();
 
-        onLoginSuccess(loginData.role); 
+        if (finalLoginRes.ok) {
+          const tokenVal = loginData.token;
+          const roleVal = loginData.role || loginData.rol || role;
+          const userIdVal = loginData.user_id || loginData.userId;
+
+          if (tokenVal) sessionStorage.setItem("token", tokenVal);
+          if (userIdVal) sessionStorage.setItem("userId", userIdVal);
+          if (roleVal) sessionStorage.setItem("userRole", roleVal);
+
+          sessionStorage.removeItem('googleRegisterData');
+
+          handleLoginSuccessLocal(roleVal);
+        } else {
+          setError(loginData.message || "Error al iniciar sesión.");
+        }
       } else {
-        setError("Error al iniciar sesión después del registro. Intenta el login tradicional.");
+        const errorData = await registerRes.json();
+        setError(errorData.mensaje || "Error desconocido al registrar usuario.");
       }
-
-    } catch {
-      setError("Error de conexión al registrar/loguear.");
+    } catch (err) {
+      console.error("Error en handleRegistration:", err);
+      setError("Error de conexión con el servidor.");
     } finally {
       setLoading(false);
     }
   };
-
-  if (!userData) {
-    return null; // <=== Si no hay datos, tampoco renderiza
-  }
 
   const styles = {
     modalContainer: {
@@ -142,45 +154,67 @@ const GoogleRoleSelector = ({ onLoginSuccess }) => {
     }
   };
 
+  if (!userData) {
+    return (
+      <div style={styles.modalContainer}>
+        <div style={styles.modalContent}>
+          <FaSpinner className="spin" size={30} />
+          <p>Cargando datos de usuario...</p>
+          <style>{`
+            .spin { animation: spin 1s linear infinite; }
+            @keyframes spin { 
+              0% { transform: rotate(0deg); } 
+              100% { transform: rotate(360deg); } 
+            }
+          `}</style>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div style={styles.modalContainer}>
       <div style={styles.modalContent}>
         <FaCheckCircle size={30} color="#4CAF50" style={{ marginBottom: '10px' }} />
         <h2>¡Bienvenido(a), {userData.nombre}!</h2>
         <p>Selecciona tu rol para finalizar el registro y acceder.</p>
-        
+
         <form onSubmit={handleRegistration}>
           <div style={{ margin: "20px 0" }}>
             {['admin', 'cliente', 'otros'].map(r => (
-                <label 
-                    key={r} 
-                    style={{...styles.radioLabel, ...(role === r ? styles.radioChecked : {})}}>
-                    <input
-                        type="radio"
-                        name="role"
-                        value={r}
-                        checked={role === r}
-                        onChange={(e) => setRole(e.target.value)}
-                        style={{ display: 'none' }} 
-                        disabled={loading}
-                    />
-                    {r === 'admin' && <FaUserShield style={{ marginRight: '10px' }} />}
-                    {r === 'cliente' && <FaUser style={{ marginRight: '10px' }} />}
-                    {r === 'otros' && <FaBriefcase style={{ marginRight: '10px' }} />}
-                    {r.charAt(0).toUpperCase() + r.slice(1)}
-                </label>
+              <label
+                key={r}
+                style={{ ...styles.radioLabel, ...(role === r ? styles.radioChecked : {}) }}
+              >
+                <input
+                  type="radio"
+                  name="role"
+                  value={r}
+                  checked={role === r}
+                  onChange={(e) => setRole(e.target.value)}
+                  style={{ display: 'none' }}
+                  disabled={loading}
+                />
+                {r === 'admin' && <FaUserShield style={{ marginRight: '10px' }} />}
+                {r === 'cliente' && <FaUser style={{ marginRight: '10px' }} />}
+                {r === 'otros' && <FaBriefcase style={{ marginRight: '10px' }} />}
+                {r.charAt(0).toUpperCase() + r.slice(1)}
+              </label>
             ))}
           </div>
-          
+
           {error && <p style={{ color: '#FFC107', fontSize: '14px', margin: '8px 0' }}>{error}</p>}
-          
-          <button 
-            type="submit" 
+
+          <button
+            type="submit"
             style={styles.button}
             disabled={loading || !role}
           >
             {loading ? <FaSpinner className="spin" /> : 'Finalizar y Acceder'}
           </button>
+          <style>{`
+            .spin { animation: spin 1s linear infinite; }
+          `}</style>
         </form>
       </div>
     </div>

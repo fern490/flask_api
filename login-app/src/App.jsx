@@ -16,39 +16,39 @@ function App() {
   const navigate = useNavigate();
   const location = useLocation();
 
-  // 1️⃣ Sincronizar estado con sessionStorage en carga
+  // sincronizar estado con sessionStorage
   useEffect(() => {
     const storedRole = sessionStorage.getItem("userRole");
     if (storedRole) setUserRole(storedRole);
   }, []);
 
-  // 2️⃣ Redirección automática después de login
+  // redirección automática después de login
   useEffect(() => {
-    if (userRole && location.pathname === '/login') {
+    if (userRole && location.pathname === "/login") {
       const path = getDashboardPath(userRole);
-      if (path !== '/login') navigate(path, { replace: true });
+      if (path !== "/login") navigate(path, { replace: true });
     }
   }, [userRole, location.pathname, navigate]);
 
   const contactButtonHiddenRoutes = [
     "/admin-dashboard",
     "/cliente-dashboard",
-    "/Otros-dashboard",
+    "/otros-dashboard",
     "/seleccionar-rol-google",
   ];
 
   const showButtons = !contactButtonHiddenRoutes.includes(location.pathname);
 
   const getDashboardPath = (role) => {
-    if (role === 'admin') return '/admin-dashboard';
-    if (role === 'cliente') return '/cliente-dashboard';
-    if (role === 'otros') return '/Otros-dashboard';
-    return '/login';
+    if (role === "admin") return "/admin-dashboard";
+    if (role === "cliente") return "/cliente-dashboard";
+    if (role === "otros") return "/otros-dashboard";
+    return "/login";
   };
 
   const handleLoginSuccess = (role) => {
     sessionStorage.setItem("userRole", role);
-    setUserRole(role); // useEffect se encargará de redirigir
+    setUserRole(role);
   };
 
   const handleLogout = () => {
@@ -60,8 +60,8 @@ function App() {
   };
 
   const handleRegisterClick = (type, data) => {
-    if (type === 'google-select-role') {
-      sessionStorage.setItem('googleRegisterData', JSON.stringify(data));
+    if (type === "google-select-role") {
+      sessionStorage.setItem("googleRegisterData", JSON.stringify(data));
       navigate("/seleccionar-rol-google");
     } else {
       navigate("/register");
@@ -174,6 +174,7 @@ function App() {
             <div style={styles.logo}>F</div>
             FESTIUM
           </Link>
+
           <div style={styles.sectionContainer}>
             <SectionButton to="/inicio" label="Inicio" />
             <SectionButton to="/contactenos" label="Contáctenos" />
@@ -184,32 +185,57 @@ function App() {
 
       <Routes>
         <Route path="/" element={<Navigate to="/login" replace />} />
+
         <Route path="/inicio" element={<Inicio />} />
+
         <Route
           path="/login"
           element={<Login onLoginSuccess={handleLoginSuccess} onRegisterClick={handleRegisterClick} />}
         />
+
         <Route
           path="/admin-dashboard"
-          element={userRole === "admin" ? <AdminDashboard onLogout={handleLogout} /> : <Navigate to={getDashboardPath(userRole)} replace />}
+          element={
+            userRole === "admin"
+              ? <AdminDashboard onLogout={handleLogout} />
+              : <Navigate to={getDashboardPath(userRole)} replace />
+          }
         />
+
         <Route
           path="/cliente-dashboard"
-          element={userRole === "cliente" ? <ClienteDashboard onLogout={handleLogout} /> : <Navigate to={getDashboardPath(userRole)} replace />}
+          element={
+            userRole === "cliente"
+              ? <ClienteDashboard onLogout={handleLogout} />
+              : <Navigate to={getDashboardPath(userRole)} replace />
+          }
         />
+
         <Route
-          path="/Otros-dashboard"
-          element={userRole === "otros" ? <OtrosDashboard onLogout={handleLogout} /> : <Navigate to={getDashboardPath(userRole)} replace />}
+          path="/otros-dashboard"
+          element={
+            userRole === "otros"
+              ? <OtrosDashboard onLogout={handleLogout} />
+              : <Navigate to={getDashboardPath(userRole)} replace />
+          }
         />
+
         <Route
           path="/crear-evento"
           element={userRole === "admin" ? <CrearEvento /> : <Navigate to="/login" replace />}
         />
+
         <Route path="/contactenos" element={<Contactenos />} />
         <Route path="/register" element={<Register />} />
         <Route path="/trabaja-con-nosotros" element={<TrabajaConNosotros />} />
-        <Route path="/seleccionar-rol-google" element={<GoogleRoleSelector onLoginSuccess={handleLoginSuccess} />} />
-        <Route path="*" element={<Navigate to={getDashboardPath(userRole)} replace />} />
+
+        <Route
+          path="/seleccionar-rol-google"
+          element={<GoogleRoleSelector onLoginSuccess={handleLoginSuccess} />}
+        />
+
+        {/* WILDCARD CORREGIDO */}
+        <Route path="*" element={<Navigate to="/login" replace />} />
       </Routes>
     </div>
   );
