@@ -1,5 +1,16 @@
 import React, { useState, useEffect, useCallback } from "react";
-import {FaUserShield, FaUser, FaBriefcase, FaEnvelope, FaLock, FaSignInAlt, FaUserPlus, FaGlobeAmericas, FaRocket, FaRegLightbulb,} from "react-icons/fa";
+import {
+  FaUserShield,
+  FaUser,
+  FaBriefcase,
+  FaEnvelope,
+  FaLock,
+  FaSignInAlt,
+  FaUserPlus,
+  FaGlobeAmericas,
+  FaRocket,
+  FaRegLightbulb,
+} from "react-icons/fa";
 
 const Login = ({ onLoginSuccess, onRegisterClick }) => {
   const [email, setEmail] = useState("");

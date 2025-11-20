@@ -16,7 +16,7 @@ const OtrosDashboard = ({ onLogout }) => {
   const [showConfirmModal, setShowConfirmModal] = useState(false);
   const [servicioAEliminar, setServicioAEliminar] = useState(null);
 
-  const userIdFromStorage = localStorage.getItem("userId");
+  const userIdFromStorage = sessionStorage.getItem("userId");
   const proveedorId = userIdFromStorage ? parseInt(userIdFromStorage) : null; 
   const BASE_URL = "http://127.0.0.1:5000";
 
