@@ -1,70 +1,120 @@
-import { render, screen, fireEvent, waitFor } from "@testing-library/react";
-import { vi, describe, it, expect, beforeEach } from "vitest";
-import { BrowserRouter } from "react-router-dom";
+import React from "react";
+import { describe, test, expect, beforeEach, vi } from "vitest";
+import { render, fireEvent, screen, waitFor } from "@testing-library/react";
 import Login from "../pages/Login";
 
-describe("Login.jsx", () => {
+describe("Login Component", () => {
+  let onLoginSuccess;
+  let onRegisterClick;
+
   beforeEach(() => {
-    fetch.mockReset();
-    sessionStorage.clear();
+    onLoginSuccess = vi.fn();
+    onRegisterClick = vi.fn();
+
+    window.sessionStorage.clear();
+    global.fetch = vi.fn();
   });
 
-  it("muestra error si falta un campo", async () => {
-    render(
-      <BrowserRouter>
-        <Login onLoginSuccess={() => {}} />
-      </BrowserRouter>
-    );
+  test("renderiza el formulario de inicio de sesión", () => {
+    render(<Login onLoginSuccess={onLoginSuccess} onRegisterClick={onRegisterClick} />);
 
-    fireEvent.click(screen.getByText("Entrar"));
+    expect(screen.getByText(/Iniciar Sesión/i)).toBeInTheDocument();
+    expect(screen.getByPlaceholderText(/Correo electrónico/i)).toBeInTheDocument();
+    expect(screen.getByPlaceholderText(/Contraseña/i)).toBeInTheDocument();
+    expect(screen.getByText(/Entrar/i)).toBeInTheDocument();
+  });
 
-    await waitFor(() => {
-      expect(screen.getByText(/faltan campos/i)).toBeInTheDocument();
+  test("permite escribir email y password", () => {
+    render(<Login onLoginSuccess={onLoginSuccess} onRegisterClick={onRegisterClick} />);
+
+    fireEvent.change(screen.getByPlaceholderText(/Correo/i), {
+      target: { value: "test@example.com" },
     });
+
+    fireEvent.change(screen.getByPlaceholderText(/Contraseña/i), {
+      target: { value: "123456" },
+    });
+
+    expect(screen.getByPlaceholderText(/Correo/i).value).toBe("test@example.com");
+    expect(screen.getByPlaceholderText(/Contraseña/i).value).toBe("123456");
   });
 
-  it("envía credenciales con fetch correctamente", async () => {
-    fetch.mockResolvedValueOnce({
+  test("muestra error si no se selecciona un rol", async () => {
+    render(<Login onLoginSuccess={onLoginSuccess} onRegisterClick={onRegisterClick} />);
+
+    fireEvent.change(screen.getByPlaceholderText(/Correo/i), {
+      target: { value: "user@demo.com" },
+    });
+
+    fireEvent.change(screen.getByPlaceholderText(/Contraseña/i), {
+      target: { value: "123456" },
+    });
+
+    fireEvent.click(screen.getByText(/Entrar/i));
+
+    expect(await screen.findByText(/completa todos los campos/i)).toBeInTheDocument();
+  });
+
+  test("envía el formulario correctamente y ejecuta onLoginSuccess", async () => {
+    global.fetch.mockResolvedValueOnce({
       ok: true,
-      json: () =>
-        Promise.resolve({
-          token: "abc123",
-          role: "cliente",
-          user_id: 55
-        })
+      json: async () => ({
+        token: "abc123",
+        role: "cliente",
+        user_id: "10",
+      }),
     });
 
-    const mockSuccess = vi.fn();
+    render(<Login onLoginSuccess={onLoginSuccess} onRegisterClick={onRegisterClick} />);
 
-    render(
-      <BrowserRouter>
-        <Login onLoginSuccess={mockSuccess} />
-      </BrowserRouter>
-    );
-
-    fireEvent.change(
-      screen.getByPlaceholderText("Correo electrónico o nombre de usuario"),
-      { target: { value: "test@mail.com" } }
-    );
-
-    fireEvent.change(screen.getByPlaceholderText("Contraseña"), {
-      target: { value: "1234" }
+    fireEvent.change(screen.getByPlaceholderText(/Correo/i), {
+      target: { value: "user@demo.com" },
     });
 
-    fireEvent.click(screen.getByDisplayValue("cliente"));
-    fireEvent.click(screen.getByText("Entrar"));
+    fireEvent.change(screen.getByPlaceholderText(/Contraseña/i), {
+      target: { value: "123456" },
+    });
+
+    fireEvent.click(screen.getByLabelText(/Cliente/i));
+    fireEvent.click(screen.getByText(/Entrar/i));
 
     await waitFor(() => {
-      expect(fetch).toHaveBeenCalledWith(
-        "http://127.0.0.1:5000/login",
-        expect.any(Object)
-      );
+      expect(onLoginSuccess).toHaveBeenCalledWith("cliente");
     });
 
     expect(sessionStorage.getItem("token")).toBe("abc123");
     expect(sessionStorage.getItem("userRole")).toBe("cliente");
-    expect(sessionStorage.getItem("userId")).toBe("55");
+    expect(sessionStorage.getItem("userId")).toBe("10");
+  });
 
-    expect(mockSuccess).toHaveBeenCalledWith("cliente");
+  test("muestra mensaje de error cuando las credenciales son inválidas", async () => {
+    global.fetch.mockResolvedValueOnce({
+      ok: false,
+      json: async () => ({ message: "Credenciales inválidas" }),
+    });
+
+    render(<Login onLoginSuccess={onLoginSuccess} onRegisterClick={onRegisterClick} />);
+
+    fireEvent.change(screen.getByPlaceholderText(/Correo/i), {
+      target: { value: "wrong@example.com" },
+    });
+
+    fireEvent.change(screen.getByPlaceholderText(/Contraseña/i), {
+      target: { value: "wrongpass" },
+    });
+
+    fireEvent.click(screen.getByLabelText(/Cliente/i));
+    fireEvent.click(screen.getByText(/Entrar/i));
+
+    expect(await screen.findByText(/Credenciales inválidas/i)).toBeInTheDocument();
+    expect(onLoginSuccess).not.toHaveBeenCalled();
+  });
+
+  test("ejecuta onRegisterClick cuando se hace clic en Registrarse", () => {
+    render(<Login onLoginSuccess={onLoginSuccess} onRegisterClick={onRegisterClick} />);
+
+    fireEvent.click(screen.getByText(/Registrarse/i));
+
+    expect(onRegisterClick).toHaveBeenCalled();
   });
 });
