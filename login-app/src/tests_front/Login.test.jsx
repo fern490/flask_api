@@ -12,7 +12,7 @@ describe("Login Component", () => {
     onRegisterClick = vi.fn();
 
     window.sessionStorage.clear();
-    global.fetch = vi.fn();
+    globalThis.fetch = vi.fn();
   });
 
   test("renderiza el formulario de inicio de sesión", () => {
@@ -56,7 +56,7 @@ describe("Login Component", () => {
   });
 
   test("envía el formulario correctamente y ejecuta onLoginSuccess", async () => {
-    global.fetch.mockResolvedValueOnce({
+    globalThis.fetch.mockResolvedValueOnce({
       ok: true,
       json: async () => ({
         token: "abc123",
@@ -88,7 +88,7 @@ describe("Login Component", () => {
   });
 
   test("muestra mensaje de error cuando las credenciales son inválidas", async () => {
-    global.fetch.mockResolvedValueOnce({
+    globalThis.fetch.mockResolvedValueOnce({
       ok: false,
       json: async () => ({ message: "Credenciales inválidas" }),
     });
